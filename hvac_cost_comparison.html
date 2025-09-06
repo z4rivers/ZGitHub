@@ -425,6 +425,7 @@
             border-radius: 50%;
             z-index: 20;
             filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+            border: 2px solid #ffffff;
         }
 
         .custom-sun::before {
@@ -433,10 +434,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 1.2rem;
-            height: 1.2rem;
-            background: #ffffff;
-            border-radius: 50%;
+            width: 0;
+            height: 0;
+            border-left: 1px solid transparent;
+            border-right: 1px solid transparent;
+            border-bottom: 4px solid #fbbf24;
+            z-index: 21;
         }
 
         .custom-sun::after {
@@ -444,20 +447,31 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            width: 0.8rem;
-            height: 0.8rem;
-            background: #fbbf24;
-            border-radius: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: 0;
+            height: 0;
+            border-left: 1px solid transparent;
+            border-right: 1px solid transparent;
+            border-bottom: 4px solid #fbbf24;
+            z-index: 21;
         }
 
         .custom-sun {
             background-image: 
                 radial-gradient(circle, #ffffff 0%, #fbbf24 100%),
-                linear-gradient(45deg, transparent 40%, #fbbf24 50%, transparent 60%),
-                linear-gradient(135deg, transparent 40%, #fbbf24 50%, transparent 60%),
-                linear-gradient(225deg, transparent 40%, #fbbf24 50%, transparent 60%),
-                linear-gradient(315deg, transparent 40%, #fbbf24 50%, transparent 60%);
+                conic-gradient(from 0deg, 
+                    transparent 0deg, #fbbf24 15deg, transparent 30deg,
+                    #fbbf24 45deg, transparent 60deg,
+                    #fbbf24 75deg, transparent 90deg,
+                    #fbbf24 105deg, transparent 120deg,
+                    #fbbf24 135deg, transparent 150deg,
+                    #fbbf24 165deg, transparent 180deg,
+                    #fbbf24 195deg, transparent 210deg,
+                    #fbbf24 225deg, transparent 240deg,
+                    #fbbf24 255deg, transparent 270deg,
+                    #fbbf24 285deg, transparent 300deg,
+                    #fbbf24 315deg, transparent 330deg,
+                    #fbbf24 345deg, transparent 360deg);
         }
 
 
