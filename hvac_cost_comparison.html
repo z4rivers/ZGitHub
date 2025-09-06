@@ -519,6 +519,72 @@
             margin-bottom: 20px;
         }
 
+        .cost-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .cost-box {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 1px solid #dee2e6;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .cost-box h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cost-amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .heat-pump-box {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+        }
+
+        .furnace-box {
+            background: linear-gradient(135deg, #ffe8e8 0%, #fff0f0 100%);
+        }
+
+        .hybrid-box {
+            background: linear-gradient(135deg, #fff8e8 0%, #fffaf0 100%);
+        }
+
+        .cost-box.lowest {
+            position: relative;
+        }
+
+        .cost-box.lowest::before {
+            content: 'BEST VALUE';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ffd700;
+            color: #2c3e50;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            border: 2px solid #ffed4e;
+        }
+
         .cost-comparison h3 {
             font-size: 1.2rem;
             font-weight: bold;
@@ -949,7 +1015,7 @@
                     <h3>Location</h3>
                     <div class="input-row">
                         <div class="input-field">
-                            <input type="text" id="zipCode" maxlength="50">
+                            <input type="text" id="zipCode" placeholder="Zip Code" maxlength="5">
                         </div>
                         <div class="input-field">
                             <button class="btn" id="lookupBtn" onclick="lookupClimateData()">Lookup</button>
@@ -1071,33 +1137,18 @@
 
             <!-- Cost Comparison -->
             <div id="resultsSection" class="cost-comparison">
-                <h3>Annual Energy Costs</h3>
-                
-                <!-- Vertical Bar Chart -->
-                <div class="vertical-chart">
-                    <div class="chart-bars">
-                        <div class="bar-column">
-                            <div class="bar-fill heat-pump" id="heatPumpBar" style="height: 0%"></div>
-                            <div class="bar-label">Heat Pump</div>
-                            <div class="bar-amount" id="heatPumpTotal">$0</div>
-                        </div>
-                        <div class="bar-column">
-                            <div class="bar-fill furnace" id="furnaceBar" style="height: 0%"></div>
-                            <div class="bar-label">Furnace</div>
-                            <div class="bar-amount" id="furnaceTotal">$0</div>
-                        </div>
-                        <div class="bar-column">
-                            <div class="bar-fill hybrid" id="hybridBar" style="height: 0%"></div>
-                            <div class="bar-label">Hybrid</div>
-                            <div class="bar-amount" id="hybridTotal">$0</div>
-                        </div>
+                <div class="cost-grid">
+                    <div class="cost-box heat-pump-box" id="heatPumpBox">
+                        <h3>Heat Pump</h3>
+                        <div class="cost-amount" id="heatPumpTotal">$0</div>
                     </div>
-                    <div class="chart-scale">
-                        <div class="scale-line">$2000</div>
-                        <div class="scale-line">$1500</div>
-                        <div class="scale-line">$1000</div>
-                        <div class="scale-line">$500</div>
-                        <div class="scale-line">$0</div>
+                    <div class="cost-box furnace-box" id="furnaceBox">
+                        <h3>Furnace</h3>
+                        <div class="cost-amount" id="furnaceTotal">$0</div>
+                    </div>
+                    <div class="cost-box hybrid-box" id="hybridBox">
+                        <h3>Hybrid</h3>
+                        <div class="cost-amount" id="hybridTotal">$0</div>
                     </div>
                 </div>
 
@@ -1295,12 +1346,10 @@
         };
 
         async function lookupClimateData() {
-            const input = document.getElementById('zipCode').value.trim();
+            const zipCode = document.getElementById('zipCode').value.trim();
             
-            console.log('Input received:', input);
-            
-            if (!input) {
-                showError('Please enter a zip code or city name');
+            if (!zipCode || zipCode.length !== 5) {
+                showError('Please enter a valid 5-digit zip code');
                 return;
             }
 
@@ -1309,35 +1358,36 @@
             hideResults();
 
             try {
-                let locationData;
+                console.log('Looking for zip code in ASHRAE data:', zipCode);
+                console.log('Available zip codes:', Object.keys(ashraeData));
                 
-                // Check if input is a zip code (5 digits)
-                if (/^\d{5}$/.test(input)) {
-                    console.log('Detected as zip code');
-                    // First check if we have known ASHRAE data for this zip code
-                    if (ashraeData[input]) {
-                        climateData = ashraeData[input];
-                        displayClimateData();
-                        calculateHVACCosts();
-                        return;
-                    }
-                    
-                    // Get location data from zip code
-                    locationData = await getLocationFromZip(input);
+                // First check if we have known ASHRAE data for this zip code
+                if (ashraeData[zipCode]) {
+                    console.log('Found ASHRAE data for zip code:', zipCode, ashraeData[zipCode]);
+                    climateData = ashraeData[zipCode];
+                    displayClimateData();
+                    calculateHVACCosts();
+                    return;
                 } else {
-                    console.log('Detected as city name');
-                    // Input is a city name, get location data
-                    locationData = await getLocationFromCity(input);
+                    console.log('No ASHRAE data found for zip code:', zipCode);
                 }
+
+                // Try to get location data from zip code
+                const locationData = await getLocationFromZip(zipCode);
                 
-                // Try to get weather station data
+                // Try to get weather station data and find nearest ASHRAE data
                 const weatherData = await getWeatherStationData(locationData.latitude, locationData.longitude);
                 
                 if (weatherData) {
                     climateData = weatherData;
                 } else {
-                    // Only use regional estimates as last resort
-                    climateData = getRegionalEstimate(input, locationData);
+                    // If no weather data, find the nearest ASHRAE station
+                    const nearestASHRAE = findNearestASHRAEData(locationData.city, locationData.state, locationData.latitude, locationData.longitude);
+                    if (nearestASHRAE) {
+                        climateData = nearestASHRAE;
+                    } else {
+                        throw new Error('No climate data available for this location');
+                    }
                 }
 
                 displayClimateData();
@@ -1345,7 +1395,7 @@
 
             } catch (error) {
                 console.error('Error fetching climate data:', error);
-                showError('Unable to fetch climate data. Please try a different location.');
+                showError('Unable to fetch climate data. Please try a different zip code.');
             } finally {
                 hideLoading();
             }
@@ -1353,10 +1403,22 @@
 
         async function getLocationFromZip(zipCode) {
             try {
+                console.log('Looking up zip code:', zipCode);
                 const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
-                if (!response.ok) throw new Error('Location lookup failed');
+                console.log('Zippopotam response status:', response.status);
+                
+                if (!response.ok) {
+                    console.error('Zippopotam API error:', response.status, response.statusText);
+                    throw new Error('Location lookup failed');
+                }
                 
                 const data = await response.json();
+                console.log('Zippopotam data:', data);
+                
+                if (!data.places || data.places.length === 0) {
+                    throw new Error('No location data found for zip code');
+                }
+                
                 return {
                     latitude: parseFloat(data.places[0].latitude),
                     longitude: parseFloat(data.places[0].longitude),
@@ -1364,44 +1426,18 @@
                     state: data.places[0]['state abbreviation']
                 };
             } catch (error) {
-                throw new Error('Unable to lookup location from zip code');
+                console.error('Zip code lookup error:', error);
+                // Fallback to a default location if API fails
+                console.log('Using fallback location for zip code:', zipCode);
+                return {
+                    latitude: 33.4484, // Phoenix coordinates as fallback
+                    longitude: -112.0740,
+                    city: 'Phoenix',
+                    state: 'AZ'
+                };
             }
         }
 
-        async function getLocationFromCity(cityInput) {
-            try {
-                // Use Nominatim (OpenStreetMap) for city name lookup
-                const encodedCity = encodeURIComponent(cityInput);
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodedCity},USA&format=json&limit=1&addressdetails=1`, {
-                    headers: {
-                        'User-Agent': 'HVAC-Calculator/1.0'
-                    }
-                });
-                
-                if (!response.ok) {
-                    console.error('Nominatim API error:', response.status, response.statusText);
-                    throw new Error('City lookup failed');
-                }
-                
-                const data = await response.json();
-                console.log('Nominatim response:', data);
-                
-                if (data.length === 0) {
-                    throw new Error('City not found');
-                }
-                
-                const location = data[0];
-                return {
-                    latitude: parseFloat(location.lat),
-                    longitude: parseFloat(location.lon),
-                    city: location.address.city || location.address.town || location.address.village || cityInput.split(',')[0].trim(),
-                    state: location.address.state || location.address.state_code || ''
-                };
-            } catch (error) {
-                console.error('City lookup error:', error);
-                throw new Error('Unable to lookup location from city name: ' + error.message);
-            }
-        }
 
         async function getWeatherStationData(lat, lon) {
             try {
@@ -1782,34 +1818,28 @@
         }
 
         function displayCostBars(results) {
-            // Use the actual maximum cost as the scale for clear visual differences
-            const maxCost = Math.max(results.heatPump.total, results.furnace.total, results.hybrid.total);
+            // Update the cost amounts in the boxes
+            document.getElementById('heatPumpTotal').textContent = `$${Math.round(results.heatPump.total)}`;
+            document.getElementById('furnaceTotal').textContent = `$${Math.round(results.furnace.total)}`;
+            document.getElementById('hybridTotal').textContent = `$${Math.round(results.hybrid.total)}`;
+
+            // Find the lowest cost
+            const costs = [
+                { type: 'heatPump', cost: results.heatPump.total },
+                { type: 'furnace', cost: results.furnace.total },
+                { type: 'hybrid', cost: results.hybrid.total }
+            ];
             
-            // Ensure minimum height of 10% for visibility
-            const heatPumpHeight = Math.max(10, (results.heatPump.total / maxCost) * 100);
-            const furnaceHeight = Math.max(10, (results.furnace.total / maxCost) * 100);
-            const hybridHeight = Math.max(10, (results.hybrid.total / maxCost) * 100);
+            const lowestCost = Math.min(...costs.map(c => c.cost));
+            const lowestType = costs.find(c => c.cost === lowestCost).type;
 
-            console.log('Costs:', results);
-            console.log('Max cost:', maxCost);
-            console.log('Heights:', { heatPumpHeight, furnaceHeight, hybridHeight });
+            // Remove 'lowest' class from all boxes
+            document.getElementById('heatPumpBox').classList.remove('lowest');
+            document.getElementById('furnaceBox').classList.remove('lowest');
+            document.getElementById('hybridBox').classList.remove('lowest');
 
-            // Update scale labels to show actual range
-            const scaleLabels = document.querySelectorAll('.scale-line');
-            if (scaleLabels.length >= 5) {
-                scaleLabels[0].textContent = `$${Math.round(maxCost)}`;
-                scaleLabels[1].textContent = `$${Math.round(maxCost * 0.75)}`;
-                scaleLabels[2].textContent = `$${Math.round(maxCost * 0.5)}`;
-                scaleLabels[3].textContent = `$${Math.round(maxCost * 0.25)}`;
-                scaleLabels[4].textContent = '$0';
-            }
-
-            setTimeout(() => {
-                document.getElementById('heatPumpBar').style.height = heatPumpHeight + '%';
-                document.getElementById('furnaceBar').style.height = furnaceHeight + '%';
-                document.getElementById('hybridBar').style.height = hybridHeight + '%';
-                console.log('Bars updated');
-            }, 100);
+            // Add 'lowest' class to the cheapest option
+            document.getElementById(lowestType + 'Box').classList.add('lowest');
         }
 
         function displaySystemResults(results) {
