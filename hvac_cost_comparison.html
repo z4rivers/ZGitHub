@@ -1047,8 +1047,8 @@
                     </div>
                 </div>
 
-                <!-- Heat Pump Performance -->
-                <div class="control-group" style="padding: 15px; margin-bottom: 20px;">
+                <!-- Equipment Performance -->
+                <div class="control-group" style="padding: 15px; height: 175px;">
                     <div class="input-row">
                         <div class="input-field">
                             <label for="heatPumpCOP" title="Coefficient of Performance - higher numbers mean more efficient heating. Typical range: 2.5-4.5" style="position: relative;">
@@ -1073,6 +1073,20 @@
                             </label>
                             <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50">
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Heating Load Input -->
+            <div class="control-group" style="padding: 15px; height: 175px; grid-column: 1 / -1; width: 100%;">
+                <div style="text-align: center;">
+                    <label for="heatingLoadInput" title="Enter your home's heating load in BTU per hour. This is typically calculated by an HVAC professional using Manual J." style="display: block; font-size: 1.1rem; font-weight: bold; color: #333; margin-bottom: 15px; position: relative;">
+                        Heating Load (BTU/H)
+                        <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                    </label>
+                    <input type="number" id="heatingLoadInput" placeholder="50000" min="1000" max="200000" step="1000" style="width: 200px; padding: 12px; border: 2px solid #007bff; border-radius: 8px; font-size: 1.2rem; text-align: center; font-weight: bold;">
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 10px;">
+                        Typical range: 20,000 - 100,000 BTU/H for most homes
                     </div>
                 </div>
             </div>
@@ -1331,6 +1345,7 @@
         // Global variables
         let climateData = null;
         let maxCost = 0;
+        let houseLoads = { heating: 0, cooling: 0 };
 
         // ASHRAE design temperatures from RESnet PDF tables
         // This data is loaded from the protected resnet_ashrae_data.js file
@@ -1342,6 +1357,26 @@
         if (Object.keys(ashraeData).length === 0) {
             console.error('ASHRAE data not loaded! Check if resnet_ashrae_data.js is accessible.');
         }
+
+        // Simple Heating Load Input
+        function updateHeatingLoad() {
+            const heatingLoadInput = parseFloat(document.getElementById('heatingLoadInput').value) || 0;
+            
+            // Estimate cooling load as 80% of heating load (typical ratio)
+            const coolingLoad = Math.round(heatingLoadInput * 0.8);
+            
+            houseLoads = {
+                heating: heatingLoadInput,
+                cooling: coolingLoad
+            };
+            
+            console.log('Heating load set to:', houseLoads);
+        }
+
+        // Add event listener for heating load input
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('heatingLoadInput').addEventListener('input', updateHeatingLoad);
+        });
 
         // Regional climate estimates
         const regionalEstimates = {
@@ -1697,6 +1732,9 @@
             document.getElementById('avgCold').textContent = avgCold;
             document.getElementById('avgHot').textContent = avgHot;
             
+            // Update heating load when climate data is available
+            updateHeatingLoad();
+            
             positionTemperatureMarkers();
             document.getElementById('temperatureBar').style.display = 'block';
         }
@@ -1777,42 +1815,47 @@
             let annualHeatingCost = 0;
             let annualCoolingCost = 0;
 
-            const houseSize = 2000;
-            const heatingLoadFactor = 1.2;
-            const coolingLoadFactor = 1.0;
+            // Use actual house loads from Manual J calculation
+            const heatingLoadBTU = houseLoads.heating;
+            const coolingLoadBTU = houseLoads.cooling;
+            
+            // If no house loads calculated, use default values
+            if (heatingLoadBTU === 0 && coolingLoadBTU === 0) {
+                console.warn('No house loads calculated, using default values');
+                const houseSize = 2000;
+                const heatingLoadFactor = 1.2;
+                const coolingLoadFactor = 1.0;
+                heatingLoadBTU = hdd * houseSize * heatingLoadFactor;
+                coolingLoadBTU = cdd * houseSize * coolingLoadFactor;
+            }
 
             if (systemType === 'furnace') {
-                const heatingBTU = hdd * houseSize * heatingLoadFactor;
-                const heatingTherms = heatingBTU / 100000;
+                const heatingTherms = heatingLoadBTU / 100000;
                 annualHeatingCost = heatingTherms * gasRate / specs.furnaceAFUE;
                 
-                const coolingBTU = cdd * houseSize * coolingLoadFactor;
-                const coolingkWh = coolingBTU / (specs.acSEER * 1000);
+                const coolingkWh = coolingLoadBTU / (specs.acSEER * 1000);
                 annualCoolingCost = coolingkWh * electricityRate;
 
             } else if (systemType === 'heatPump') {
-                const heatingBTU = hdd * houseSize * heatingLoadFactor;
-                const heatingkWh = heatingBTU / (specs.cop * 1000 * 3.412);
+                const heatingkWh = heatingLoadBTU / (specs.cop * 1000 * 3.412);
                 annualHeatingCost = heatingkWh * electricityRate;
                 
-                const coolingBTU = cdd * houseSize * coolingLoadFactor;
-                const coolingkWh = coolingBTU / (specs.seer * 1000);
+                const coolingkWh = coolingLoadBTU / (specs.seer * 1000);
                 annualCoolingCost = coolingkWh * electricityRate;
 
             } else if (systemType === 'hybrid') {
                 const heatPumpEfficiency = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
-                const heatPumpHDD = hdd * heatPumpEfficiency;
-                const gasHDD = hdd * (1 - heatPumpEfficiency);
                 
-                const heatingBTU = heatPumpHDD * houseSize * heatingLoadFactor;
-                const heatingkWh = heatingBTU / (specs.cop * 1000 * 3.412);
-                const gasBTU = gasHDD * houseSize * heatingLoadFactor;
-                const gasTherms = gasBTU / 100000;
+                // Split heating load between heat pump and furnace based on efficiency
+                const heatPumpHeatingBTU = heatingLoadBTU * heatPumpEfficiency;
+                const gasHeatingBTU = heatingLoadBTU * (1 - heatPumpEfficiency);
+                
+                const heatingkWh = heatPumpHeatingBTU / (specs.cop * 1000 * 3.412);
+                const gasTherms = gasHeatingBTU / 100000;
                 
                 annualHeatingCost = (heatingkWh * electricityRate) + (gasTherms * gasRate / specs.furnaceAFUE);
                 
-                const coolingBTU = cdd * houseSize * coolingLoadFactor;
-                const coolingkWh = coolingBTU / (specs.seer * 1000);
+                const coolingkWh = coolingLoadBTU / (specs.seer * 1000);
                 annualCoolingCost = coolingkWh * electricityRate;
             }
 
@@ -2025,6 +2068,7 @@
         }
     </script>
 </body>
+</html>
 </html>
 </html>
 </html>
