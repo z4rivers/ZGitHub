@@ -566,10 +566,12 @@
 
         .cost-box.lowest {
             position: relative;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), 0 0 40px rgba(255, 215, 0, 0.15);
+            border: 2px solid rgba(255, 215, 0, 0.4);
         }
 
         .cost-box.lowest::before {
-            content: 'BEST VALUE';
+            content: 'LOWEST RUN COST';
             position: absolute;
             top: -10px;
             left: 50%;
@@ -1334,6 +1336,12 @@
         // This data is loaded from the protected resnet_ashrae_data.js file
         // DO NOT MODIFY - All changes must go through the separate data file
         const ashraeData = RESNET_ASHRAE_DATA || {};
+        
+        // Debug: Check if ASHRAE data loaded properly
+        console.log('ASHRAE data loaded:', Object.keys(ashraeData).length, 'entries');
+        if (Object.keys(ashraeData).length === 0) {
+            console.error('ASHRAE data not loaded! Check if resnet_ashrae_data.js is accessible.');
+        }
 
         // Regional climate estimates
         const regionalEstimates = {
@@ -1373,21 +1381,33 @@
                 }
 
                 // Try to get location data from zip code
-                const locationData = await getLocationFromZip(zipCode);
+                let locationData;
+                try {
+                    console.log('Calling getLocationFromZip for:', zipCode);
+                    locationData = await getLocationFromZip(zipCode);
+                    console.log('Location data received:', locationData);
+                } catch (error) {
+                    console.log('Zip code API failed, using fallback coordinates. Error:', error);
+                    // Use fallback coordinates if API fails
+                    locationData = {
+                        latitude: 39.8283, // Center of US
+                        longitude: -98.5795,
+                        city: 'Unknown',
+                        state: 'US'
+                    };
+                }
                 
-                // Try to get weather station data and find nearest ASHRAE data
-                const weatherData = await getWeatherStationData(locationData.latitude, locationData.longitude);
+                // Find the nearest ASHRAE weather station data
+                console.log('Calling findNearestASHRAEData with:', locationData);
+                const nearestASHRAE = findNearestASHRAEData(locationData.city, locationData.state, locationData.latitude, locationData.longitude);
+                console.log('Nearest ASHRAE result:', nearestASHRAE);
                 
-                if (weatherData) {
-                    climateData = weatherData;
+                if (nearestASHRAE) {
+                    console.log('Using nearest ASHRAE data:', nearestASHRAE);
+                    climateData = nearestASHRAE;
                 } else {
-                    // If no weather data, find the nearest ASHRAE station
-                    const nearestASHRAE = findNearestASHRAEData(locationData.city, locationData.state, locationData.latitude, locationData.longitude);
-                    if (nearestASHRAE) {
-                        climateData = nearestASHRAE;
-                    } else {
-                        throw new Error('No climate data available for this location');
-                    }
+                    console.error('No ASHRAE data found for location');
+                    throw new Error('No ASHRAE climate data available for this location');
                 }
 
                 displayClimateData();
@@ -1543,14 +1563,18 @@
         }
 
         function findNearestASHRAEData(city, state, lat, lon) {
+            console.log('Finding nearest ASHRAE data for:', city, state, lat, lon);
+            console.log('Available ASHRAE data entries:', Object.keys(ashraeData).length);
+            
             // First try exact city/state match
             for (const [zip, data] of Object.entries(ashraeData)) {
                 if (data.name.includes(city) && data.name.includes(state)) {
+                    console.log('Found exact match:', data);
                     return data;
                 }
             }
             
-            // If no exact match, find the closest by distance using improved logic
+            // Find the closest by distance using coordinates
             let closestData = null;
             let minDistance = Infinity;
             
@@ -1565,11 +1589,7 @@
                 }
             }
             
-            // If no coordinates available, fall back to state-based matching with regional logic
-            if (!closestData) {
-                closestData = findRegionalMatch(state, lat, lon);
-            }
-            
+            console.log('Closest ASHRAE data:', closestData, 'Distance:', minDistance);
             return closestData;
         }
         
@@ -1862,15 +1882,14 @@
                 }
             }
 
-            // Remove existing badges
-            document.querySelectorAll('.winner-badge').forEach(badge => badge.remove());
+            // Remove existing lowest classes
+            document.querySelectorAll('.cost-box').forEach(box => box.classList.remove('lowest'));
             
-            // Add winner badge
-            const winnerBar = document.getElementById(winner + 'Bar');
-            const badge = document.createElement('div');
-            badge.className = 'winner-badge';
-            badge.textContent = 'LOWEST';
-            winnerBar.appendChild(badge);
+            // Add winner class to the winning box (CSS handles the "LOWEST RUN COST" badge)
+            const winnerBox = document.getElementById(winner + 'Box');
+            if (winnerBox) {
+                winnerBox.classList.add('lowest');
+            }
         }
 
         function showLoading() {
