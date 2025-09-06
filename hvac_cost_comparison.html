@@ -525,6 +525,63 @@
             color: #333;
             margin-bottom: 15px;
             text-align: center;
+            position: relative;
+        }
+
+        .sun-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxjaXJjbGUgY3g9IjUwIiBjeT0iNTAiIHI9IjI1IiBmaWxsPSIjRkZEMDAwIi8+CjxwYXRoIGQ9Ik01MCAxMFYxNUw1MCAxMFoiIGZpbGw9IiNGRkQwMDAiLz4KPHBhdGggZD0iTTkwIDUwSDg1TDUwIDUwSDkwWiIgZmlsbD0iI0ZGRDAwMCIvPgo8cGF0aCBkPSJNNTAgOTBWOThMNTAgOTBaIiBmaWxsPSIjRkZEMDAwIi8+CjxwYXRoIGQ9Ik0xMCA1MEgxNUw1MCA1MEgxMFoiIGZpbGw9IiNGRkQwMDAiLz4KPHBhdGggZD0iTTc3LjA3IDEwTDIyLjkzIDEwTDc3LjA3IDEwWiIgZmlsbD0iI0ZGRDAwMCIvPgo8cGF0aCBkPSJNODkuMDcgMjIuOTNMNzcuMDcgMzQuOTNMODkuMDcgMjIuOTNaIiBmaWxsPSIjRkZEMDAwIi8+CjxwYXRoIGQ9Ik03Ny4wNyA5MEwyMi45MyA5MEw3Ny4wNyA5MFoiIGZpbGw9IiNGRkQwMDAiLz4KPHBhdGggZD0iTTIyLjkzIDc3LjA3TDEwLjA3IDg5LjA3TDIyLjkzIDc3LjA3WiIgZmlsbD0iI0ZGRDAwMCIvPgo8cGF0aCBkPSJNMjIuOTMgMjIuOTNMMTAuMDcgMTAuOTNMMjIuOTMgMjIuOTNaIiBmaWxsPSIjRkZEMDAwMCIvPgo8cGF0aCBkPSJNODkuMDcgNzcuMDdMNzcuMDcgNjUuMDdMODkuMDcgNzcuMDdaIiBmaWxsPSIjRkZEMDAwMCIvPgo8cGF0aCBkPSJNNTAgMTBWNThMNTAgMTBaIiBmaWxsPSIjRkZEMDAwIi8+CjxwYXRoIGQ9Ik01MCA0MlY5OEw1MCA0MloiIGZpbGw9IiNGRkQwMDAiLz4KPHBhdGggZD0iTTEwIDUwSDY2TDUwIDUwSDEwWiIgZmlsbD0iI0ZGRDAwMCIvPgo8cGF0aCBkPSJNNTAgNTBINjZMNTAgNTBIMTAwWiIgZmlsbD0iI0ZGRDAwMCIvPgo8L3N2Zz4K');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            z-index: 10;
+        }
+
+        .sun-icon-new {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 19px;
+            height: 19px;
+            background: radial-gradient(circle, #ffd700 35%, #ffed4e 100%);
+            border-radius: 50%;
+            box-shadow: 0 1px 4px rgba(255, 215, 0, 0.4);
+            z-index: 10;
+        }
+
+        .sun-icon-new::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 27px;
+            height: 27px;
+            background: conic-gradient(from 0deg, 
+                transparent 0deg, #ffd700 10deg, transparent 20deg,
+                transparent 22.5deg, #ffd700 32.5deg, transparent 42.5deg,
+                transparent 45deg, #ffd700 55deg, transparent 65deg,
+                transparent 67.5deg, #ffd700 77.5deg, transparent 87.5deg,
+                transparent 90deg, #ffd700 100deg, transparent 110deg,
+                transparent 112.5deg, #ffd700 122.5deg, transparent 132.5deg,
+                transparent 135deg, #ffd700 145deg, transparent 155deg,
+                transparent 157.5deg, #ffd700 167.5deg, transparent 177.5deg,
+                transparent 180deg, #ffd700 190deg, transparent 200deg,
+                transparent 202.5deg, #ffd700 212.5deg, transparent 222.5deg,
+                transparent 225deg, #ffd700 235deg, transparent 245deg,
+                transparent 247.5deg, #ffd700 257.5deg, transparent 267.5deg,
+                transparent 270deg, #ffd700 280deg, transparent 290deg,
+                transparent 292.5deg, #ffd700 302.5deg, transparent 312.5deg,
+                transparent 315deg, #ffd700 325deg, transparent 335deg,
+                transparent 337.5deg, #ffd700 347.5deg, transparent 357.5deg);
+            border-radius: 50%;
+            z-index: -1;
         }
 
         .hybrid-split {
@@ -892,7 +949,7 @@
                     <h3>Location</h3>
                     <div class="input-row">
                         <div class="input-field">
-                            <input type="text" id="zipCode" placeholder="Zip Code" maxlength="5">
+                            <input type="text" id="zipCode" maxlength="50">
                         </div>
                         <div class="input-field">
                             <button class="btn" id="lookupBtn" onclick="lookupClimateData()">Lookup</button>
@@ -976,7 +1033,7 @@
                     </div>
                     <div class="temp-marker cooling-design" id="coolingMarker">
                         <div class="marker-line">
-                            <div class="custom-sun"></div>
+                            <div class="sun-icon-new"></div>
                         </div>
                         <div class="marker-label">
                             1% Heat<br><span id="coolingDesign">--</span>°F
@@ -1238,10 +1295,12 @@
         };
 
         async function lookupClimateData() {
-            const zipCode = document.getElementById('zipCode').value.trim();
+            const input = document.getElementById('zipCode').value.trim();
             
-            if (!zipCode || zipCode.length !== 5) {
-                showError('Please enter a valid 5-digit zip code');
+            console.log('Input received:', input);
+            
+            if (!input) {
+                showError('Please enter a zip code or city name');
                 return;
             }
 
@@ -1250,16 +1309,26 @@
             hideResults();
 
             try {
-                // First check if we have known ASHRAE data for this zip code
-                if (ashraeData[zipCode]) {
-                    climateData = ashraeData[zipCode];
-                    displayClimateData();
-                    calculateHVACCosts();
-                    return;
+                let locationData;
+                
+                // Check if input is a zip code (5 digits)
+                if (/^\d{5}$/.test(input)) {
+                    console.log('Detected as zip code');
+                    // First check if we have known ASHRAE data for this zip code
+                    if (ashraeData[input]) {
+                        climateData = ashraeData[input];
+                        displayClimateData();
+                        calculateHVACCosts();
+                        return;
+                    }
+                    
+                    // Get location data from zip code
+                    locationData = await getLocationFromZip(input);
+                } else {
+                    console.log('Detected as city name');
+                    // Input is a city name, get location data
+                    locationData = await getLocationFromCity(input);
                 }
-
-                // Try to get location data from zip code
-                const locationData = await getLocationFromZip(zipCode);
                 
                 // Try to get weather station data
                 const weatherData = await getWeatherStationData(locationData.latitude, locationData.longitude);
@@ -1268,7 +1337,7 @@
                     climateData = weatherData;
                 } else {
                     // Only use regional estimates as last resort
-                    climateData = getRegionalEstimate(zipCode, locationData);
+                    climateData = getRegionalEstimate(input, locationData);
                 }
 
                 displayClimateData();
@@ -1276,7 +1345,7 @@
 
             } catch (error) {
                 console.error('Error fetching climate data:', error);
-                showError('Unable to fetch climate data. Please try a different zip code.');
+                showError('Unable to fetch climate data. Please try a different location.');
             } finally {
                 hideLoading();
             }
@@ -1296,6 +1365,41 @@
                 };
             } catch (error) {
                 throw new Error('Unable to lookup location from zip code');
+            }
+        }
+
+        async function getLocationFromCity(cityInput) {
+            try {
+                // Use Nominatim (OpenStreetMap) for city name lookup
+                const encodedCity = encodeURIComponent(cityInput);
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodedCity},USA&format=json&limit=1&addressdetails=1`, {
+                    headers: {
+                        'User-Agent': 'HVAC-Calculator/1.0'
+                    }
+                });
+                
+                if (!response.ok) {
+                    console.error('Nominatim API error:', response.status, response.statusText);
+                    throw new Error('City lookup failed');
+                }
+                
+                const data = await response.json();
+                console.log('Nominatim response:', data);
+                
+                if (data.length === 0) {
+                    throw new Error('City not found');
+                }
+                
+                const location = data[0];
+                return {
+                    latitude: parseFloat(location.lat),
+                    longitude: parseFloat(location.lon),
+                    city: location.address.city || location.address.town || location.address.village || cityInput.split(',')[0].trim(),
+                    state: location.address.state || location.address.state_code || ''
+                };
+            } catch (error) {
+                console.error('City lookup error:', error);
+                throw new Error('Unable to lookup location from city name: ' + error.message);
             }
         }
 
