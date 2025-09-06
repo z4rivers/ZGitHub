@@ -165,6 +165,66 @@
             border-left: 3px solid #10b981;
         }
 
+        /* Comic Style Tooltips */
+        [title] {
+            position: relative;
+            cursor: help;
+        }
+
+        [title]:hover::after {
+            content: attr(title);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 20px 24px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            max-width: 350px;
+            white-space: normal;
+            text-align: center;
+            line-height: 1.4;
+            pointer-events: none;
+            border: 3px solid #ff5252;
+            animation: bubblePop 0.3s ease-out;
+            margin-top: 10px;
+        }
+
+        [title]:hover::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border: 12px solid transparent;
+            border-bottom-color: #ff6b6b;
+            margin-top: -2px;
+            z-index: 10000;
+            pointer-events: none;
+            animation: bubblePop 0.3s ease-out;
+        }
+
+        @keyframes bubblePop {
+            0% {
+                transform: translateX(-50%) scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: translateX(-50%) scale(1.1);
+            }
+            100% {
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+        }
+
         .btn {
             background: #f8f9fa;
             color: #495057;
@@ -707,7 +767,7 @@
             <!-- Controls -->
             <div class="controls-grid">
                 <!-- Location -->
-                <div class="control-group">
+                <div class="control-group" style="padding: 15px; height: 150px;">
                     <h3>Location</h3>
                     <div class="input-row">
                         <div class="input-field">
@@ -724,38 +784,46 @@
                 </div>
 
                 <!-- Energy Costs -->
-                <div class="control-group">
+                <div class="control-group" style="padding: 15px; height: 150px;">
                     <div style="margin-bottom: 15px;">
-                        <label for="electricityRate" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px;">Electricity Rate ($/kWh)</label>
+                        <label for="electricityRate" title="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. National average: $0.12-0.15/kWh" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                            Electricity Rate ($/kWh)
+                            <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                        </label>
                         <input type="number" id="electricityRate" value="0.12" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
                     <div>
-                        <label for="gasRate" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px;">Natural Gas Rate ($/therm)</label>
+                        <label for="gasRate" title="Check your gas bill for the rate per therm. Look for 'therm' charges. National average: $1.00-1.50/therm" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                            Natural Gas Rate ($/therm)
+                            <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                        </label>
                         <input type="number" id="gasRate" value="1.20" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
                 </div>
 
                 <!-- Heat Pump Performance -->
-                <div class="control-group">
+                <div class="control-group" style="padding: 15px; margin-bottom: 20px;">
                     <div class="input-row">
                         <div class="input-field">
                             <label for="heatPumpCOP" title="Coefficient of Performance - higher numbers mean more efficient heating. Typical range: 2.5-4.5" style="position: relative;">
                                 Heat Pump Performance
-                                <span style="position: absolute; top: 0; right: 0; width: 16px; height: 16px; background: #007bff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                                <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
                             <input type="number" id="heatPumpCOP" value="3.5" step="0.1" min="1" max="5">
                         </div>
                         <div class="input-field">
                             <label for="furnaceEfficiency" title="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="position: relative;">
                                 Furnace Efficiency (%)
-                                <span style="position: absolute; top: 0; right: 0; width: 16px; height: 16px; background: #007bff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                                <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
                             <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100">
                         </div>
+                    </div>
+                    <div class="input-row" style="margin-top: 15px;">
                         <div class="input-field">
                             <label for="crossoverTemp" title="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="position: relative;">
-                                Switch Temperature (°F)
-                                <span style="position: absolute; top: 0; right: 0; width: 16px; height: 16px; background: #007bff; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                                Hybrid Crossover Temperature (°F)
+                                <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
                             <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50">
                         </div>
@@ -1672,5 +1740,6 @@
         }
     </script>
 </body>
+</html>
 </html>
 </html>
