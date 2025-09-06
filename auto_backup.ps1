@@ -28,3 +28,4 @@ if ($status) {
     Add-Content -Path $logFile -Value "$timestamp - No changes to backup"
     Write-Host "No changes to backup at $timestamp"
 }
+
