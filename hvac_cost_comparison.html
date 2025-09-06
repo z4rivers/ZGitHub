@@ -316,14 +316,15 @@
         }
 
         .heating-design .marker-line { 
-            background: #1e40af; 
+            background: #60a5fa; 
             width: 4px;
-            box-shadow: 0 0 8px rgba(30, 64, 175, 0.5);
+            box-shadow: 0 0 8px rgba(96, 165, 250, 0.5);
         }
         .cooling-design .marker-line { 
             background: #dc2626; 
             width: 4px;
-            box-shadow: 0 0 8px rgba(220, 38, 38, 0.5);
+            box-shadow: 0 0 8px rgba(220, 38, 38, 0.5), 0 0 16px rgba(0, 0, 0, 0.9), 0 0 24px rgba(0, 0, 0, 0.7);
+            border: 2px solid #991b1b;
         }
         .average-cold .marker-line { 
             background: #1e40af; 
@@ -343,9 +344,16 @@
             margin-right: 4px;
         }
 
+        .snowflake-icon {
+            font-size: 2rem;
+            color: #ffffff;
+            text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9));
+        }
+
         .triangle-marker {
             position: absolute;
-            top: 50%;
+            top: 100%;
             left: 50%;
             transform: translate(-50%, -50%);
             color: #10b981;
@@ -353,6 +361,105 @@
             z-index: 20;
             filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.8));
         }
+
+        .cold-triangle {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid #3b82f6;
+            z-index: 20;
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+        }
+
+        .cold-triangle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: -10px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 16px solid #ffffff;
+        }
+
+        .hot-triangle {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 20px solid #f97316;
+            z-index: 20;
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+        }
+
+        .hot-triangle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: -10px;
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 16px solid #ffffff;
+        }
+
+        .custom-sun {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 2rem;
+            height: 2rem;
+            background: #fbbf24;
+            border-radius: 50%;
+            z-index: 20;
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+        }
+
+        .custom-sun::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 1.2rem;
+            height: 1.2rem;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+
+        .custom-sun::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.8rem;
+            height: 0.8rem;
+            background: #fbbf24;
+            border-radius: 50%;
+        }
+
+        .custom-sun {
+            background-image: 
+                radial-gradient(circle, #ffffff 0%, #fbbf24 100%),
+                linear-gradient(45deg, transparent 40%, #fbbf24 50%, transparent 60%),
+                linear-gradient(135deg, transparent 40%, #fbbf24 50%, transparent 60%),
+                linear-gradient(225deg, transparent 40%, #fbbf24 50%, transparent 60%),
+                linear-gradient(315deg, transparent 40%, #fbbf24 50%, transparent 60%);
+        }
+
 
         .house-icon {
             position: absolute;
@@ -767,7 +874,7 @@
             <!-- Controls -->
             <div class="controls-grid">
                 <!-- Location -->
-                <div class="control-group" style="padding: 15px; height: 150px;">
+                <div class="control-group" style="padding: 15px; height: 175px;">
                     <h3>Location</h3>
                     <div class="input-row">
                         <div class="input-field">
@@ -784,7 +891,7 @@
                 </div>
 
                 <!-- Energy Costs -->
-                <div class="control-group" style="padding: 15px; height: 150px;">
+                <div class="control-group" style="padding: 15px; height: 175px;">
                     <div style="margin-bottom: 15px;">
                         <label for="electricityRate" title="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. National average: $0.12-0.15/kWh" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Electricity Rate ($/kWh)
@@ -847,7 +954,7 @@
                 <div class="temperature-bar">
                     <div class="temp-marker heating-design" id="heatingMarker">
                         <div class="marker-line">
-                            <span class="temp-icon">❄️</span>
+                            <div class="snowflake-icon">❄</div>
                         </div>
                         <div class="marker-label">
                             99% Cold<br><span id="heatingDesign">--</span>°F
@@ -855,23 +962,30 @@
                     </div>
                     <div class="temp-marker cooling-design" id="coolingMarker">
                         <div class="marker-line">
-                            <span class="temp-icon">☀️</span>
+                            <div class="custom-sun"></div>
                         </div>
                         <div class="marker-label">
                             1% Heat<br><span id="coolingDesign">--</span>°F
                         </div>
                     </div>
                     <div class="temp-marker average-cold" id="avgColdMarker">
-                        <div class="triangle-marker">▲</div>
-                        <div class="marker-label">Avg Cold<br><span id="avgCold">--</span>°F</div>
+                        <div class="marker-line">
+                            <div class="cold-triangle"></div>
+                        </div>
                     </div>
                     <div class="house-icon" id="houseIcon">
                         <div class="house-symbol">🏠</div>
                     </div>
                     <div class="temp-marker average-hot" id="avgHotMarker">
-                        <div class="triangle-marker">▲</div>
-                        <div class="marker-label">Avg Hot<br><span id="avgHot">--</span>°F</div>
+                        <div class="marker-line">
+                            <div class="hot-triangle"></div>
+                        </div>
                     </div>
+                </div>
+                <!-- Average temp labels below the bar -->
+                <div style="position: relative; height: 60px; margin-top: 10px;">
+                    <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Cold<br><span id="avgCold">--</span>°F</div>
+                    <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Hot<br><span id="avgHot">--</span>°F</div>
                 </div>
             </div>
 
@@ -1427,6 +1541,10 @@
             document.getElementById('coolingMarker').style.left = coolingPos + '%';
             document.getElementById('avgColdMarker').style.left = avgColdPos + '%';
             document.getElementById('avgHotMarker').style.left = avgHotPos + '%';
+            
+            // Position average temp labels to match their markers
+            document.querySelector('#avgCold').parentElement.style.left = avgColdPos + '%';
+            document.querySelector('#avgHot').parentElement.style.left = avgHotPos + '%';
             
             // Position house icon between average cold and average hot
             const housePos = (avgColdPos + avgHotPos) / 2;
