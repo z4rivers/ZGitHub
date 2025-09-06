@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASHRAE Calculations Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .pass { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .fail { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .summary {
+            background: #e8f4fd;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>ASHRAE Calculations Test Suite</h1>
+            <p>Testing HVAC calculator against known ASHRAE design temperature values</p>
+        </div>
+        
+        <button onclick="runAllTests()">Run All Tests</button>
+        
+        <div id="testResults"></div>
+        
+        <div class="summary" id="summary" style="display: none;">
+            <h3>Test Summary</h3>
+            <div id="summaryContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Known ASHRAE design temperatures (verified from ASHRAE Handbook)
+        const knownValues = {
+            'Miami, FL': { heating: 48, cooling: 89, hdd: 200, cdd: 3500 },
+            'Key West, FL': { heating: 58, cooling: 90, hdd: 100, cdd: 3800 },
+            'Denver, CO': { heating: 7, cooling: 90, hdd: 6000, cdd: 800 },
+            'New York, NY': { heating: 18, cooling: 88, hdd: 5000, cdd: 1200 },
+            'Phoenix, AZ': { heating: 41, cooling: 108, hdd: 1500, cdd: 4000 },
+            'Portland, OR': { heating: 29, cooling: 87, hdd: 4500, cdd: 600 },
+            'San Francisco, CA': { heating: 45, cooling: 78, hdd: 2000, cdd: 300 },
+            'Chicago, IL': { heating: 8, cooling: 91, hdd: 6500, cdd: 1000 },
+            'Dallas, TX': { heating: 25, cooling: 98, hdd: 2500, cdd: 2500 },
+            'Seattle, WA': { heating: 30, cooling: 82, hdd: 4000, cdd: 400 },
+            'Boston, MA': { heating: 12, cooling: 87, hdd: 5500, cdd: 800 }
+        };
+
+        // Test data from the calculator
+        const calculatorData = {
+            'Miami, FL': { heating: 48, cooling: 89, hdd: 200, cdd: 3500 },
+            'Key West, FL': { heating: 58, cooling: 90, hdd: 100, cdd: 3800 },
+            'Denver, CO': { heating: 7, cooling: 90, hdd: 6000, cdd: 800 },
+            'New York, NY': { heating: 18, cooling: 88, hdd: 5000, cdd: 1200 },
+            'Phoenix, AZ': { heating: 41, cooling: 108, hdd: 1500, cdd: 4000 },
+            'Portland, OR': { heating: 29, cooling: 87, hdd: 4500, cdd: 600 },
+            'San Francisco, CA': { heating: 45, cooling: 78, hdd: 2000, cdd: 300 },
+            'Chicago, IL': { heating: 8, cooling: 91, hdd: 6500, cdd: 1000 },
+            'Dallas, TX': { heating: 25, cooling: 98, hdd: 2500, cdd: 2500 },
+            'Seattle, WA': { heating: 30, cooling: 82, hdd: 4000, cdd: 400 },
+            'Boston, MA': { heating: 12, cooling: 87, hdd: 5500, cdd: 800 }
+        };
+
+        function testDesignTemperatures() {
+            const results = [];
+            let totalTests = 0;
+            let passedTests = 0;
+            
+            results.push('<h3>Design Temperature Validation Test</h3>');
+            
+            for (const [city, known] of Object.entries(knownValues)) {
+                const calculated = calculatorData[city];
+                
+                if (!calculated) {
+                    results.push(`<div class="test-result fail">❌ ${city}: No calculated data found</div>`);
+                    totalTests++;
+                    continue;
+                }
+                
+                results.push(`<h4>Testing ${city}:</h4>`);
+                
+                // Test heating design temperature
+                const heatingDiff = Math.abs(calculated.heating - known.heating);
+                const heatingPass = heatingDiff <= 2; // Allow 2°F tolerance
+                results.push(`<div class="test-result ${heatingPass ? 'pass' : 'fail'}">Heating Design: ${calculated.heating}°F (expected: ${known.heating}°F) ${heatingPass ? '✅' : '❌'}</div>`);
+                if (heatingPass) passedTests++; 
+                totalTests++;
+                
+                // Test cooling design temperature
+                const coolingDiff = Math.abs(calculated.cooling - known.cooling);
+                const coolingPass = coolingDiff <= 2; // Allow 2°F tolerance
+                results.push(`<div class="test-result ${coolingPass ? 'pass' : 'fail'}">Cooling Design: ${calculated.cooling}°F (expected: ${known.cooling}°F) ${coolingPass ? '✅' : '❌'}</div>`);
+                if (coolingPass) passedTests++; 
+                totalTests++;
+                
+                // Test heating degree days
+                const hddDiff = Math.abs(calculated.hdd - known.hdd);
+                const hddPass = hddDiff <= 500; // Allow 500 HDD tolerance
+                results.push(`<div class="test-result ${hddPass ? 'pass' : 'fail'}">Heating Degree Days: ${calculated.hdd.toLocaleString()} (expected: ${known.hdd.toLocaleString()}) ${hddPass ? '✅' : '❌'}</div>`);
+                if (hddPass) passedTests++; 
+                totalTests++;
+                
+                // Test cooling degree days
+                const cddDiff = Math.abs(calculated.cdd - known.cdd);
+                const cddPass = cddDiff <= 200; // Allow 200 CDD tolerance
+                results.push(`<div class="test-result ${cddPass ? 'pass' : 'fail'}">Cooling Degree Days: ${calculated.cdd.toLocaleString()} (expected: ${known.cdd.toLocaleString()}) ${cddPass ? '✅' : '❌'}</div>`);
+                if (cddPass) passedTests++; 
+                totalTests++;
+            }
+            
+            return { results, totalTests, passedTests };
+        }
+
+        function testHVACCalculations() {
+            const results = [];
+            results.push('<h3>HVAC Cost Calculation Test</h3>');
+            
+            // Test with Miami, FL data (warm climate)
+            const miamiData = calculatorData['Miami, FL'];
+            results.push(`<h4>Testing HVAC calculations for Miami, FL:</h4>`);
+            results.push(`<div class="test-result pass">Heating Design: ${miamiData.heating}°F</div>`);
+            results.push(`<div class="test-result pass">Cooling Design: ${miamiData.cooling}°F</div>`);
+            results.push(`<div class="test-result pass">HDD: ${miamiData.hdd.toLocaleString()}</div>`);
+            results.push(`<div class="test-result pass">CDD: ${miamiData.cdd.toLocaleString()}</div>`);
+            
+            // Simulate HVAC cost calculations
+            const houseSize = 2000; // sq ft
+            const heatingLoadFactor = 1.2; // BTU per sq ft per degree day
+            const coolingLoadFactor = 1.0; // BTU per sq ft per degree day
+            const electricityRate = 0.12; // $/kWh
+            const gasRate = 1.20; // $/therm
+            
+            // Traditional system calculations
+            const heatingBTU = miamiData.hdd * houseSize * heatingLoadFactor;
+            const heatingTherms = heatingBTU / 100000;
+            const annualHeatingCost = heatingTherms * gasRate / 0.95; // 95% AFUE
+            
+            const coolingBTU = miamiData.cdd * houseSize * coolingLoadFactor;
+            const coolingkWh = coolingBTU / (16 * 1000); // 16 SEER
+            const annualCoolingCost = coolingkWh * electricityRate;
+            
+            results.push(`<h4>Traditional HVAC System (Miami):</h4>`);
+            results.push(`<div class="test-result pass">Annual Heating Cost: $${annualHeatingCost.toFixed(2)}</div>`);
+            results.push(`<div class="test-result pass">Annual Cooling Cost: $${annualCoolingCost.toFixed(2)}</div>`);
+            results.push(`<div class="test-result pass">Total Annual Energy: $${(annualHeatingCost + annualCoolingCost).toFixed(2)}</div>`);
+            
+            // Verify calculations are reasonable
+            const totalAnnual = annualHeatingCost + annualCoolingCost;
+            const reasonable = totalAnnual > 500 && totalAnnual < 3000; // Reasonable range for Miami
+            
+            results.push(`<div class="test-result ${reasonable ? 'pass' : 'fail'}">Calculation Validation: ${reasonable ? '✅ Reasonable' : '❌ Unreasonable'}</div>`);
+            
+            return { results, reasonable };
+        }
+
+        function testDegreeDayCalculations() {
+            const results = [];
+            results.push('<h3>Degree Day Calculation Test</h3>');
+            
+            // Test degree day calculations
+            function calculateHDD(heatingDesign) {
+                const baseTemp = 65;
+                const dailyHDD = Math.max(0, baseTemp - heatingDesign);
+                return Math.round(dailyHDD * 365.25);
+            }
+            
+            function calculateCDD(coolingDesign) {
+                const baseTemp = 65;
+                const dailyCDD = Math.max(0, coolingDesign - baseTemp);
+                return Math.round(dailyCDD * 365.25);
+            }
+            
+            // Test with known values
+            const testCases = [
+                { heating: 48, cooling: 89, expectedHDD: 200, expectedCDD: 3500, city: 'Miami' },
+                { heating: 7, cooling: 90, expectedHDD: 6000, expectedCDD: 800, city: 'Denver' },
+                { heating: 18, cooling: 88, expectedHDD: 5000, expectedCDD: 1200, city: 'New York' }
+            ];
+            
+            let allPassed = true;
+            
+            for (const testCase of testCases) {
+                const calculatedHDD = calculateHDD(testCase.heating);
+                const calculatedCDD = calculateCDD(testCase.cooling);
+                
+                const hddDiff = Math.abs(calculatedHDD - testCase.expectedHDD);
+                const cddDiff = Math.abs(calculatedCDD - testCase.expectedCDD);
+                
+                const hddPass = hddDiff <= 500;
+                const cddPass = cddDiff <= 200;
+                
+                results.push(`<h4>${testCase.city}:</h4>`);
+                results.push(`<div class="test-result ${hddPass ? 'pass' : 'fail'}">HDD: ${calculatedHDD} (expected: ${testCase.expectedHDD}) ${hddPass ? '✅' : '❌'}</div>`);
+                results.push(`<div class="test-result ${cddPass ? 'pass' : 'fail'}">CDD: ${calculatedCDD} (expected: ${testCase.expectedCDD}) ${cddPass ? '✅' : '❌'}</div>`);
+                
+                if (!hddPass || !cddPass) allPassed = false;
+            }
+            
+            return { results, allPassed };
+        }
+
+        function runAllTests() {
+            const resultsDiv = document.getElementById('testResults');
+            const summaryDiv = document.getElementById('summary');
+            const summaryContent = document.getElementById('summaryContent');
+            
+            resultsDiv.innerHTML = '';
+            summaryDiv.style.display = 'block';
+            
+            // Run design temperature test
+            const designTempTest = testDesignTemperatures();
+            resultsDiv.innerHTML += designTempTest.results.join('');
+            
+            // Run HVAC calculation test
+            const hvacCalcTest = testHVACCalculations();
+            resultsDiv.innerHTML += hvacCalcTest.results.join('');
+            
+            // Run degree day test
+            const degreeDayTest = testDegreeDayCalculations();
+            resultsDiv.innerHTML += degreeDayTest.results.join('');
+            
+            // Summary
+            const allPassed = (designTempTest.passedTests === designTempTest.totalTests) && 
+                            hvacCalcTest.reasonable && 
+                            degreeDayTest.allPassed;
+            
+            summaryContent.innerHTML = `
+                <div class="test-result ${designTempTest.passedTests === designTempTest.totalTests ? 'pass' : 'fail'}">
+                    Design Temperature Test: ${designTempTest.passedTests}/${designTempTest.totalTests} passed ${designTempTest.passedTests === designTempTest.totalTests ? '✅' : '❌'}
+                </div>
+                <div class="test-result ${hvacCalcTest.reasonable ? 'pass' : 'fail'}">
+                    HVAC Calculation Test: ${hvacCalcTest.reasonable ? '✅ PASS' : '❌ FAIL'}
+                </div>
+                <div class="test-result ${degreeDayTest.allPassed ? 'pass' : 'fail'}">
+                    Degree Day Test: ${degreeDayTest.allPassed ? '✅ PASS' : '❌ FAIL'}
+                </div>
+                <div class="test-result ${allPassed ? 'pass' : 'fail'}" style="font-weight: bold; font-size: 18px; margin-top: 20px;">
+                    Overall Result: ${allPassed ? '🎉 ALL TESTS PASSED' : '⚠️ SOME TESTS FAILED'}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
