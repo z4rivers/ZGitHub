@@ -733,6 +733,16 @@
             border-radius: 2px;
             box-shadow: inset 0 0 2px rgba(255,255,255,0.08), 0 1px 1px rgba(0,0,0,0.3);
         }
+        /* Center the Annual summary vertically within the bar */
+        .annual-summary {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        /* Nudge hybrid block in Home Energy Needs to vertical-center with others */
+        .annual-hybrid { position: relative; top: -6px; }
 
         .heat-pump-box {
             background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
@@ -1173,9 +1183,14 @@
         .mini-bars { display: flex; gap: 6px; align-items: flex-end; height: 160px; }
         .mini-bar { width: 12px; position: relative; border-radius: 2px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         /* Match main box themes */
+        /* Bright palette (Run Cost Totals) */
         .mini-bar.color-heatpump { background: #28a745; }
         .mini-bar.color-furnace { background: #dc3545; }
         .mini-bar.color-hybrid { background: #ffc107; }
+        /* Darker palette for CO2 chart only */
+        #co2Chart .mini-bar.color-heatpump { background: #166534; }
+        #co2Chart .mini-bar.color-furnace { background: #7f1d1d; }
+        #co2Chart .mini-bar.color-hybrid { background: #b45309; }
         .mini-bar::after { content: attr(data-value); position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.7rem; color: #333; }
         .mini-label { text-align: center; font-size: 0.8rem; margin-top: 0; color: #555; }
 
@@ -1292,7 +1307,7 @@
                     </label>
                     <input type="text" id="heatingLoadInput" placeholder="50,000" value="50000" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; text-align: center;" oninput="formatHeatingInput(this); updateHeatingLoad();">
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; font-size: 0.9rem;">
+                <div class="annual-summary" style="font-size: 0.9rem;">
                     <div style="font-weight: bold; color: #333; margin-bottom: 5px;">Annual:</div>
                     <div style="display: flex; gap: 25px; font-size: 0.8rem;">
                         <div style="text-align: center;">
@@ -1303,7 +1318,7 @@
                             <div style="color: #007bff; font-weight: bold;" id="annualHeatPump">0 kWh</div>
                             <div style="color: #666; font-size: 0.7rem;">Heat Pump</div>
                         </div>
-                        <div style="text-align: center;">
+                        <div style="text-align: center;" class="annual-hybrid">
                             <div style="color: #28a745; font-weight: bold;" id="annualHybridGas">0 therms</div>
                             <div style="color: #ffc107; font-weight: bold;" id="annualHybridElec">0 kWh</div>
                             <div style="color: #666; font-size: 0.7rem;">Hybrid</div>
@@ -2520,17 +2535,15 @@
                 wrap.className = 'tech-group';
                 wrap.innerHTML = '<h5>Multi-Year Totals</h5>' +
                     '<div class="mini-charts">' +
-                    '<div class="mini-chart" id="costChart"><h6>Run Cost Totals</h6><div class="mini-chart-body"></div><div class="mini-labels"></div></div>' +
-                    '<div class="mini-chart" id="co2Chart"><h6>CO2 Totals (metric tons)</h6><div class="mini-chart-body"></div><div class="mini-labels"></div></div>' +
+                    '<div class="mini-chart" id="costChart"><h6>Run Cost Totals</h6><div class="mini-chart-body"></div></div>' +
+                    '<div class="mini-chart" id="co2Chart"><h6>CO2 Totals (metric tons)</h6><div class="mini-chart-body"></div></div>' +
                     '</div>';
                 tech.appendChild(wrap);
 
                 const build = (mountId, groups, formatter) => {
                     const mount = wrap.querySelector('#' + mountId);
                     const body = mount.querySelector('.mini-chart-body');
-                    const labels = mount.querySelector('.mini-labels');
                     body.innerHTML = '';
-                    labels.innerHTML = '';
                     groups.forEach(g => {
                         const gEl = document.createElement('div');
                         gEl.className = 'mini-group';
@@ -2547,11 +2560,11 @@
                             barsWrap.appendChild(bar);
                         });
                         gEl.appendChild(barsWrap);
-                        body.appendChild(gEl);
                         const lab = document.createElement('div');
                         lab.className = 'mini-label';
                         lab.textContent = g.label;
-                        labels.appendChild(lab);
+                        gEl.appendChild(lab);
+                        body.appendChild(gEl);
                     });
                 };
 
