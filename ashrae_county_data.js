@@ -35,6 +35,20 @@ const ASHRAE_COUNTY_DATA = {
     source: 'Appendix A (Normative) 2013 + RESNET HDD/CDD (Portland Intl Airport)',
     lat: 45.52,
     lon: -122.68
+  },
+  // Jackson County, OR — Verified presence; values based on RESNET/Medford entry pending Appendix A cross-check
+  // FIPS: 41029
+  '41029': {
+    name: 'Jackson County, OR',
+    state: 'OR',
+    fips: '41029',
+    heating: 15,
+    cooling: 98,
+    hdd: 4500,
+    cdd: 600,
+    source: 'Appendix A (Normative) + RESNET HDD/CDD (Rogue Valley Intl–Medford)',
+    lat: 42.33,
+    lon: -122.87
   }
 };
 

@@ -289,6 +289,12 @@
             align-items: center;
             justify-content: center;
         }
+        .heating-design .marker-line,
+        .cooling-design .marker-line {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
         .marker-line .temp-icon {
             position: absolute;
@@ -627,6 +633,7 @@
             border-radius: 50%;
             box-shadow: 0 1px 4px rgba(255, 215, 0, 0.4);
             z-index: 10;
+            line-height: 1;
         }
 
         .sun-icon-new::before {
@@ -1393,6 +1400,80 @@
             }
         }
 
+        async function tryLoadExternalCountyJson() {
+            // Optional: load a large county dataset without changing code
+            const url = 'ashrae_county_data.json';
+            try {
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) return; // JSON file not present
+                const json = await res.json();
+                const idx = buildCountyFipsIndex(json);
+                let merged = 0;
+                for (const [k, v] of Object.entries(idx)) {
+                    if (!countyAshraeData[k]) {
+                        countyAshraeData[k] = v; // mutate const object (allowed)
+                        merged++;
+                    }
+                }
+                if (merged > 0) {
+                    console.log(`Merged ${merged} counties from ashrae_county_data.json`);
+                }
+            } catch (e) {
+                console.warn('External county JSON load skipped:', e);
+            }
+        }
+
+        async function tryLoadExternalCountyCsv() {
+            // Optional: CSV fallback (requires a FIPS column)
+            const url = 'ashrae_county_data.csv';
+            try {
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) return; // CSV file not present
+                const text = await res.text();
+                const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+                if (lines.length < 2) return;
+                const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const idx = (name) => header.indexOf(name);
+                const fipsIdx = [idx('fips'), idx('county_fips')].find(i => i >= 0);
+                if (fipsIdx == null || fipsIdx < 0) {
+                    console.warn('CSV missing FIPS column; skipping import');
+                    return;
+                }
+                const nameIdx = [idx('name'), idx('county'), idx('county_name')].find(i => i >= 0);
+                const stateIdx = [idx('state'), idx('state_abbr'), idx('state_code')].find(i => i >= 0);
+                const heatingIdx = [idx('heating'), idx('heating_99'), idx('heatingdesign'), idx('heating_design')].find(i => i >= 0);
+                const coolingIdx = [idx('cooling'), idx('cooling_01'), idx('coolingdesign'), idx('cooling_design')].find(i => i >= 0);
+                const hddIdx = [idx('hdd'), idx('hdd65'), idx('heating_degree_days')].find(i => i >= 0);
+                const cddIdx = [idx('cdd'), idx('cdd65'), idx('cooling_degree_days')].find(i => i >= 0);
+                let merged = 0;
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',');
+                    if (cols.length <= fipsIdx) continue;
+                    const fips = String(cols[fipsIdx]).trim().padStart(5, '0');
+                    if (!fips || countyAshraeData[fips]) continue;
+                    const getNum = (v) => {
+                        const n = Number(String(v).trim());
+                        return Number.isFinite(n) ? n : undefined;
+                    };
+                    const entry = {
+                        name: nameIdx != null && nameIdx >= 0 ? String(cols[nameIdx]).trim() : undefined,
+                        state: stateIdx != null && stateIdx >= 0 ? String(cols[stateIdx]).trim().toUpperCase() : undefined,
+                        fips: fips,
+                        heating: heatingIdx != null && heatingIdx >= 0 ? getNum(cols[heatingIdx]) : undefined,
+                        cooling: coolingIdx != null && coolingIdx >= 0 ? getNum(cols[coolingIdx]) : undefined,
+                        hdd: hddIdx != null && hddIdx >= 0 ? getNum(cols[hddIdx]) : undefined,
+                        cdd: cddIdx != null && cddIdx >= 0 ? getNum(cols[cddIdx]) : undefined,
+                        source: 'External CSV import'
+                    };
+                    countyAshraeData[fips] = entry;
+                    merged++;
+                }
+                if (merged > 0) console.log(`Merged ${merged} counties from ashrae_county_data.csv`);
+            } catch (e) {
+                console.warn('External county CSV load skipped:', e);
+            }
+        }
+
         // Simple Heating Load Input
         function updateHeatingLoad() {
             // Get the numeric value from the formatted input
@@ -1497,6 +1578,10 @@
                     throw new Error('Zip lookup failed');
                 }
                 
+                // Opportunistically load a full dataset if present
+                await tryLoadExternalCountyJson();
+                await tryLoadExternalCountyCsv();
+
                 // Get county FIPS from FCC API using lat/lon
                 const fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
                 if (!fipsInfo || !fipsInfo.countyFIPS) {
@@ -1505,7 +1590,7 @@
                 console.log('Resolved county FIPS:', fipsInfo);
 
                 // Lookup county in authoritative ASHRAE county dataset
-                const countyEntry = countyAshraeData[fipsInfo.countyFIPS];
+                const countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
                 if (!countyEntry) {
                     console.error('No county ASHRAE data found for FIPS:', fipsInfo.countyFIPS, fipsInfo);
                     reportMissingCounty(fipsInfo);
@@ -1531,6 +1616,27 @@
                 showError(msg);
             } finally {
                 hideLoading();
+            }
+        }
+
+        async function tryMergeNceiHddCdd(fips) {
+            try {
+                const url = 'ashrae_county_hdd_cdd.json';
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) return null;
+                const ncei = await res.json();
+                const entry = ncei[fips];
+                if (!entry) return null;
+                // Merge HDD/CDD into existing county entry if present
+                if (countyAshraeData[fips]) {
+                    countyAshraeData[fips].hdd = entry.hdd;
+                    countyAshraeData[fips].cdd = entry.cdd;
+                    countyAshraeData[fips].source = (countyAshraeData[fips].source || '') + ' + ' + entry.source;
+                    return countyAshraeData[fips];
+                }
+                return entry;
+            } catch (e) {
+                return null;
             }
         }
         function normalizeCountyEntry(entry, fipsInfo) {
