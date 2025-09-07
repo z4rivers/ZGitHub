@@ -1194,14 +1194,14 @@
                     <div style="margin-bottom: 15px;">
                         <label for="electricityRate" class="tooltip-below" data-tooltip="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary greatly by region and provider. National average: $.12-.15/kWh energy cost." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Electricity Rate ($/kWh)
-                            <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                            <span class="info-dot">i</span>
                         </label>
                         <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
                     <div>
                         <label for="gasRate" class="tooltip-below" data-tooltip="Use 'total delivered rate' per therm - includes all fees. Rates vary significantly by season. National average: $1.64/therm delivered." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Natural Gas Rate ($/therm)
-                            <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                            <span class="info-dot">i</span>
                         </label>
                         <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
@@ -1212,15 +1212,13 @@
                     <div class="input-row">
                         <div class="input-field">
                             <label for="heatPumpCOP" data-tooltip="A heat pump's &quot;Coefficient of Performance&quot; describes how much heat it can deliver for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient! A heat pump with a C.O.P. of 3 uses one-third the electricity of resistance heat for the same amount of heating.\n\nHeat pumps differ greatly in their performance based on their rated capacity, matched equipment in the rest of the system, the quality of installation, and operating conditions. Current high performance heat pumps have C.O.P.'s of 3 to 4." style="position: relative;">
-                                Heat Pump Performance
-                                <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                                Heat Pump <span class="info-dot">i</span><br>Performance
                             </label>
                             <input type="number" id="heatPumpCOP" value="3.5" step="0.1" min="1" max="5">
                         </div>
                         <div class="input-field">
                             <label for="furnaceEfficiency" data-tooltip="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="position: relative;">
-                                Furnace<br>Efficiency (%)
-                                <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                                Furnace <span class="info-dot">i</span><br>Efficiency (%)
                             </label>
                             <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100">
                         </div>
@@ -1229,7 +1227,7 @@
                         <div class="input-field">
                             <label for="crossoverTemp" data-tooltip="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="position: relative;">
                                 Hybrid Crossover Temperature (°F)
-                                <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
+                                <span class="info-dot">i</span>
                             </label>
                             <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50">
                         </div>
