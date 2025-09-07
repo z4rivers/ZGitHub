@@ -364,24 +364,18 @@
         .tooltip-bubble.theme-home {
             position: fixed;
             background: #ecfeff; /* light aqua */
-            border-color: #67e8f9; /* cyan-300 */
+            border: 2px solid #67e8f9; /* cyan outline */
             color: #0c4a6e; /* sky-900 */
             border-radius: 10px;
             max-width: 520px;
-            padding: 22px 26px; /* extra padding so roof never touches text */
-            background-clip: padding-box; /* keep background inside padding */
-            position: fixed;
-        }
-        .tooltip-bubble.theme-home::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0; /* keep outline inside bubble bounds */
+            padding: 22px 26px; /* space so roof never touches text */
+            background-clip: padding-box;
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90' preserveAspectRatio='none'><path d='M5 45 L50 10 L95 45 V85 H5 Z' fill='none' stroke='%2306b6d4' stroke-width='3.5' stroke-linejoin='round'/></svg>");
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            z-index: -1; /* sit behind bubble content so it cannot cross text */
-            pointer-events: none;
+            background-origin: content-box; /* keep outline inside padding */
         }
+        .tooltip-bubble.theme-home::before { display: none; }
 
         .tooltip-bubble.theme-coal {
             /* subtler dirty grey cloud */
