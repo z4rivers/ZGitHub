@@ -354,34 +354,18 @@
 
         /* Purpose-driven themes */
         .tooltip-bubble.theme-hp {
-            background: #ecfdf5; /* emerald-50 */
-            border-color: #6ee7b7; /* emerald-300 */
-            color: #065f46; /* emerald-800 */
+            background: #fde68a; /* amber-300 */
+            border-color: #fcd34d; /* amber-300 */
+            color: #1f2937; /* gray-800 */
         }
         /* Remove other purpose themes; default + hp + coal + home only */
         
-        /* Home (BTU) note: house-outline bubble using a single scalable SVG */
         .tooltip-bubble.theme-home {
-            position: fixed;
-            background: transparent; /* no rectangle behind */
-            border: none; /* no rectangular border */
-            max-width: none;
-            padding: 0;
-            overflow: visible;
-        }
-        .tooltip-bubble.theme-home::before { display: none; }
-
-        /* SVG house bubble */
-        .house-bubble {
-            display: block;
-            width: min(520px, 90vw);
-            height: auto;
-        }
-        .house-fo {
-            color: #0c4a6e; /* text color inside */
-            font-size: 16px;
-            line-height: 1.5;
-            padding: 4px 6px; /* a little inner breathing room */
+            background: #ecfeff; /* light aqua */
+            border-color: #67e8f9; /* cyan-300 */
+            color: #0c4a6e; /* sky-900 */
+            border-radius: 10px;
+            max-width: 520px;
         }
 
         .tooltip-bubble.theme-coal {
@@ -1400,7 +1384,7 @@
             <!-- Heating Load Input -->
             <div class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="heatingLoadInput" data-tooltip="Enter your home's heat loss in BTU per hour. This is the amount of heat your equipment needs to provide every hour on the coldest day(s) of the year to keep your house at a comfortable temperature. This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes depending on several factors. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes direct heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
+                    <label for="heatingLoadInput" data-tooltip="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
                         Home Energy Needs (BTU per Hour)
                         <span style="position: absolute; top: -5px; right: -20px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                     </label>
@@ -2623,27 +2607,7 @@
                 const html = String(text)
                     .replace(/\\n\\n/g, '<br><br>')
                     .replace(/\\n/g, '<br>');
-                if (theme.includes('theme-home')) {
-                    // True SVG house: outline path + foreignObject for lower-room text
-                    bubble.innerHTML = (
-                        '<svg class="house-bubble" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="false" role="dialog">' +
-                            '<defs>' +
-                                '<clipPath id="houseRoomClip">' +
-                                    // Lower square room from y=45 to y=95, x=5..95
-                                    '<rect x="5" y="45" width="90" height="50" rx="4" ry="4" />' +
-                                '</clipPath>' +
-                            '</defs>' +
-                            // House outline
-                            '<path d="M5 45 L50 10 L95 45 V95 H5 Z" fill="white" stroke="#06b6d4" stroke-width="2.5" stroke-linejoin="round" />' +
-                            // Text inside lower room via foreignObject, clipped to room rectangle
-                            '<foreignObject x="7" y="47" width="86" height="46" clip-path="url(#houseRoomClip)">' +
-                                '<div xmlns="http://www.w3.org/1999/xhtml" class="house-fo">' + html + '</div>' +
-                            '</foreignObject>' +
-                        '</svg>'
-                    );
-                } else {
-                    bubble.innerHTML = html;
-                }
+                bubble.innerHTML = html;
                 // Position to the side that fits best
                 const row = target.closest('.input-row');
                 const rect = row ? row.getBoundingClientRect() : target.getBoundingClientRect();
