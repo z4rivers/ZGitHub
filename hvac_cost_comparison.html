@@ -166,7 +166,7 @@
         }
 
         /* Comic Style Tooltips */
-        [title] {
+        [title], [data-tooltip] {
             position: relative;
             cursor: help;
         }
@@ -185,10 +185,38 @@
             font-weight: bold;
             z-index: 9999;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            max-width: 350px;
+            width: 680px;
+            max-width: 90vw;
             white-space: normal;
-            text-align: center;
-            line-height: 1.4;
+            text-align: left;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
+            pointer-events: none;
+            border: 3px solid #ff5252;
+            animation: bubblePop 0.3s ease-out;
+            margin-top: 10px;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 20px 24px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 680px;
+            max-width: 90vw;
+            white-space: normal;
+            text-align: left;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
             pointer-events: none;
             border: 3px solid #ff5252;
             animation: bubblePop 0.3s ease-out;
@@ -209,6 +237,58 @@
             z-index: 10000;
             pointer-events: none;
             animation: bubblePop 0.3s ease-out;
+        }
+
+        [data-tooltip]:hover::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border: 12px solid transparent;
+            border-bottom-color: #ff6b6b;
+            margin-top: -2px;
+            z-index: 10000;
+            pointer-events: none;
+            animation: bubblePop 0.3s ease-out;
+        }
+
+        /* Position tooltips to the RIGHT of labels inside input rows, so they don't cover inputs */
+        .control-group .input-row label[data-tooltip]:hover::after {
+            top: 0;
+            left: 100%;
+            transform: translateX(12px);
+            margin-top: 0;
+        }
+
+        .control-group .input-row label[data-tooltip]:hover::before {
+            top: 10px;
+            left: calc(100% + 0px);
+            transform: none;
+            border: 12px solid transparent;
+            border-right-color: #ff6b6b;
+            border-bottom-color: transparent;
+            margin-top: 0;
+        }
+
+        /* On small screens, revert to below to avoid off-screen overflow */
+        @media (max-width: 768px) {
+            .control-group .input-row label[data-tooltip]:hover::after {
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                margin-top: 10px;
+            }
+            .control-group .input-row label[data-tooltip]:hover::before {
+                top: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                border-right-color: transparent;
+                border-bottom-color: #ff6b6b;
+                margin-top: -2px;
+            }
         }
 
         @keyframes bubblePop {
@@ -1045,14 +1125,14 @@
                 <!-- Energy Costs -->
                 <div class="control-group" style="padding: 15px; height: 175px;">
                     <div style="margin-bottom: 15px;">
-                        <label for="electricityRate" title="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. National average: $0.12-0.15/kWh" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                        <label for="electricityRate" data-tooltip="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. National average: $0.12-0.15/kWh. Check for time-of-use differences. Most heating occurs during off-peak hours." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Electricity Rate ($/kWh)
                             <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
                         <input type="number" id="electricityRate" value="0.12" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
                     <div>
-                        <label for="gasRate" title="Check your gas bill for the rate per therm. Look for 'therm' charges. National average: $1.00-1.50/therm" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                        <label for="gasRate" data-tooltip="Check your gas bill for the rate per therm. Look for 'therm' charges. National average: $1.00-1.50/therm. Look up total delivered rate, not just energy cost/therm." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Natural Gas Rate ($/therm)
                             <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
@@ -1064,14 +1144,14 @@
                 <div class="control-group" style="padding: 15px; height: 175px;">
                     <div class="input-row">
                         <div class="input-field">
-                            <label for="heatPumpCOP" title="Coefficient of Performance - higher numbers mean more efficient heating. Typical range: 2.5-4.5" style="position: relative;">
+                            <label for="heatPumpCOP" data-tooltip="Heat Pump Performance describes how much heat your heat pump can harvest for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient. A heat pump with a C.O.P. of 3 uses one-third the energy of electric resistance heat such as baseboard heaters, toasters, or hair dryers." style="position: relative;">
                                 Heat Pump Performance
                                 <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
                             <input type="number" id="heatPumpCOP" value="3.5" step="0.1" min="1" max="5">
                         </div>
                         <div class="input-field">
-                            <label for="furnaceEfficiency" title="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="position: relative;">
+                            <label for="furnaceEfficiency" data-tooltip="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="position: relative;">
                                 Furnace Efficiency (%)
                                 <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
@@ -1080,7 +1160,7 @@
                     </div>
                     <div class="input-row" style="margin-top: 15px;">
                         <div class="input-field">
-                            <label for="crossoverTemp" title="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="position: relative;">
+                            <label for="crossoverTemp" data-tooltip="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="position: relative;">
                                 Hybrid Crossover Temperature (°F)
                                 <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
@@ -1093,7 +1173,7 @@
             <!-- Heating Load Input -->
             <div class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="heatingLoadInput" title="Enter your home's heating load in BTU per hour. This is typically calculated by an HVAC professional using Manual J." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
+                    <label for="heatingLoadInput" data-tooltip="Enter your home's heat loss in BTU per hour. This is the amount of heat your equipment needs to provide every hour on the coldest day(s) of the year to keep your house at a comfortable temperature. This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
                         Home Energy Needs (BTU per Hour)
                         <span style="position: absolute; top: -5px; right: -20px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                     </label>
