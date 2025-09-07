@@ -1252,6 +1252,10 @@
         .summary-years { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 8px; }
         .summary-years label { font-size: 0.85rem; color: #444; }
         .summary-years input { width: 64px; padding: 4px 6px; border: 1px solid #ccc; font-size: 0.9rem; text-align: right; }
+        .summary-table { width: 100%; border-collapse: collapse; }
+        .summary-table td { padding: 2px 0; font-size: 0.9rem; }
+        .summary-table td.label { font-weight: 600; color: #444; }
+        .summary-table td.total, .summary-table td.saved { text-align: right; font-variant-numeric: tabular-nums; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
 
         @media (max-width: 1200px) {
             .tech-grid {
@@ -1672,6 +1676,7 @@
         let climateData = null;
         let maxCost = 0;
         let houseLoads = { heating: 0, cooling: 0 };
+        let runYears = 15; // years for summary calculations
 
         // County-level ASHRAE design temperatures (authoritative)
         // Loaded from ashrae_county_data.js; supports datasets keyed by FIPS or any key with a 'fips' field
@@ -1851,9 +1856,10 @@
 
         // Add event listener for heating load input
         document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('heatingLoadInput').addEventListener('input', updateHeatingLoad);
-            // Initialize heating load with default value
-            updateHeatingLoad();
+            const hlInput = document.getElementById('heatingLoadInput');
+            hlInput.addEventListener('input', updateHeatingLoad);
+            // Format initial value with commas and initialize derived values
+            formatHeatingInput(hlInput);
         });
 
         // Regional estimates removed to enforce ASHRAE-only mandate
@@ -2711,11 +2717,11 @@
                 // Build 15-year summary (highest cost first, with % saved for others)
                 // Years input (default 15)
                 const yearsInputId = 'runYearsInput';
-                let years = 15;
+                let years = runYears;
                 const prevInput = document.getElementById(yearsInputId);
                 if (prevInput) {
                     const y = parseInt(prevInput.value, 10);
-                    if (Number.isFinite(y) && y > 0 && y <= 50) years = y;
+                    if (Number.isFinite(y) && y > 0 && y <= 30) years = y;
                 }
                 const totals = [
                     { key: 'Heat Pump', val: hp.total*years },
@@ -2726,22 +2732,22 @@
                 const rows = totals.map((t, idx) => {
                     const totalTxt = `$${Math.round(t.val).toLocaleString()}`;
                     if (idx === 0) {
-                        return `<div class="summary-row"><span class="summary-label">${t.key}</span><span class="summary-total">${totalTxt}</span><span class="summary-saved"></span></div>`;
+                        return `<tr><td class="label">${t.key}</td><td class="total">${totalTxt}</td><td class="saved"></td></tr>`;
                     }
                     const savedAbs = maxVal - t.val;
                     const savedPct = 100 * (savedAbs / maxVal);
                     const savedTxt = isFinite(savedPct) ? `Savings: $${Math.round(savedAbs).toLocaleString()} (${savedPct.toFixed(1)}%)` : '';
-                    return `<div class="summary-row"><span class="summary-label">${t.key}</span><span class="summary-total">${totalTxt}</span><span class="summary-saved">${savedTxt}</span></div>`;
+                    return `<tr><td class="label">${t.key}</td><td class="total">${totalTxt}</td><td class="saved">${savedTxt}</td></tr>`;
                 }).join('');
                 const summaryHtml = '<div id="fifteenYearSummary"><div class="summary-box">' +
                     '<h6>Run Cost</h6>' +
-                    `<div class="summary-years"><label for="${yearsInputId}">Years:</label><input id="${yearsInputId}" type="number" min="1" max="50" step="1" value="${years}"></div>` +
-                    `<div class="summary-rows">${rows}</div>` +
+                    `<div class="summary-years"><label for="${yearsInputId}">Years:</label><input id="${yearsInputId}" type="number" min="1" max="30" step="1" value="${years}" inputmode="numeric" pattern="[0-9]*"></div>` +
+                    `<table class="summary-table"><tbody>${rows}</tbody></table>` +
                     '</div></div>';
-                wrap.innerHTML = summaryHtml + '<h5>Multi-Year Totals</h5>' +
+                wrap.innerHTML =
                     '<div class="mini-charts">' +
-                    '<div class="mini-chart" id="costChart"><h6>Run Cost Totals</h6><div class="mini-chart-body"></div></div>' +
-                    '<div class="mini-chart" id="co2Chart"><h6>CO2 Totals (metric tons)</h6><div class="mini-chart-body"></div></div>' +
+                        '<div class="mini-chart" id="runCostSummary">' + summaryHtml + '</div>' +
+                        '<div class="mini-chart" id="co2Chart"><h6>CO2 Totals (metric tons)</h6><div class="mini-chart-body"></div></div>' +
                     '</div>';
                 tech.appendChild(wrap);
 
@@ -2749,9 +2755,18 @@
                 const yInput = document.getElementById(yearsInputId);
                 if (yInput && !yInput._bound) {
                     const handler = () => {
-                        const val = parseInt(yInput.value, 10);
-                        if (Number.isFinite(val) && val > 0 && val <= 50) {
-                            // Rebuild details with new years
+                        const raw = yInput.value.trim();
+                        if (raw === '') { // allow temporary empty state while editing
+                            return;
+                        }
+                        const val = parseInt(raw, 10);
+                        if (Number.isFinite(val)) {
+                            // clamp to 1..30
+                            const clamped = Math.max(1, Math.min(30, val));
+                            if (clamped !== val) {
+                                yInput.value = clamped;
+                            }
+                            runYears = clamped;
                             updateTechnicalDetails(results, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
                         }
                     };
@@ -2787,12 +2802,6 @@
                         body.appendChild(gEl);
                     });
                 };
-
-                build('costChart', [
-                    { label: 'Heat Pump', className: 'color-heatpump', values: {5:hp.total*5,10:hp.total*10,15:hp.total*15} },
-                    { label: 'Furnace', className: 'color-furnace', values: {5:furnace.total*5,10:furnace.total*10,15:furnace.total*15} },
-                    { label: 'Hybrid', className: 'color-hybrid', values: {5:hybrid.total*5,10:hybrid.total*10,15:hybrid.total*15} }
-                ], v => '$' + Math.round(v).toLocaleString());
 
                 build('co2Chart', [
                     { label: 'Heat Pump', className: 'color-heatpump', values: {5:hp.annualKWh*0.000394*5,10:hp.annualKWh*0.000394*10,15:hp.annualKWh*0.000394*15} },
