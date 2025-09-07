@@ -368,15 +368,18 @@
             color: #0c4a6e; /* sky-900 */
             border-radius: 10px;
             max-width: 520px;
+            padding: 20px 24px; /* ensure text never touches outline */
+            background-clip: padding-box; /* keep background inside padding */
+            isolation: isolate; /* create stacking context for safe layering */
         }
         .tooltip-bubble.theme-home::before {
             content: '';
             position: absolute;
-            inset: -12px; /* extend outline evenly beyond bubble */
+            top: -16px; left: -16px; right: -16px; bottom: -16px; /* draw outline fully outside */
             background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90' preserveAspectRatio='none'><path d='M5 45 L50 10 L95 45 V85 H5 Z' fill='none' stroke='%2306b6d4' stroke-width='4' stroke-linejoin='round'/></svg>");
             background-size: 100% 100%;
             background-repeat: no-repeat;
-            z-index: -1; /* sit behind bubble content so text stays on top */
+            z-index: 0; /* behind text/content, but visible outside bubble */
             pointer-events: none;
         }
 
@@ -486,7 +489,7 @@
             align-items: center;
             justify-content: center;
         }
-        .heating-design .marker-line,
+?        .heating-design .marker-line,
         .cooling-design .marker-line {
             display: flex;
             align-items: center;
