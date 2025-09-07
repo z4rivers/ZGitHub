@@ -352,6 +352,15 @@
             color: #1f2937;
         }
 
+        .tooltip-bubble.theme-coal {
+            /* dirty grey cloud */
+            background: radial-gradient(circle at 35% 40%, #a3a393 0%, #8b8b7a 55%, #7a7a6a 100%);
+            border-color: #4b5563; /* grey-600 */
+            color: #111111; /* near-black text */
+            border-radius: 24px; /* cloud-like rounding */
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25), 0 0 0 2px rgba(0,0,0,0.05) inset;
+        }
+
         /* Force open to the LEFT to avoid right-edge overflow */
         .control-group .input-row label.tooltip-left[data-tooltip]:hover::after {
             top: 0;
@@ -701,19 +710,23 @@
         .cost-box {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border: 1px solid #dee2e6;
-            padding: 25px;
+            padding: 18px 25px 18px 25px;
             border-radius: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             text-align: center;
             transition: all 0.3s ease;
             position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: auto;
         }
 
         .cost-box h3 {
             font-size: 1.2rem;
             font-weight: 600;
             color: #495057;
-            margin-bottom: 15px;
+            margin-bottom: 8px; /* keep label higher */
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -723,6 +736,10 @@
             font-weight: bold;
             color: #2c3e50;
             margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 auto;
         }
 
         .emissions-amount {
@@ -756,9 +773,11 @@
 
         /* Emissions bar area beneath boxes */
         .emissions-bars { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px solid #e5e7eb; }
-        .emissions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-        .emission-bar { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .emissions-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; align-items: center; }
+        .emission-bar { display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .coal-stack { display: flex; flex-direction: column; gap: 2px; }
         .emissions-row { display: flex; gap: 2px; justify-content: center; }
+        .co2-label { font-size: 0.9rem; color: #444; min-width: 80px; text-align: left; }
         /* Center the Annual summary vertically within the bar */
         .annual-summary {
             display: flex;
@@ -1422,33 +1441,39 @@
                     <div class="cost-box heat-pump-box" id="heatPumpBox">
                         <h3>Heat Pump</h3>
                         <div class="cost-amount" id="heatPumpTotal">$0</div>
-                        <div class="emissions-amount" id="hpEmissions" style="display:none"></div>
                     </div>
                     <div class="cost-box furnace-box" id="furnaceBox">
                         <h3>Furnace</h3>
                         <div class="cost-amount" id="furnaceTotal">$0</div>
-                        <div class="emissions-amount" id="furnaceEmissions" style="display:none"></div>
                     </div>
                     <div class="cost-box hybrid-box" id="hybridBox">
                         <h3>Hybrid</h3>
                         <div class="cost-amount" id="hybridTotal">$0</div>
-                        <div class="emissions-amount" id="hybridEmissions" style="display:none"></div>
                     </div>
                 </div>
 
                 <div class="emissions-bars" id="emissionsBars">
                     <div class="emissions-grid">
                         <div class="emission-bar">
-                            <div class="emissions-row" id="hpCoalRow1"></div>
-                            <div class="emissions-row" id="hpCoalRow2"></div>
+                            <div class="coal-stack">
+                                <div class="emissions-row" id="hpCoalRow1"></div>
+                                <div class="emissions-row" id="hpCoalRow2"></div>
+                            </div>
+                            <div class="co2-label" id="hpCo2Label"></div>
                         </div>
                         <div class="emission-bar">
-                            <div class="emissions-row" id="furnaceCoalRow1"></div>
-                            <div class="emissions-row" id="furnaceCoalRow2"></div>
+                            <div class="coal-stack">
+                                <div class="emissions-row" id="furnaceCoalRow1"></div>
+                                <div class="emissions-row" id="furnaceCoalRow2"></div>
+                            </div>
+                            <div class="co2-label" id="furnaceCo2Label"></div>
                         </div>
                         <div class="emission-bar">
-                            <div class="emissions-row" id="hybridCoalRow1"></div>
-                            <div class="emissions-row" id="hybridCoalRow2"></div>
+                            <div class="coal-stack">
+                                <div class="emissions-row" id="hybridCoalRow1"></div>
+                                <div class="emissions-row" id="hybridCoalRow2"></div>
+                            </div>
+                            <div class="co2-label" id="hybridCo2Label"></div>
                         </div>
                     </div>
                 </div>
@@ -2370,24 +2395,38 @@
             const elecMtPerKWh = 0.000394; // metric tons CO2/kWh (eGRID delivered avg)
 
             const setEm = (idBase, therms, kwh) => {
-                const el = document.getElementById(idBase + 'Emissions');
-                if (!el) return;
+                // Always hide emissions text inside cost boxes
+                const boxText = document.getElementById(idBase + 'Emissions');
+                if (boxText) boxText.style.display = 'none';
+
+                // Toggle off: clear coal rows and labels, hide bar area
                 if (!showEm) {
-                    el.style.display = 'none';
                     ['hp','furnace','hybrid'].forEach(key => {
                         const r1 = document.getElementById(key + 'CoalRow1');
                         const r2 = document.getElementById(key + 'CoalRow2');
+                        const lab = document.getElementById(key + 'Co2Label');
                         if (r1) r1.innerHTML = '';
                         if (r2) r2.innerHTML = '';
+                        if (lab) { lab.textContent = ''; lab.removeAttribute('data-tooltip'); }
                     });
                     const bars = document.getElementById('emissionsBars');
                     if (bars) bars.style.display = 'none';
                     return;
                 }
+
+                // Calculate emissions
                 const mt = (therms * gasMtPerTherm) + (kwh * elecMtPerKWh);
+                const mtRounded = Math.round(mt * 100) / 100; // X.XX
                 const lbs = mt * 2204.62;
-                el.textContent = 'CO2: ' + (Math.round(mt*100)/100) + ' t' + ' (' + Math.round(lbs).toLocaleString() + ' lbs)';
-                el.style.display = 'block';
+                const lbsRounded = Math.round(lbs).toLocaleString();
+
+                // Update the label to the right of coal chart
+                const labelEl = document.getElementById(idBase + 'Co2Label');
+                if (labelEl) {
+                    labelEl.textContent = `${mtRounded} t CO2`;
+                    labelEl.setAttribute('data-tooltip', `${lbsRounded} lbs CO2 per year`);
+                }
+
                 // Coal bar: normalize against 80% furnace baseline
                 const baselineTherms = (houseLoads.heating / (65 - climateData.heating)) * (climateData.hdd * 24) / (100000 * 0.80);
                 const baselineMt = baselineTherms * gasMtPerTherm;
@@ -2401,19 +2440,16 @@
                     row2.innerHTML = '';
                     let remaining = lumps;
                     for (let col = 0; col < 12; col++) {
-                        // Fill top then bottom for each column, left to right
-                        if (remaining > 0) {
-                            row1.appendChild(Object.assign(document.createElement('div'), { className: 'coal-lump' }));
-                            remaining--;
-                        } else {
-                            row1.appendChild(Object.assign(document.createElement('div'), { className: 'coal-lump empty' }));
-                        }
-                        if (remaining > 0) {
-                            row2.appendChild(Object.assign(document.createElement('div'), { className: 'coal-lump' }));
-                            remaining--;
-                        } else {
-                            row2.appendChild(Object.assign(document.createElement('div'), { className: 'coal-lump empty' }));
-                        }
+                        const d1 = document.createElement('div');
+                        d1.className = 'coal-lump' + (remaining > 0 ? '' : ' empty');
+                        d1.setAttribute('data-tooltip', `${lbsRounded} lbs CO2 per year`);
+                        row1.appendChild(d1);
+                        if (remaining > 0) remaining--;
+                        const d2 = document.createElement('div');
+                        d2.className = 'coal-lump' + (remaining > 0 ? '' : ' empty');
+                        d2.setAttribute('data-tooltip', `${lbsRounded} lbs CO2 per year`);
+                        row2.appendChild(d2);
+                        if (remaining > 0) remaining--;
                     }
                     const bars = document.getElementById('emissionsBars');
                     if (bars) bars.style.display = 'block';
@@ -2522,7 +2558,9 @@
                     bubble.className = 'tooltip-bubble';
                     document.body.appendChild(bubble);
                 }
-                bubble.className = 'tooltip-bubble' + (target.id === 'heatPumpCOP' || target.getAttribute('for') === 'heatPumpCOP' ? ' theme-accent' : '');
+                const inCoal = !!(target.closest && target.closest('#emissionsBars'));
+                const isHPPerf = (target.id === 'heatPumpCOP' || target.getAttribute('for') === 'heatPumpCOP');
+                bubble.className = 'tooltip-bubble' + (inCoal ? ' theme-coal' : (isHPPerf ? ' theme-accent' : ''));
                 // Convert escaped newlines in data attributes ("\n") into real breaks
                 bubble.innerHTML = String(text)
                     .replace(/\\n\\n/g, '<br><br>')
@@ -2543,6 +2581,19 @@
                 const vw = window.innerWidth;
                 const vh = window.innerHeight;
                 let x, y;
+                // Special positioning for coal charts: center above/below the emission bar to avoid drifting into neighbors
+                if (inCoal) {
+                    const bar = target.closest('.emission-bar') || target.closest('.emissions-grid') || target;
+                    const brect = bar.getBoundingClientRect();
+                    // Force BELOW coal chart to avoid covering content; clamp if viewport is short
+                    const belowY = brect.bottom + padding;
+                    y = (belowY + bh <= vh) ? belowY : Math.max(12, Math.min(vh - bh - 12, belowY));
+                    x = Math.max(12, Math.min(vw - bw - 12, brect.left + (brect.width - bw)/2));
+                    bubble.style.left = x + 'px';
+                    bubble.style.top = y + 'px';
+                    bubble.style.visibility = 'visible';
+                    return;
+                }
                 // Prefer left or right of the entire row to avoid covering either label or field.
                 if (target.classList.contains('tooltip-left')) {
                     x = Math.max(12, Math.min(vw - bw - 12, rect.left - padding - bw));
