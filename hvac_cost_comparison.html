@@ -255,6 +255,13 @@
             animation: bubblePop 0.3s ease-out;
         }
 
+        /* When JS tooltips are active, suppress CSS pseudo-tooltips */
+        body.js-tooltips-active [data-tooltip]:hover::after,
+        body.js-tooltips-active [data-tooltip]:hover::before {
+            content: none !important;
+            display: none !important;
+        }
+
         /* Position tooltips to the RIGHT of labels inside input rows, so they don't cover inputs */
         .control-group .input-row label[data-tooltip]:hover::after {
             top: 0;
@@ -289,6 +296,42 @@
                 border-bottom-color: #ff6b6b;
                 margin-top: -2px;
             }
+        }
+
+        /* JS-driven tooltip bubble */
+        .tooltip-bubble {
+            position: fixed;
+            z-index: 10000;
+            background: #ff6b6b;
+            color: #ffffff;
+            padding: 20px 24px;
+            border-radius: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 3px solid #ff5252;
+            line-height: 1.5;
+            max-width: 90vw;
+            pointer-events: none;
+        }
+
+        /* Force open to the LEFT to avoid right-edge overflow */
+        .control-group .input-row label.tooltip-left[data-tooltip]:hover::after {
+            top: 0;
+            left: auto;
+            right: 100%;
+            transform: translateX(-12px);
+            margin-top: 0;
+        }
+        .control-group .input-row label.tooltip-left[data-tooltip]:hover::before {
+            top: 10px;
+            left: auto;
+            right: calc(100% + 0px);
+            transform: none;
+            border: 12px solid transparent;
+            border-left-color: #ff6b6b;
+            border-bottom-color: transparent;
+            margin-top: 0;
         }
 
         @keyframes bubblePop {
@@ -1125,14 +1168,14 @@
                 <!-- Energy Costs -->
                 <div class="control-group" style="padding: 15px; height: 175px;">
                     <div style="margin-bottom: 15px;">
-                        <label for="electricityRate" data-tooltip="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. National average: $0.12-0.15/kWh. Check for time-of-use differences. Most heating occurs during off-peak hours." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                        <label for="electricityRate" class="tooltip-below" data-tooltip="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. National average: $0.12-0.15/kWh. Check for time-of-use differences. Most heating occurs during off-peak hours." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Electricity Rate ($/kWh)
                             <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
                         <input type="number" id="electricityRate" value="0.12" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
                     <div>
-                        <label for="gasRate" data-tooltip="Check your gas bill for the rate per therm. Look for 'therm' charges. National average: $1.00-1.50/therm. Look up total delivered rate, not just energy cost/therm." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                        <label for="gasRate" class="tooltip-below" data-tooltip="Check your gas bill for the rate per therm. Look for 'therm' charges. National average: $1.00-1.50/therm. Look up total delivered rate, not just energy cost/therm." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Natural Gas Rate ($/therm)
                             <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
@@ -1152,7 +1195,7 @@
                         </div>
                         <div class="input-field">
                             <label for="furnaceEfficiency" data-tooltip="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="position: relative;">
-                                Furnace Efficiency (%)
+                                Furnace<br>Efficiency (%)
                                 <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
                             <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100">
@@ -2260,6 +2303,93 @@
                 toggleIcon.textContent = '▼';
             }
         }
+
+        // JS tooltip to avoid covering inputs or going off-screen
+        (function() {
+            const body = document.body;
+            body.classList.add('js-tooltips-active');
+            let bubble;
+            let hideTimer;
+            function showBubble(target) {
+                const text = target.getAttribute('data-tooltip');
+                if (!text) return;
+                if (!bubble) {
+                    bubble = document.createElement('div');
+                    bubble.className = 'tooltip-bubble';
+                    document.body.appendChild(bubble);
+                }
+                bubble.textContent = text;
+                // Position to the side that fits best
+                const row = target.closest('.input-row');
+                const rect = row ? row.getBoundingClientRect() : target.getBoundingClientRect();
+                const padding = 12;
+                const prefRightX = rect.right + padding;
+                const prefLeftX = rect.left - padding;
+                const topY = Math.max(12, rect.top);
+                bubble.style.visibility = 'hidden';
+                bubble.style.left = '0px';
+                bubble.style.top = '0px';
+                bubble.style.display = 'block';
+                const bw = bubble.offsetWidth;
+                const bh = bubble.offsetHeight;
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+                let x, y;
+                // Prefer left or right of the entire row to avoid covering either label or field.
+                if (target.classList.contains('tooltip-left')) {
+                    x = Math.max(12, Math.min(vw - bw - 12, rect.left - padding - bw));
+                    y = Math.max(12, Math.min(vh - bh - 12, rect.top + (rect.height - bh)/2));
+                } else if (target.classList.contains('tooltip-right')) {
+                    x = Math.max(12, Math.min(vw - bw - 12, rect.right + padding));
+                    y = Math.max(12, Math.min(vh - bh - 12, rect.top + (rect.height - bh)/2));
+                } else if (target.classList.contains('tooltip-below')) {
+                    // Place below the entire control-group to avoid covering label/input
+                    const group = target.closest('.control-group');
+                    const grect = group ? group.getBoundingClientRect() : rect;
+                    y = Math.max(12, Math.min(vh - bh - 12, grect.bottom + padding));
+                    x = Math.max(12, Math.min(vw - bw - 12, grect.left + (grect.width - bw)/2));
+                } else {
+                    // Fallback: above/below then center horizontally
+                    const belowY = rect.bottom + padding;
+                    const aboveY = rect.top - padding - bh;
+                    const canBelow = belowY + bh <= vh;
+                    const canAbove = aboveY >= 0;
+                    if (canBelow) {
+                        y = belowY;
+                    } else if (canAbove) {
+                        y = aboveY;
+                    } else {
+                        y = Math.max(12, Math.min(vh - bh - 12, rect.top + rect.height + padding));
+                    }
+                    if (prefRightX + bw <= vw) {
+                        x = prefRightX;
+                    } else if (prefLeftX - bw >= 0) {
+                        x = prefLeftX - bw;
+                    } else {
+                        x = Math.max(12, Math.min(vw - bw - 12, rect.left + (rect.width - bw)/2));
+                    }
+                }
+                bubble.style.left = x + 'px';
+                bubble.style.top = y + 'px';
+                bubble.style.visibility = 'visible';
+            }
+            function hideBubble() {
+                if (bubble) bubble.style.display = 'none';
+            }
+            document.addEventListener('mouseenter', function(e) {
+                const t = e.target.closest('[data-tooltip]');
+                if (t) {
+                    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                    showBubble(t);
+                }
+            }, true);
+            document.addEventListener('mouseleave', function(e) {
+                const t = e.target.closest('[data-tooltip]');
+                if (t) {
+                    hideTimer = setTimeout(() => hideBubble(), 200);
+                }
+            }, true);
+        })();
 
         function updateTechnicalDetails(results, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp) {
             // House specifications
