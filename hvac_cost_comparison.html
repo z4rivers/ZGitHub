@@ -313,6 +313,7 @@
             line-height: 1.5;
             max-width: 90vw;
             pointer-events: none;
+            white-space: normal;
         }
 
         /* Force open to the LEFT to avoid right-edge overflow */
@@ -1168,14 +1169,14 @@
                 <!-- Energy Costs -->
                 <div class="control-group" style="padding: 15px; height: 175px;">
                     <div style="margin-bottom: 15px;">
-                        <label for="electricityRate" class="tooltip-below" data-tooltip="Check your electric bill for the rate per kilowatt-hour. Look for 'kWh' charges. Check for time-of-use differences (most heating occurs off-peak). National Average: $.18 / kWh" style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                        <label for="electricityRate" class="tooltip-below" data-tooltip="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary greatly by region and provider. National average: $.12-.15/kWh energy cost." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Electricity Rate ($/kWh)
                             <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
                         <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
                     </div>
                     <div>
-                        <label for="gasRate" class="tooltip-below" data-tooltip="Look up 'total delivered rate', not just energy cost per therm. National average: $1.64/therm." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
+                        <label for="gasRate" class="tooltip-below" data-tooltip="Use 'total delivered rate' per therm - includes all fees. Rates vary significantly by season. National average: $1.64/therm delivered." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
                             Natural Gas Rate ($/therm)
                             <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
@@ -1187,7 +1188,7 @@
                 <div class="control-group" style="padding: 15px; height: 175px;">
                     <div class="input-row">
                         <div class="input-field">
-                            <label for="heatPumpCOP" data-tooltip="Heat Pump Performance describes how much heat your heat pump can harvest for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient. A heat pump with a C.O.P. of 3 uses one-third the energy of electric resistance heat such as baseboard heaters, toasters, or hair dryers." style="position: relative;">
+                            <label for="heatPumpCOP" data-tooltip="A heat pump's &quot;Coefficient of Performance&quot; describes how much heat it can deliver for each unit of energy it uses.\n\nHeat pumps differ greatly in their performance based on their rated capacity, matched equipment in the rest of the system, the quality of installation, and operating conditions. Current high performance heat pumps have C.O.P. of 3 to 4." style="position: relative;">
                                 Heat Pump Performance
                                 <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
