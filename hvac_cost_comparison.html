@@ -1887,73 +1887,29 @@
             let annualHeatingCost = 0;
             let annualCoolingCost = 0;
 
-            // Use actual house loads from user input, with fallback defaults
-            const heatingLoadBTU = houseLoads.heating || 50000; // Default 50,000 BTU/hr
-            const coolingLoadBTU = houseLoads.cooling || 40000; // Default 40,000 BTU/hr
+            // Design loads (use actual user input)
+            const designHeatingLoad = houseLoads.heating || 50000; // BTU/hr from user input
+            const designCoolingLoad = houseLoads.cooling || 40000; // BTU/hr from user input
             
-            // Debug logging
-            console.log('Cost calculation inputs:', {
-                systemType,
-                heatingLoadBTU,
-                coolingLoadBTU,
-                hdd,
-                cdd,
-                electricityRate,
-                gasRate
-            });
-            
-            // If no house loads provided, show warning and use minimal values
-            if (heatingLoadBTU === 0) {
-                console.warn('No heating load provided - cost calculations will be $0');
-                return {
-                    energy: 0,
-                    total: 0,
-                    heating: 0,
-                    cooling: 0
-                };
-            }
-
-            // Simplified calculation: Use heating load directly with reasonable assumptions
-            // Assume the heating load runs for a certain number of hours per year
-            
-            // Proper HVAC calculation using degree days
             // Indoor design temperature
-            const indoorTemp = 70; // °F (standard indoor design temp)
-            const heatingDesignDiff = indoorTemp - heatingDesign; // Temperature difference for heating
-            const coolingDesignDiff = coolingDesign - indoorTemp; // Temperature difference for cooling
+            const indoorTemp = 68; // °F
+            const designTempDiff = indoorTemp - heatingDesign;
             
-            // Annual heating load = HDD × (design load / design temp diff)
-            // This gives total BTU needed for the heating season
-            const annualHeatingLoad = hdd * (heatingLoadBTU / heatingDesignDiff);
-            
-            // Annual cooling load = CDD × (design load / design temp diff)
-            const annualCoolingLoad = cdd * (coolingLoadBTU / coolingDesignDiff);
-            
-            // Debug logging
-            console.log('HVAC Calculation Debug:');
-            console.log('HDD:', hdd, 'CDD:', cdd);
-            console.log('Heating Design:', heatingDesign, 'Cooling Design:', coolingDesign);
-            console.log('Heating Design Diff:', heatingDesignDiff, 'Cooling Design Diff:', coolingDesignDiff);
-            console.log('Heating Load BTU:', heatingLoadBTU);
-            console.log('Annual Heating Load:', annualHeatingLoad);
-            console.log('Annual Cooling Load:', annualCoolingLoad);
+            // Calculate annual loads using degree day method
+            const annualHeatingLoad = (hdd / designTempDiff) * designHeatingLoad * 24; // Total BTU/year
+            const annualCoolingLoad = (cdd / (coolingDesign - 65)) * designCoolingLoad * 24; // Total BTU/year
 
             if (systemType === 'furnace') {
                 // Gas furnace heating
                 const heatingTherms = annualHeatingLoad / (100000 * specs.furnaceAFUE); // 100,000 BTU/therm
                 annualHeatingCost = heatingTherms * gasRate;
                 annualCoolingCost = 0; // No cooling
-                console.log('Furnace calculation:');
-                console.log('Heating Therms:', heatingTherms, 'Gas Rate:', gasRate, 'Annual Heating Cost:', annualHeatingCost);
 
             } else if (systemType === 'heatPump') {
-                // Heat pump heating - COP is BTU output per Wh input
-                // Convert annual BTU to kWh: BTU ÷ (COP × 3.412 BTU/Wh)
-                const heatingkWh = annualHeatingLoad / (specs.cop * 3.412);
+                // Heat pump heating - Use COP for heating efficiency
+                const heatingkWh = annualHeatingLoad / (specs.cop * 3.412); // COP is BTU/Wh, convert to kWh
                 annualHeatingCost = heatingkWh * electricityRate;
                 annualCoolingCost = 0; // No cooling
-                console.log('Heat pump calculation:');
-                console.log('Heating kWh:', heatingkWh, 'Electricity Rate:', electricityRate, 'Annual Heating Cost:', annualHeatingCost, 'COP:', specs.cop);
 
             } else if (systemType === 'hybrid') {
                 // Determine crossover temperature (typically 35°F)
@@ -1984,27 +1940,6 @@
             }
 
             const annualEnergyCost = annualHeatingCost + annualCoolingCost;
-
-            // Check for NaN or invalid values
-            if (isNaN(annualEnergyCost) || !isFinite(annualEnergyCost)) {
-                console.error('Invalid energy cost calculation:', {
-                    systemType,
-                    annualHeatingCost,
-                    annualCoolingCost,
-                    heatingLoadBTU,
-                    coolingLoadBTU,
-                    hdd,
-                    cdd,
-                    heatingDesign,
-                    coolingDesign
-                });
-                return {
-                    install: 0,
-                    energy: 0,
-                    maintenance: 0,
-                    total: 0
-                };
-            }
 
             return {
                 install: 0, // No installation cost in this calculation
