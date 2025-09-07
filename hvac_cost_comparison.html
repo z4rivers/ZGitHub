@@ -1970,8 +1970,31 @@
 
             const annualEnergyCost = annualHeatingCost + annualCoolingCost;
 
+            // Check for NaN or invalid values
+            if (isNaN(annualEnergyCost) || !isFinite(annualEnergyCost)) {
+                console.error('Invalid energy cost calculation:', {
+                    systemType,
+                    annualHeatingCost,
+                    annualCoolingCost,
+                    heatingLoadBTU,
+                    coolingLoadBTU,
+                    hdd,
+                    cdd,
+                    heatingDesign,
+                    coolingDesign
+                });
+                return {
+                    install: 0,
+                    energy: 0,
+                    maintenance: 0,
+                    total: 0
+                };
+            }
+
             return {
+                install: 0, // No installation cost in this calculation
                 energy: Math.round(annualEnergyCost),
+                maintenance: 0, // No maintenance cost in this calculation
                 total: Math.round(annualEnergyCost)
             };
         }
