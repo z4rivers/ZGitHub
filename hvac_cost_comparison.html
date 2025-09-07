@@ -349,6 +349,12 @@
             color: #ffffff;
             text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
             filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.9));
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            line-height: 1;
+            z-index: 20;
         }
 
         .triangle-marker {
@@ -1352,7 +1358,9 @@
         </div>
     </div>
 
-    <!-- Load protected RESnet ASHRAE data -->
+    <!-- Load authoritative county-level ASHRAE dataset -->
+    <script src="ashrae_county_data.js"></script>
+    <!-- Legacy city/zip dataset (not used for calculations anymore) -->
     <script src="resnet_ashrae_data.js"></script>
     
     <script>
@@ -1361,15 +1369,28 @@
         let maxCost = 0;
         let houseLoads = { heating: 0, cooling: 0 };
 
-        // ASHRAE design temperatures from RESnet PDF tables
-        // This data is loaded from the protected resnet_ashrae_data.js file
-        // DO NOT MODIFY - All changes must go through the separate data file
-        const ashraeData = RESNET_ASHRAE_DATA || {};
-        
-        // Debug: Check if ASHRAE data loaded properly
-        console.log('ASHRAE data loaded:', Object.keys(ashraeData).length, 'entries');
-        if (Object.keys(ashraeData).length === 0) {
-            console.error('ASHRAE data not loaded! Check if resnet_ashrae_data.js is accessible.');
+        // County-level ASHRAE design temperatures (authoritative)
+        // Loaded from ashrae_county_data.js; supports datasets keyed by FIPS or any key with a 'fips' field
+        const rawCountyDataset = (typeof ASHRAE_COUNTY_DATA !== 'undefined') ? ASHRAE_COUNTY_DATA : {};
+        const countyAshraeData = buildCountyFipsIndex(rawCountyDataset);
+        console.log('County ASHRAE data loaded:', Object.keys(countyAshraeData).length, 'counties');
+
+        function buildCountyFipsIndex(dataset) {
+            try {
+                const index = {};
+                const entries = Object.entries(dataset || {});
+                for (const [key, value] of entries) {
+                    if (!value || typeof value !== 'object') continue;
+                    const fipsRaw = value.fips || value.FIPS || value.countyFIPS || value.county_fips || key;
+                    const fips = (fipsRaw != null) ? String(fipsRaw).padStart(5, '0') : null;
+                    if (fips) index[fips] = value;
+                }
+                // If we failed to derive any FIPS keys, return original (assumes already keyed by FIPS)
+                return Object.keys(index).length ? index : (dataset || {});
+            } catch (e) {
+                console.warn('Failed to build county FIPS index:', e);
+                return dataset || {};
+            }
         }
 
         // Simple Heating Load Input
@@ -1465,21 +1486,7 @@
             hideResults();
 
             try {
-                console.log('Looking for zip code in ASHRAE data:', zipCode);
-                console.log('Available zip codes:', Object.keys(ashraeData));
-                
-                // First check if we have known ASHRAE data for this zip code
-                if (ashraeData[zipCode]) {
-                    console.log('Found ASHRAE data for zip code:', zipCode, ashraeData[zipCode]);
-                    climateData = ashraeData[zipCode];
-                    displayClimateData();
-                    calculateHVACCosts();
-                    return;
-                } else {
-                    console.log('No ASHRAE data found for zip code:', zipCode);
-                }
-
-                // Try to get location data from zip code
+                // Get location data from zip code
                 let locationData;
                 try {
                     console.log('Calling getLocationFromZip for:', zipCode);
@@ -1490,28 +1497,56 @@
                     throw new Error('Zip lookup failed');
                 }
                 
-                // Find the nearest ASHRAE weather station data
-                console.log('Calling findNearestASHRAEData with:', locationData);
-                const nearestASHRAE = findNearestASHRAEData(locationData.city, locationData.state, locationData.latitude, locationData.longitude);
-                console.log('Nearest ASHRAE result:', nearestASHRAE);
-                
-                if (nearestASHRAE) {
-                    console.log('Using nearest ASHRAE data:', nearestASHRAE);
-                    climateData = nearestASHRAE;
-                } else {
-                    console.error('No ASHRAE data found for location');
-                    throw new Error('No ASHRAE climate data available for this location');
+                // Get county FIPS from FCC API using lat/lon
+                const fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
+                if (!fipsInfo || !fipsInfo.countyFIPS) {
+                    throw new Error('Unable to resolve county FIPS');
                 }
+                console.log('Resolved county FIPS:', fipsInfo);
+
+                // Lookup county in authoritative ASHRAE county dataset
+                const countyEntry = countyAshraeData[fipsInfo.countyFIPS];
+                if (!countyEntry) {
+                    console.error('No county ASHRAE data found for FIPS:', fipsInfo.countyFIPS, fipsInfo);
+                    reportMissingCounty(fipsInfo);
+                    throw new Error(`County not loaded yet: ${fipsInfo.countyName} (${fipsInfo.countyFIPS}) ${fipsInfo.stateAbbr}`);
+                }
+
+                // Normalize expected fields
+                const normalized = normalizeCountyEntry(countyEntry, fipsInfo);
+                if (!Number.isFinite(normalized.heating) || !Number.isFinite(normalized.hdd)) {
+                    console.error('County entry missing required heating/HDD fields after normalization:', countyEntry);
+                    throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
+                }
+                climateData = normalized;
 
                 displayClimateData();
                 calculateHVACCosts();
 
             } catch (error) {
                 console.error('Error fetching climate data:', error);
-                showError('No valid ASHRAE data available for this ZIP.');
+                const msg = (error && error.message && error.message.startsWith('County not loaded yet'))
+                  ? `${error.message}. Please populate this county in ashrae_county_data.js.`
+                  : 'No valid county-level ASHRAE data available for this ZIP.';
+                showError(msg);
             } finally {
                 hideLoading();
             }
+        }
+        function normalizeCountyEntry(entry, fipsInfo) {
+            const getNum = (v) => {
+                const n = Number(v);
+                return Number.isFinite(n) ? n : undefined;
+            };
+            const heating = getNum(entry.heating) ?? getNum(entry.heating_99) ?? getNum(entry.heatingDesign) ?? getNum(entry.heating_design);
+            const cooling = getNum(entry.cooling) ?? getNum(entry.cooling_01) ?? getNum(entry.coolingDesign) ?? getNum(entry.cooling_design);
+            const hdd = getNum(entry.hdd) ?? getNum(entry.HDD) ?? getNum(entry.heating_degree_days) ?? getNum(entry.HDD65);
+            const cdd = getNum(entry.cdd) ?? getNum(entry.CDD) ?? getNum(entry.cooling_degree_days) ?? getNum(entry.CDD65);
+            const name = entry.name || `${fipsInfo.countyName}, ${fipsInfo.stateAbbr}`;
+            const source = entry.source || 'Appendix A (Normative) + RESNET HDD/CDD';
+            const lat = getNum(entry.lat);
+            const lon = getNum(entry.lon);
+            return { name, heating, cooling, hdd, cdd, source, lat, lon };
         }
 
         async function getLocationFromZip(zipCode) {
@@ -1540,14 +1575,43 @@
                 };
             } catch (error) {
                 console.error('Zip code lookup error:', error);
-                // Fallback to a default location if API fails
-                console.log('Using fallback location for zip code:', zipCode);
-                return {
-                    latitude: 33.4484, // Phoenix coordinates as fallback
-                    longitude: -112.0740,
-                    city: 'Phoenix',
-                    state: 'AZ'
+                throw error;
+            }
+        }
+
+        async function getCountyFIPS(lat, lon) {
+            // FCC Census API - returns county FIPS and names
+            const url = `https://geo.fcc.gov/api/census/area?lat=${lat}&lon=${lon}&format=json`;
+            const res = await fetch(url);
+            if (!res.ok) {
+                console.error('FCC FIPS API error:', res.status, res.statusText);
+                throw new Error('FIPS lookup failed');
+            }
+            const data = await res.json();
+            if (!data || !data.results || data.results.length === 0) {
+                throw new Error('No FIPS result for coordinates');
+            }
+            const county = data.results[0];
+            return {
+                countyFIPS: county['county_fips'] || county['FIPS'] || county['county_fips_code'] || null,
+                countyName: county['county_name'] || county['name'] || 'Unknown County',
+                stateAbbr: county['state_code'] || county['state_abbr'] || county['state'] || ''
+            };
+        }
+
+        function reportMissingCounty(fipsInfo) {
+            try {
+                if (!window.MISSING_COUNTIES) window.MISSING_COUNTIES = {};
+                const key = fipsInfo.countyFIPS || `${fipsInfo.countyName}-${fipsInfo.stateAbbr}`;
+                window.MISSING_COUNTIES[key] = {
+                    countyFIPS: fipsInfo.countyFIPS,
+                    countyName: fipsInfo.countyName,
+                    stateAbbr: fipsInfo.stateAbbr,
+                    timestamp: new Date().toISOString()
                 };
+                console.log('Recorded missing county for population:', window.MISSING_COUNTIES[key]);
+            } catch (e) {
+                console.warn('Could not record missing county:', e);
             }
         }
 
@@ -1673,10 +1737,10 @@
         }
 
         function displayClimateData() {
-            // Enforce integrity: ASHRAE fields must be present
-            if (!climateData || !Number.isFinite(climateData.heating) || !Number.isFinite(climateData.cooling) || !Number.isFinite(climateData.hdd) || !Number.isFinite(climateData.cdd)) {
-                console.error('Invalid ASHRAE climate data:', climateData);
-                showError('Invalid ASHRAE data for this ZIP.');
+            // Enforce integrity: heating + HDD required; cooling optional (not used)
+            if (!climateData || !Number.isFinite(climateData.heating) || !Number.isFinite(climateData.hdd)) {
+                console.error('Invalid ASHRAE county climate data:', climateData);
+                showError('Invalid ASHRAE county data for this ZIP.');
                 return;
             }
             document.getElementById('locationName').textContent = climateData.name;
@@ -1684,18 +1748,30 @@
             document.getElementById('locationInfo').style.display = 'block';
 
             document.getElementById('heatingDesign').textContent = climateData.heating;
-            document.getElementById('coolingDesign').textContent = climateData.cooling;
-            
+            // Show cooling design on chart if present (visual only; not used in pricing)
+            if (document.getElementById('coolingDesign')) {
+                document.getElementById('coolingDesign').textContent = Number.isFinite(climateData.cooling) ? climateData.cooling : '--';
+            }
+
             const avgCold = Math.round((climateData.heating + 65) / 2);
-            const avgHot = Math.round((climateData.cooling + 65) / 2);
             document.getElementById('avgCold').textContent = avgCold;
-            document.getElementById('avgHot').textContent = avgHot;
+            if (document.getElementById('avgHot')) {
+                const avgHotVal = Number.isFinite(climateData.cooling) ? Math.round((climateData.cooling + 65) / 2) : null;
+                document.getElementById('avgHot').textContent = (avgHotVal != null) ? avgHotVal : '--';
+            }
             
             // Update heating load when climate data is available
             updateHeatingLoad();
             
             positionTemperatureMarkers();
             document.getElementById('temperatureBar').style.display = 'block';
+
+            // Show cooling markers/labels if cooling data present
+            const hasCooling = Number.isFinite(climateData.cooling);
+            const coolingMarker = document.getElementById('coolingMarker');
+            if (coolingMarker) coolingMarker.style.display = hasCooling ? '' : 'none';
+            const avgHotMarker = document.getElementById('avgHotMarker');
+            if (avgHotMarker) avgHotMarker.style.display = hasCooling ? '' : 'none';
         }
 
         function positionTemperatureMarkers() {
@@ -1704,29 +1780,34 @@
             const range = maxTemp - minTemp;
             
             const heatingPos = ((climateData.heating - minTemp) / range) * 100;
-            const coolingPos = ((climateData.cooling - minTemp) / range) * 100;
             const avgColdPos = ((Math.round((climateData.heating + 65) / 2) - minTemp) / range) * 100;
-            const avgHotPos = ((Math.round((climateData.cooling + 65) / 2) - minTemp) / range) * 100;
-            
+            const hasCooling = Number.isFinite(climateData.cooling);
+            const coolingPos = hasCooling ? ((climateData.cooling - minTemp) / range) * 100 : null;
+            const avgHotPos = hasCooling ? ((Math.round((climateData.cooling + 65) / 2) - minTemp) / range) * 100 : null;
+
             document.getElementById('heatingMarker').style.left = heatingPos + '%';
-            document.getElementById('coolingMarker').style.left = coolingPos + '%';
             document.getElementById('avgColdMarker').style.left = avgColdPos + '%';
-            document.getElementById('avgHotMarker').style.left = avgHotPos + '%';
-            
+            if (hasCooling && document.getElementById('coolingMarker')) {
+                document.getElementById('coolingMarker').style.left = coolingPos + '%';
+            }
+            if (hasCooling && document.getElementById('avgHotMarker')) {
+                document.getElementById('avgHotMarker').style.left = avgHotPos + '%';
+            }
+
             // Position average temp labels to match their markers
             document.querySelector('#avgCold').parentElement.style.left = avgColdPos + '%';
-            document.querySelector('#avgHot').parentElement.style.left = avgHotPos + '%';
-            
-            // Position house icon between average cold and average hot
-            const housePos = (avgColdPos + avgHotPos) / 2;
+            if (hasCooling) {
+                document.querySelector('#avgHot').parentElement.style.left = avgHotPos + '%';
+            }
+
+            // Position house icon between average cold and average hot when available
+            const housePos = hasCooling ? (avgColdPos + avgHotPos) / 2 : avgColdPos;
             document.getElementById('houseIcon').style.left = housePos + '%';
         }
 
         function calculateHVACCosts() {
             const hdd = climateData.hdd;
-            const cdd = climateData.cdd;
             const heatingDesign = climateData.heating;
-            const coolingDesign = climateData.cooling;
 
             const electricityRate = parseFloat(document.getElementById('electricityRate').value) || 0.12;
             const gasRate = parseFloat(document.getElementById('gasRate').value) || 1.20;
@@ -1737,18 +1818,15 @@
             const systems = {
                 heatPump: {
                     name: 'Heat Pump System',
-                    cop: heatPumpCOP,
-                    seer: 18
+                    cop: heatPumpCOP
                 },
                 furnace: {
                     name: 'Furnace System',
-                    furnaceAFUE: furnaceEfficiency / 100,
-                    acSEER: 16
+                    furnaceAFUE: furnaceEfficiency / 100
                 },
                 hybrid: {
                     name: 'Hybrid System',
                     cop: heatPumpCOP,
-                    seer: 18,
                     furnaceAFUE: furnaceEfficiency / 100
                 }
             };
@@ -1756,7 +1834,7 @@
             const results = {};
             
             for (const [systemType, specs] of Object.entries(systems)) {
-                const costs = calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate);
+                const costs = calculateSystemCosts(systemType, specs, hdd, 0, heatingDesign, 0, electricityRate, gasRate);
                 results[systemType] = costs;
             }
 
@@ -1764,7 +1842,7 @@
             displayCostBars(results);
             displaySystemResults(results);
             showWinner(results);
-            updateTechnicalDetails(results, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
+            updateTechnicalDetails(results, hdd, 0, heatingDesign, 0, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
 
             document.getElementById('resultsSection').style.display = 'block';
             document.getElementById('hybridSplit').style.display = 'block';
@@ -1994,23 +2072,25 @@
             // House specifications
             document.getElementById('houseSize').textContent = '2,000 sq ft';
             document.getElementById('heatingLoadFactor').textContent = '1.2 BTU/sq ft/HDD';
-            document.getElementById('coolingLoadFactor').textContent = '1.0 BTU/sq ft/CDD';
+            const clf = document.getElementById('coolingLoadFactor');
+            if (clf) clf.parentElement.style.display = 'none';
 
             // Climate data
             document.getElementById('hddValue').textContent = hdd.toLocaleString();
-            document.getElementById('cddValue').textContent = cdd.toLocaleString();
+            const cddEl = document.getElementById('cddValue');
+            if (cddEl) cddEl.parentElement.style.display = 'none';
             document.getElementById('heatingDesignValue').textContent = heatingDesign + '°F';
-            document.getElementById('coolingDesignValue').textContent = coolingDesign + '°F';
+            const cdv = document.getElementById('coolingDesignValue');
+            if (cdv) cdv.parentElement.style.display = 'none';
 
             // Energy calculations
             const houseSize = 2000;
             const heatingLoadFactor = 1.2;
-            const coolingLoadFactor = 1.0;
             const totalHeatingBTU = hdd * houseSize * heatingLoadFactor;
-            const totalCoolingBTU = cdd * houseSize * coolingLoadFactor;
             
             document.getElementById('totalHeatingBTU').textContent = totalHeatingBTU.toLocaleString() + ' BTU';
-            document.getElementById('totalCoolingBTU').textContent = totalCoolingBTU.toLocaleString() + ' BTU';
+            const tcb = document.getElementById('totalCoolingBTU');
+            if (tcb) tcb.parentElement.style.display = 'none';
             document.getElementById('electricityRateValue').textContent = '$' + electricityRate + '/kWh';
             document.getElementById('gasRateValue').textContent = '$' + gasRate + '/therm';
 
@@ -2020,14 +2100,14 @@
 
             // Calculate efficiencies
             const heatPumpHeatingEff = (heatPumpCOP * 3.412).toFixed(1) + '%';
-            const heatPumpCoolingEff = (18 * 3.412).toFixed(1) + '%';
             const furnaceHeatingEff = furnaceEfficiency + '%';
-            const furnaceCoolingEff = (16 * 3.412).toFixed(1) + '%';
 
             document.getElementById('heatPumpHeatingEff').textContent = heatPumpHeatingEff;
-            document.getElementById('heatPumpCoolingEff').textContent = heatPumpCoolingEff;
             document.getElementById('furnaceHeatingEff').textContent = furnaceHeatingEff;
-            document.getElementById('furnaceCoolingEff').textContent = furnaceCoolingEff;
+            const hpce = document.getElementById('heatPumpCoolingEff');
+            if (hpce) hpce.parentElement.style.display = 'none';
+            const fce = document.getElementById('furnaceCoolingEff');
+            if (fce) fce.parentElement.style.display = 'none';
 
             // Hybrid system details
             const heatPumpEfficiency = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
@@ -2038,7 +2118,8 @@
             document.getElementById('hybridHeatPumpUsage').textContent = heatPumpUsage;
             document.getElementById('hybridFurnaceUsage').textContent = furnaceUsage;
             document.getElementById('hybridHeatingEff').textContent = 'Mixed (see above)';
-            document.getElementById('hybridCoolingEff').textContent = heatPumpCoolingEff;
+            const hce = document.getElementById('hybridCoolingEff');
+            if (hce) hce.parentElement.style.display = 'none';
 
             // Update usage bar
             updateUsageBar(heatPumpEfficiency, heatingDesign, crossoverTemp);
