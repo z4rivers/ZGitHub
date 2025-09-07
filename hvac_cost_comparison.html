@@ -1496,30 +1496,37 @@
         function updateAnnualHeatingDisplay(heatingLoad) {
             if (!climateData) return;
             
-            // Get heating degree days
             const hdd = climateData.hdd || 0;
+            const heatingDesign = climateData.heating;
+            const indoorTemp = 65;
+            const heatingDesignDiff = indoorTemp - heatingDesign;
+            if (heatingDesignDiff <= 0) return;
             
-            // Gas Heat System (80% AFUE furnace)
-            const annualGasHeat = Math.round((heatingLoad * hdd) / (100000 * 0.8));
+            // Use same degree-day method as cost path
+            const heatLossRate = heatingLoad / heatingDesignDiff; // BTU/hr/°F
+            const annualHeatingLoadBTU = heatLossRate * hdd * 24; // BTU/year
             
-            // Heat Pump System (3.5 COP, 80% efficiency)
-            const annualHeatPump = Math.round((heatingLoad * hdd) / (3.412 * 3.5));
-            
-            // Hybrid System - split between heat pump and gas based on crossover temp
+            // Inputs
+            const afue = (parseFloat(document.getElementById('furnaceEfficiency').value) || 95) / 100;
+            const cop = parseFloat(document.getElementById('heatPumpCOP').value) || 3.5;
             const crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value) || 35;
-            const heatPumpEfficiency = calculateHeatPumpEfficiency(climateData.heating, crossoverTemp);
+            const hpShare = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
             
-            // Hybrid gas portion (80% AFUE)
-            const annualHybridGas = Math.round((heatingLoad * hdd * (1 - heatPumpEfficiency)) / (100000 * 0.8));
+            // Gas furnace therms at meter
+            const gasTherms = annualHeatingLoadBTU / (100000 * afue);
             
-            // Hybrid electric portion (3.5 COP)
-            const annualHybridElec = Math.round((heatingLoad * hdd * heatPumpEfficiency) / (3.412 * 3.5));
+            // Heat pump kWh
+            const hpKWh = annualHeatingLoadBTU / (cop * 3412);
             
-            // Update displays with comma formatting
-            document.getElementById('annualGasHeat').textContent = formatNumberWithCommas(annualGasHeat) + ' therms';
-            document.getElementById('annualHeatPump').textContent = formatNumberWithCommas(annualHeatPump) + ' kWh';
-            document.getElementById('annualHybridGas').textContent = formatNumberWithCommas(annualHybridGas) + ' therms';
-            document.getElementById('annualHybridElec').textContent = formatNumberWithCommas(annualHybridElec) + ' kWh';
+            // Hybrid split
+            const hybridGasTherms = (annualHeatingLoadBTU * (1 - hpShare)) / (100000 * afue);
+            const hybridElecKWh = (annualHeatingLoadBTU * hpShare) / (cop * 3412);
+            
+            // Update UI
+            document.getElementById('annualGasHeat').textContent = formatNumberWithCommas(Math.round(gasTherms)) + ' therms';
+            document.getElementById('annualHeatPump').textContent = formatNumberWithCommas(Math.round(hpKWh)) + ' kWh';
+            document.getElementById('annualHybridGas').textContent = formatNumberWithCommas(Math.round(hybridGasTherms)) + ' therms';
+            document.getElementById('annualHybridElec').textContent = formatNumberWithCommas(Math.round(hybridElecKWh)) + ' kWh';
         }
 
         // Format number with commas
@@ -1993,7 +2000,7 @@
 
             } else if (systemType === 'heatPump') {
                 // Heat pump heating - Use COP for heating efficiency
-                const heatingkWh = annualHeatingLoad / (specs.cop * 3.412); // COP is BTU/Wh, convert to kWh
+                const heatingkWh = annualHeatingLoad / (specs.cop * 3412); // COP×3412 BTU per kWh
                 annualHeatingCost = heatingkWh * electricityRate;
                 annualCoolingCost = 0; // No cooling
                 console.log('Heat pump debug:', {
@@ -2025,7 +2032,7 @@
                 const gasHeatingLoad = annualHeatingLoad * (1 - heatPumpPercentage);
                 
                 // Calculate costs for each portion
-                const heatPumpkWh = heatPumpHeatingLoad / (specs.cop * 3.412); // Use COP for heat pump
+                const heatPumpkWh = heatPumpHeatingLoad / (specs.cop * 3412); // COP×3412 BTU per kWh
                 const gasHeatingTherms = gasHeatingLoad / (100000 * specs.furnaceAFUE);
                 
                 annualHeatingCost = (heatPumpkWh * electricityRate) + (gasHeatingTherms * gasRate);
