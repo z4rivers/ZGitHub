@@ -1914,33 +1914,55 @@
             // Simplified calculation: Use heating load directly with reasonable assumptions
             // Assume the heating load runs for a certain number of hours per year
             
+            // Design loads (should be user input or calculated from Manual J)
+            const designHeatingLoad = heatingLoadBTU; // Use actual user input
+            const designCoolingLoad = coolingLoadBTU; // Use actual user input
+            
+            // Indoor design temperature
+            const indoorTemp = 68; // °F
+            const designTempDiff = indoorTemp - heatingDesign;
+            
+            // Calculate annual loads using degree day method
+            const annualHeatingLoad = (hdd / designTempDiff) * designHeatingLoad * 24; // Total BTU/year
+            const annualCoolingLoad = (cdd / (coolingDesign - 65)) * designCoolingLoad * 24; // Total BTU/year
+
             if (systemType === 'furnace') {
-                // Gas furnace: Annual BTU = heating load × hours × efficiency
-                const annualHeatingBTU = heatingLoadBTU * 2000 * specs.furnaceAFUE;
-                const annualGasTherms = Math.round(annualHeatingBTU / 100000);
-                annualHeatingCost = annualGasTherms * gasRate;
+                // Gas furnace heating
+                const heatingTherms = annualHeatingLoad / (100000 * specs.furnaceAFUE); // 100,000 BTU/therm
+                annualHeatingCost = heatingTherms * gasRate;
                 annualCoolingCost = 0; // No cooling
 
             } else if (systemType === 'heatPump') {
-                // Heat pump: Annual kWh = heating load × hours ÷ (COP × 3.412)
-                const annualHeatingkWh = Math.round((heatingLoadBTU * 2000) / (3.412 * specs.cop));
-                annualHeatingCost = annualHeatingkWh * electricityRate;
+                // Heat pump heating - HSPF is seasonal efficiency
+                const heatingkWh = annualHeatingLoad / (specs.hspf * 1000); // HSPF is BTU/Wh
+                annualHeatingCost = heatingkWh * electricityRate;
                 annualCoolingCost = 0; // No cooling
 
             } else if (systemType === 'hybrid') {
-                const heatPumpEfficiency = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+                // Determine crossover temperature (typically 35°F)
+                const crossoverTemp = 35;
                 
-                // Split the heating load based on efficiency
-                const heatPumpHeatingLoad = heatingLoadBTU * heatPumpEfficiency;
-                const gasHeatingLoad = heatingLoadBTU * (1 - heatPumpEfficiency);
+                // Calculate what percentage of heating degree days are above/below crossover
+                let heatPumpPercentage;
+                if (heatingDesign > crossoverTemp) {
+                    heatPumpPercentage = 1.0; // Always use heat pump
+                } else if (heatingDesign > 20) {
+                    heatPumpPercentage = 0.7; // Mostly heat pump
+                } else if (heatingDesign > 10) {
+                    heatPumpPercentage = 0.5; // Split operation
+                } else {
+                    heatPumpPercentage = 0.3; // Mostly gas backup
+                }
                 
-                // Heat pump portion: kWh = load × hours ÷ (COP × 3.412)
-                const annualHybridEleckWh = Math.round((heatPumpHeatingLoad * 2000) / (3.412 * specs.cop));
+                // Split the heating load
+                const heatPumpHeatingLoad = annualHeatingLoad * heatPumpPercentage;
+                const gasHeatingLoad = annualHeatingLoad * (1 - heatPumpPercentage);
                 
-                // Gas portion: therms = load × hours × efficiency ÷ 100000
-                const annualHybridGasTherms = Math.round((gasHeatingLoad * 2000 * specs.furnaceAFUE) / 100000);
+                // Calculate costs for each portion
+                const heatPumpkWh = heatPumpHeatingLoad / (specs.hspf * 1000);
+                const gasHeatingTherms = gasHeatingLoad / (100000 * specs.furnaceAFUE);
                 
-                annualHeatingCost = (annualHybridEleckWh * electricityRate) + (annualHybridGasTherms * gasRate);
+                annualHeatingCost = (heatPumpkWh * electricityRate) + (gasHeatingTherms * gasRate);
                 annualCoolingCost = 0; // No cooling
             }
 
