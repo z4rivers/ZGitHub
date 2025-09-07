@@ -1916,29 +1916,44 @@
             // Simplified calculation: Use heating load directly with reasonable assumptions
             // Assume the heating load runs for a certain number of hours per year
             
-            // Design loads (should be user input or calculated from Manual J)
-            const designHeatingLoad = heatingLoadBTU; // Use actual user input
-            const designCoolingLoad = coolingLoadBTU; // Use actual user input
-            
+            // Proper HVAC calculation using degree days
             // Indoor design temperature
-            const indoorTemp = 68; // °F
-            const designTempDiff = indoorTemp - heatingDesign;
+            const indoorTemp = 70; // °F (standard indoor design temp)
+            const heatingDesignDiff = indoorTemp - heatingDesign; // Temperature difference for heating
+            const coolingDesignDiff = coolingDesign - indoorTemp; // Temperature difference for cooling
             
-            // Calculate annual loads using degree day method
-            const annualHeatingLoad = (hdd / designTempDiff) * designHeatingLoad * 24; // Total BTU/year
-            const annualCoolingLoad = (cdd / (coolingDesign - 65)) * designCoolingLoad * 24; // Total BTU/year
+            // Annual heating load = HDD × (design load / design temp diff)
+            // This gives total BTU needed for the heating season
+            const annualHeatingLoad = hdd * (heatingLoadBTU / heatingDesignDiff);
+            
+            // Annual cooling load = CDD × (design load / design temp diff)
+            const annualCoolingLoad = cdd * (coolingLoadBTU / coolingDesignDiff);
+            
+            // Debug logging
+            console.log('HVAC Calculation Debug:');
+            console.log('HDD:', hdd, 'CDD:', cdd);
+            console.log('Heating Design:', heatingDesign, 'Cooling Design:', coolingDesign);
+            console.log('Heating Design Diff:', heatingDesignDiff, 'Cooling Design Diff:', coolingDesignDiff);
+            console.log('Heating Load BTU:', heatingLoadBTU);
+            console.log('Annual Heating Load:', annualHeatingLoad);
+            console.log('Annual Cooling Load:', annualCoolingLoad);
 
             if (systemType === 'furnace') {
                 // Gas furnace heating
                 const heatingTherms = annualHeatingLoad / (100000 * specs.furnaceAFUE); // 100,000 BTU/therm
                 annualHeatingCost = heatingTherms * gasRate;
                 annualCoolingCost = 0; // No cooling
+                console.log('Furnace calculation:');
+                console.log('Heating Therms:', heatingTherms, 'Gas Rate:', gasRate, 'Annual Heating Cost:', annualHeatingCost);
 
             } else if (systemType === 'heatPump') {
-                // Heat pump heating - HSPF is seasonal efficiency
-                const heatingkWh = annualHeatingLoad / (specs.hspf * 1000); // HSPF is BTU/Wh
+                // Heat pump heating - COP is BTU output per Wh input
+                // Convert annual BTU to kWh: BTU ÷ (COP × 3.412 BTU/Wh)
+                const heatingkWh = annualHeatingLoad / (specs.cop * 3.412);
                 annualHeatingCost = heatingkWh * electricityRate;
                 annualCoolingCost = 0; // No cooling
+                console.log('Heat pump calculation:');
+                console.log('Heating kWh:', heatingkWh, 'Electricity Rate:', electricityRate, 'Annual Heating Cost:', annualHeatingCost, 'COP:', specs.cop);
 
             } else if (systemType === 'hybrid') {
                 // Determine crossover temperature (typically 35°F)
@@ -1961,7 +1976,7 @@
                 const gasHeatingLoad = annualHeatingLoad * (1 - heatPumpPercentage);
                 
                 // Calculate costs for each portion
-                const heatPumpkWh = heatPumpHeatingLoad / (specs.hspf * 1000);
+                const heatPumpkWh = heatPumpHeatingLoad / (specs.cop * 3.412); // Use COP for heat pump
                 const gasHeatingTherms = gasHeatingLoad / (100000 * specs.furnaceAFUE);
                 
                 annualHeatingCost = (heatPumpkWh * electricityRate) + (gasHeatingTherms * gasRate);
