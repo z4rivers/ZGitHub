@@ -91,6 +91,24 @@
             position: relative;
         }
 
+        /* Inline info dot next to labels */
+        .info-dot {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            background: #6c757d;
+            color: #ffffff;
+            border-radius: 50%;
+            font-size: 0.7rem;
+            font-weight: bold;
+            margin-left: 6px;
+            vertical-align: text-top;
+            position: relative;
+            top: -1px;
+        }
+
         .info-tooltip {
             position: absolute;
             bottom: 100%;
@@ -313,7 +331,12 @@
             line-height: 1.5;
             max-width: 90vw;
             pointer-events: none;
-            white-space: normal;
+            white-space: pre-wrap;
+        }
+        .tooltip-bubble.theme-accent {
+            background: #f59e0b;
+            border-color: #fbbf24;
+            color: #1f2937;
         }
 
         /* Force open to the LEFT to avoid right-edge overflow */
@@ -1188,7 +1211,7 @@
                 <div class="control-group" style="padding: 15px; height: 175px;">
                     <div class="input-row">
                         <div class="input-field">
-                            <label for="heatPumpCOP" data-tooltip="A heat pump's &quot;Coefficient of Performance&quot; describes how much heat it can deliver for each unit of energy it uses.\n\nHeat pumps differ greatly in their performance based on their rated capacity, matched equipment in the rest of the system, the quality of installation, and operating conditions. Current high performance heat pumps have C.O.P. of 3 to 4." style="position: relative;">
+                            <label for="heatPumpCOP" data-tooltip="A heat pump's &quot;Coefficient of Performance&quot; describes how much heat it can deliver for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient! A heat pump with a C.O.P. of 3 uses one-third the electricity of resistance heat for the same amount of heating.\n\nHeat pumps differ greatly in their performance based on their rated capacity, matched equipment in the rest of the system, the quality of installation, and operating conditions. Current high performance heat pumps have C.O.P.'s of 3 to 4." style="position: relative;">
                                 Heat Pump Performance
                                 <span style="position: absolute; top: 0; right: 0; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                             </label>
@@ -2319,7 +2342,11 @@
                     bubble.className = 'tooltip-bubble';
                     document.body.appendChild(bubble);
                 }
-                bubble.textContent = text;
+                bubble.className = 'tooltip-bubble' + (target.id === 'heatPumpCOP' || target.getAttribute('for') === 'heatPumpCOP' ? ' theme-accent' : '');
+                // Convert escaped newlines in data attributes ("\n") into real breaks
+                bubble.innerHTML = String(text)
+                    .replace(/\\n\\n/g, '<br><br>')
+                    .replace(/\\n/g, '<br>');
                 // Position to the side that fits best
                 const row = target.closest('.input-row');
                 const rect = row ? row.getBoundingClientRect() : target.getBoundingClientRect();
