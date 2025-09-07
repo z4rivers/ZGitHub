@@ -1450,15 +1450,7 @@
             updateHeatingLoad();
         });
 
-        // Regional climate estimates
-        const regionalEstimates = {
-            'south': { heating: 35, cooling: 95, hdd: 2000, cdd: 3000 },
-            'southflorida': { heating: 50, cooling: 90, hdd: 300, cdd: 3600 },
-            'northeast': { heating: 15, cooling: 85, hdd: 5500, cdd: 1000 },
-            'midwest': { heating: 10, cooling: 90, hdd: 6000, cdd: 1200 },
-            'west': { heating: 25, cooling: 88, hdd: 3000, cdd: 1500 },
-            'northwest': { heating: 20, cooling: 82, hdd: 4500, cdd: 500 }
-        };
+        // Regional estimates removed to enforce ASHRAE-only mandate
 
         async function lookupClimateData() {
             const zipCode = document.getElementById('zipCode').value.trim();
@@ -1494,14 +1486,8 @@
                     locationData = await getLocationFromZip(zipCode);
                     console.log('Location data received:', locationData);
                 } catch (error) {
-                    console.log('Zip code API failed, using fallback coordinates. Error:', error);
-                    // Use fallback coordinates if API fails
-                    locationData = {
-                        latitude: 39.8283, // Center of US
-                        longitude: -98.5795,
-                        city: 'Unknown',
-                        state: 'US'
-                    };
+                    console.error('Zip code lookup failed:', error);
+                    throw new Error('Zip lookup failed');
                 }
                 
                 // Find the nearest ASHRAE weather station data
@@ -1522,7 +1508,7 @@
 
             } catch (error) {
                 console.error('Error fetching climate data:', error);
-                showError('Unable to fetch climate data. Please try a different zip code.');
+                showError('No valid ASHRAE data available for this ZIP.');
             } finally {
                 hideLoading();
             }
@@ -1566,98 +1552,9 @@
         }
 
 
-        async function getWeatherStationData(lat, lon) {
-            try {
-                const stationResponse = await fetch(`https://api.weather.gov/points/${lat},${lon}`);
-                if (!stationResponse.ok) throw new Error('Weather station lookup failed');
-                
-                const stationData = await stationResponse.json();
-                const city = stationData.properties.relativeLocation.properties.city;
-                const state = stationData.properties.relativeLocation.properties.state;
-                
-                // First try to find exact ASHRAE data from RESnet tables
-                const ashraeMatch = findNearestASHRAEData(city, state, lat, lon);
-                
-                if (ashraeMatch) {
-                    return {
-                        name: `${city}, ${state}`,
-                        heating: ashraeMatch.heating,
-                        cooling: ashraeMatch.cooling,
-                        hdd: ashraeMatch.hdd,
-                        cdd: ashraeMatch.cdd,
-                        source: ashraeMatch.source
-                    };
-                }
-                
-                // If no ASHRAE data, try to get historical weather data to inform estimates
-                const historicalData = await getHistoricalWeatherData(lat, lon);
-                if (historicalData) {
-                    return {
-                        name: `${city}, ${state}`,
-                        heating: historicalData.heating,
-                        cooling: historicalData.cooling,
-                        hdd: historicalData.hdd,
-                        cdd: historicalData.cdd,
-                        source: `${city} Weather Station (Historical Data)`
-                    };
-                }
-                
-                // If no historical data available, return null to fall back to regional estimates
-                return null;
-                
-            } catch (error) {
-                console.log('Weather station data unavailable');
-                return null;
-            }
-        }
+        // getWeatherStationData removed to enforce ASHRAE-only mandate
         
-        async function getHistoricalWeatherData(lat, lon) {
-            try {
-                // Try to get historical temperature data from NOAA
-                const stationResponse = await fetch(`https://api.weather.gov/points/${lat},${lon}`);
-                if (!stationResponse.ok) return null;
-                
-                const stationData = await stationResponse.json();
-                const stationId = stationData.properties.observationStations.split('/').pop();
-                
-                // Get recent observations to estimate design temperatures
-                const obsResponse = await fetch(`https://api.weather.gov/stations/${stationId}/observations`);
-                if (!obsResponse.ok) return null;
-                
-                const obsData = await obsResponse.json();
-                const observations = obsData.features;
-                
-                if (observations.length === 0) return null;
-                
-                // Extract temperatures and calculate design temperatures
-                const temperatures = observations
-                    .map(obs => obs.properties.temperature?.value)
-                    .filter(temp => temp !== null && temp !== undefined)
-                    .map(temp => temp * 9/5 + 32); // Convert to Fahrenheit
-                
-                if (temperatures.length === 0) return null;
-                
-                // Calculate 99% heating and 1% cooling design temperatures
-                const sortedTemps = temperatures.sort((a, b) => a - b);
-                const heatingDesign = calculatePercentile(sortedTemps, 0.01); // 1st percentile for heating
-                const coolingDesign = calculatePercentile(sortedTemps, 0.99); // 99th percentile for cooling
-                
-                // Calculate degree days
-                const hdd = calculateHDD(heatingDesign);
-                const cdd = calculateCDD(coolingDesign);
-                
-                return {
-                    heating: Math.round(heatingDesign),
-                    cooling: Math.round(coolingDesign),
-                    hdd: Math.round(hdd),
-                    cdd: Math.round(cdd)
-                };
-                
-            } catch (error) {
-                console.log('Historical weather data unavailable');
-                return null;
-            }
-        }
+        // getHistoricalWeatherData removed to enforce ASHRAE-only mandate
         
         function calculatePercentile(sortedArray, percentile) {
             const index = (percentile * (sortedArray.length - 1));
@@ -1697,30 +1594,26 @@
             }
             
             console.log('Closest ASHRAE data:', closestData, 'Distance:', minDistance);
+            // Integrity check: require heating, cooling, hdd, cdd to be finite numbers
+            if (closestData) {
+                const valid = ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(closestData[k]));
+                if (!valid) {
+                    console.error('ASHRAE entry missing required fields:', closestData);
+                    return null;
+                }
+            }
             return closestData;
         }
-        
-        function findRegionalMatch(state, lat, lon) {
-            // Regional fallback logic based on geographic regions
-            const region = getGeographicRegion(lat, lon);
-            const stateRegion = getStateRegion(state);
-            
-            // First try same state, then same region, then any available
-            for (const [zip, data] of Object.entries(ashraeData)) {
-                if (data.name.includes(state)) {
-                    return data;
-                }
-            }
-            
-            for (const [zip, data] of Object.entries(ashraeData)) {
-                if (stateRegion === getStateRegion(data.name.split(', ')[1])) {
-                    return data;
-                }
-            }
-            
-            // Last resort - return first available
-            return Object.values(ashraeData)[0];
+
+        // Minimal self-test to verify a few spot zips resolve to ASHRAE entries
+        function runAshraeSelfTest() {
+            const tests = ['97201','98101','10001'];
+            const results = tests.map(z => ({ zip: z, ok: !!RESNET_ASHRAE_DATA[z] }));
+            console.log('ASHRAE self-test:', results);
+            return results;
         }
+        
+        // findRegionalMatch removed to enforce ASHRAE-only mandate
         
         function getGeographicRegion(lat, lon) {
             if (lat >= 45) return 'north';
@@ -1752,19 +1645,7 @@
             return R * c;
         }
 
-        function getRegionalEstimate(zipCode, locationData) {
-            const region = getRegionFromZip(zipCode);
-            const estimate = regionalEstimates[region];
-            
-            return {
-                name: `${locationData.city}, ${locationData.state}`,
-                heating: estimate.heating,
-                cooling: estimate.cooling,
-                hdd: estimate.hdd,
-                cdd: estimate.cdd,
-                source: 'Regional Estimate'
-            };
-        }
+        // getRegionalEstimate removed to enforce ASHRAE-only mandate
 
         function getRegionFromZip(zipCode) {
             const firstDigit = zipCode[0];
@@ -1792,6 +1673,12 @@
         }
 
         function displayClimateData() {
+            // Enforce integrity: ASHRAE fields must be present
+            if (!climateData || !Number.isFinite(climateData.heating) || !Number.isFinite(climateData.cooling) || !Number.isFinite(climateData.hdd) || !Number.isFinite(climateData.cdd)) {
+                console.error('Invalid ASHRAE climate data:', climateData);
+                showError('Invalid ASHRAE data for this ZIP.');
+                return;
+            }
             document.getElementById('locationName').textContent = climateData.name;
             document.getElementById('dataSource').textContent = `Data source: ${climateData.source}`;
             document.getElementById('locationInfo').style.display = 'block';
@@ -1891,8 +1778,8 @@
             const designHeatingLoad = houseLoads.heating || 50000; // BTU/hr from user input
             const designCoolingLoad = houseLoads.cooling || 40000; // BTU/hr from user input
             
-            // Indoor design temperature
-            const indoorTemp = 70; // °F (standard indoor temp)
+            // Indoor design temperature (standard for degree day calculations)
+            const indoorTemp = 65; // °F (standard indoor temp for HDD/CDD calculations)
             const heatingDesignDiff = indoorTemp - heatingDesign; // Temperature difference for heating
             const coolingDesignDiff = coolingDesign - indoorTemp; // Temperature difference for cooling
             

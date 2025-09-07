@@ -20,7 +20,7 @@ const RESNET_ASHRAE_DATA = {
     '55401': { name: 'Minneapolis, MN', heating: -15, cooling: 85, hdd: 9000, cdd: 300, source: 'Minneapolis-Saint Paul International Airport', lat: 44.884, lon: -93.222 },
     '89101': { name: 'Las Vegas, NV', heating: 28, cooling: 108, hdd: 1500, cdd: 3500, source: 'McCarran International Airport', lat: 36.085, lon: -115.153 },
     '98101': { name: 'Seattle, WA', heating: 25, cooling: 82, hdd: 4000, cdd: 200, source: 'Seattle-Tacoma International Airport', lat: 47.450, lon: -122.309 },
-    '97201': { name: 'Portland, OR', heating: 20, cooling: 88, hdd: 4000, cdd: 400, source: 'Portland International Airport', lat: 45.589, lon: -122.593 },
+    '97201': { name: 'Portland, OR', heating: 24, cooling: 88, hdd: 4000, cdd: 400, source: 'Portland International Airport', lat: 45.589, lon: -122.593 },
     '02101': { name: 'Boston, MA', heating: 5, cooling: 85, hdd: 6000, cdd: 400, source: 'Logan International Airport', lat: 42.360, lon: -71.058 },
     '33040': { name: 'Key West, FL', heating: 50, cooling: 90, hdd: 100, cdd: 3800, source: 'Key West International Airport', lat: 24.556, lon: -81.759 },
     '97501': { name: 'Jacksonville, OR', heating: 15, cooling: 98, hdd: 4500, cdd: 600, source: 'Rogue Valley International-Medford Airport', lat: 42.374, lon: -122.873 },
