@@ -368,14 +368,35 @@
             color: #0c4a6e; /* sky-900 */
             border-radius: 10px;
             max-width: 520px;
-            padding: 22px 26px; /* space so roof never touches text */
+            padding: 0; /* layout managed by house-wrap */
             background-clip: padding-box;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90' preserveAspectRatio='none'><path d='M5 45 L50 10 L95 45 V85 H5 Z' fill='none' stroke='%2306b6d4' stroke-width='3.5' stroke-linejoin='round'/></svg>");
-            background-size: 100% 100%;
-            background-repeat: no-repeat;
-            background-origin: content-box; /* keep outline inside padding */
+            overflow: visible;
         }
         .tooltip-bubble.theme-home::before { display: none; }
+
+        /* Structured house bubble: SVG frame + content area */
+        .house-wrap {
+            position: relative;
+            width: min(520px, 90vw);
+            /* Reserve space for roof using aspect ratio; height grows with content */
+            padding: 20px 24px 24px 24px; /* outer bubble padding */
+        }
+        .house-frame {
+            position: absolute;
+            inset: 8px; /* keep stroke inside bubble border */
+            width: calc(100% - 16px);
+            height: calc(100% - 16px);
+            pointer-events: none;
+        }
+        .house-content {
+            position: relative;
+            /* Push content below the roof area. 36% roughly matches triangle height */
+            margin-top: 36%;
+            background: transparent;
+            padding: 0 2px 0 2px;
+            line-height: 1.5;
+            font-size: 16px;
+        }
 
         .tooltip-bubble.theme-coal {
             /* subtler dirty grey cloud */
@@ -2613,9 +2634,22 @@
                 else theme = ' theme-accent';
                 bubble.className = 'tooltip-bubble' + theme;
                 // Convert escaped newlines in data attributes ("\n") into real breaks
-                bubble.innerHTML = String(text)
+                const html = String(text)
                     .replace(/\\n\\n/g, '<br><br>')
                     .replace(/\\n/g, '<br>');
+                if (theme.includes('theme-home')) {
+                    // Structured house: SVG outline + constrained content in the square body
+                    bubble.innerHTML = (
+                        '<div class="house-wrap">' +
+                            '<svg class="house-frame" viewBox="0 0 100 90" preserveAspectRatio="none" aria-hidden="true">' +
+                                '<path d="M5 45 L50 10 L95 45 V85 H5 Z" fill="none" stroke="#06b6d4" stroke-width="3.5" stroke-linejoin="round"/>' +
+                            '</svg>' +
+                            '<div class="house-content">' + html + '</div>' +
+                        '</div>'
+                    );
+                } else {
+                    bubble.innerHTML = html;
+                }
                 // Position to the side that fits best
                 const row = target.closest('.input-row');
                 const rect = row ? row.getBoundingClientRect() : target.getBoundingClientRect();
@@ -2679,6 +2713,9 @@
                         x = Math.max(12, Math.min(vw - bw - 12, rect.left + (rect.width - bw)/2));
                     }
                 }
+                // Prevent bubble from touching window edges
+                x = Math.max(12, Math.min(vw - (bubble.offsetWidth + 12), x));
+                y = Math.max(12, Math.min(vh - (bubble.offsetHeight + 12), y));
                 bubble.style.left = x + 'px';
                 bubble.style.top = y + 'px';
                 bubble.style.visibility = 'visible';
