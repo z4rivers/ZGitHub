@@ -711,6 +711,12 @@
             margin: 0;
         }
 
+        .emissions-amount {
+            margin-top: 6px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
         .heat-pump-box {
             background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
         }
@@ -2092,7 +2098,7 @@
             const results = {};
             
             for (const [systemType, specs] of Object.entries(systems)) {
-                const costs = calculateSystemCosts(systemType, specs, hdd, 0, heatingDesign, 0, electricityRate, gasRate);
+                const costs = calculateSystemCosts(systemType, specs, hdd, 0, heatingDesign, 0, electricityRate, gasRate, crossoverTemp);
                 results[systemType] = costs;
             }
 
@@ -2106,7 +2112,7 @@
             document.getElementById('hybridSplit').style.display = 'block';
         }
 
-        function calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate) {
+        function calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, crossoverTemp) {
             let annualHeatingCost = 0;
             let annualCoolingCost = 0;
 
@@ -2157,16 +2163,16 @@
                 });
 
             } else if (systemType === 'hybrid') {
-                // Determine crossover temperature (typically 35°F)
-                const crossoverTemp = 35;
+                // Use user-specified crossover temperature
+                const xover = Number.isFinite(crossoverTemp) ? crossoverTemp : 35;
                 
                 // Calculate what percentage of heating degree days are above/below crossover
                 let heatPumpPercentage;
-                if (heatingDesign > crossoverTemp) {
+                if (heatingDesign > xover) {
                     heatPumpPercentage = 1.0; // Always use heat pump
-                } else if (heatingDesign > 20) {
+                } else if (heatingDesign > (xover - 15)) {
                     heatPumpPercentage = 0.7; // Mostly heat pump
-                } else if (heatingDesign > 10) {
+                } else if (heatingDesign > (xover - 25)) {
                     heatPumpPercentage = 0.5; // Split operation
                 } else {
                     heatPumpPercentage = 0.3; // Mostly gas backup
