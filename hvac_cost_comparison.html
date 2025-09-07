@@ -329,27 +329,55 @@
             }
         }
 
-        /* JS-driven tooltip bubble */
+        /* JS-driven tooltip bubble (warm, readable by default) */
         .tooltip-bubble {
             position: fixed;
             z-index: 10000;
-            background: #ff6b6b;
-            color: #ffffff;
-            padding: 20px 24px;
-            border-radius: 20px;
-            font-size: 18px;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            border: 3px solid #ff5252;
+            background: #fffaf0; /* floral white */
+            color: #1f2937; /* gray-800 */
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border: 1px solid #f1dec2; /* warm neutral */
             line-height: 1.5;
             max-width: 90vw;
             pointer-events: none;
             white-space: pre-wrap;
         }
         .tooltip-bubble.theme-accent {
-            background: #f59e0b;
-            border-color: #fbbf24;
-            color: #1f2937;
+            background: #fde68a; /* amber-300 */
+            border-color: #fcd34d; /* amber-300 */
+            color: #1f2937; /* gray-800 */
+        }
+
+        /* Purpose-driven themes */
+        .tooltip-bubble.theme-hp {
+            background: #ecfdf5; /* emerald-50 */
+            border-color: #6ee7b7; /* emerald-300 */
+            color: #065f46; /* emerald-800 */
+        }
+        /* Remove other purpose themes; default + hp + coal + home only */
+        
+        /* Home (BTU) note: house-outline bubble using a single scalable SVG */
+        .tooltip-bubble.theme-home {
+            position: fixed;
+            background: #ecfeff; /* light aqua */
+            border-color: #67e8f9; /* cyan-300 */
+            color: #0c4a6e; /* sky-900 */
+            border-radius: 10px;
+            max-width: 520px;
+        }
+        .tooltip-bubble.theme-home::before {
+            content: '';
+            position: absolute;
+            inset: -12px; /* extend outline evenly beyond bubble */
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 90' preserveAspectRatio='none'><path d='M5 45 L50 10 L95 45 V85 H5 Z' fill='none' stroke='%2306b6d4' stroke-width='4' stroke-linejoin='round'/></svg>");
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            z-index: -1; /* sit behind bubble content so text stays on top */
+            pointer-events: none;
         }
 
         .tooltip-bubble.theme-coal {
@@ -1368,7 +1396,7 @@
             <!-- Heating Load Input -->
             <div class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="heatingLoadInput" data-tooltip="Enter your home's heat loss in BTU per hour. This is the amount of heat your equipment needs to provide every hour on the coldest day(s) of the year to keep your house at a comfortable temperature. This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
+                    <label for="heatingLoadInput" data-tooltip="Enter your home's heat loss in BTU per hour. This is the amount of heat your equipment needs to provide every hour on the coldest day(s) of the year to keep your house at a comfortable temperature. This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes depending on several factors. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes direct heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
                         Home Energy Needs (BTU per Hour)
                         <span style="position: absolute; top: -5px; right: -20px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                     </label>
@@ -2580,7 +2608,13 @@
                 }
                 const inCoal = !!(target.closest && target.closest('#emissionsBars'));
                 const isHPPerf = (target.id === 'heatPumpCOP' || target.getAttribute('for') === 'heatPumpCOP');
-                bubble.className = 'tooltip-bubble' + (inCoal ? ' theme-coal' : (isHPPerf ? ' theme-accent' : ''));
+                const isHomeBTU = (target.id === 'heatingLoadInput' || target.getAttribute('for') === 'heatingLoadInput');
+                let theme = '';
+                if (inCoal) theme = ' theme-coal';
+                else if (isHPPerf) theme = ' theme-hp';
+                else if (isHomeBTU) theme = ' theme-home';
+                else theme = ' theme-accent';
+                bubble.className = 'tooltip-bubble' + theme;
                 // Convert escaped newlines in data attributes ("\n") into real breaks
                 bubble.innerHTML = String(text)
                     .replace(/\\n\\n/g, '<br><br>')
