@@ -363,39 +363,25 @@
         /* Home (BTU) note: house-outline bubble using a single scalable SVG */
         .tooltip-bubble.theme-home {
             position: fixed;
-            background: #ecfeff; /* light aqua */
-            border: 2px solid #67e8f9; /* cyan outline */
-            color: #0c4a6e; /* sky-900 */
-            border-radius: 10px;
-            max-width: 520px;
-            padding: 0; /* layout managed by house-wrap */
-            background-clip: padding-box;
+            background: transparent; /* no rectangle behind */
+            border: none; /* no rectangular border */
+            max-width: none;
+            padding: 0;
             overflow: visible;
         }
         .tooltip-bubble.theme-home::before { display: none; }
 
-        /* Structured house bubble: SVG frame + content area */
-        .house-wrap {
-            position: relative;
+        /* SVG house bubble */
+        .house-bubble {
+            display: block;
             width: min(520px, 90vw);
-            /* Reserve space for roof using aspect ratio; height grows with content */
-            padding: 20px 24px 24px 24px; /* outer bubble padding */
+            height: auto;
         }
-        .house-frame {
-            position: absolute;
-            inset: 8px; /* keep stroke inside bubble border */
-            width: calc(100% - 16px);
-            height: calc(100% - 16px);
-            pointer-events: none;
-        }
-        .house-content {
-            position: relative;
-            /* Push content below the roof area. 36% roughly matches triangle height */
-            margin-top: 36%;
-            background: transparent;
-            padding: 0 2px 0 2px;
-            line-height: 1.5;
+        .house-fo {
+            color: #0c4a6e; /* text color inside */
             font-size: 16px;
+            line-height: 1.5;
+            padding: 4px 6px; /* a little inner breathing room */
         }
 
         .tooltip-bubble.theme-coal {
@@ -2638,14 +2624,22 @@
                     .replace(/\\n\\n/g, '<br><br>')
                     .replace(/\\n/g, '<br>');
                 if (theme.includes('theme-home')) {
-                    // Structured house: SVG outline + constrained content in the square body
+                    // True SVG house: outline path + foreignObject for lower-room text
                     bubble.innerHTML = (
-                        '<div class="house-wrap">' +
-                            '<svg class="house-frame" viewBox="0 0 100 90" preserveAspectRatio="none" aria-hidden="true">' +
-                                '<path d="M5 45 L50 10 L95 45 V85 H5 Z" fill="none" stroke="#06b6d4" stroke-width="3.5" stroke-linejoin="round"/>' +
-                            '</svg>' +
-                            '<div class="house-content">' + html + '</div>' +
-                        '</div>'
+                        '<svg class="house-bubble" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="false" role="dialog">' +
+                            '<defs>' +
+                                '<clipPath id="houseRoomClip">' +
+                                    // Lower square room from y=45 to y=95, x=5..95
+                                    '<rect x="5" y="45" width="90" height="50" rx="4" ry="4" />' +
+                                '</clipPath>' +
+                            '</defs>' +
+                            // House outline
+                            '<path d="M5 45 L50 10 L95 45 V95 H5 Z" fill="white" stroke="#06b6d4" stroke-width="2.5" stroke-linejoin="round" />' +
+                            // Text inside lower room via foreignObject, clipped to room rectangle
+                            '<foreignObject x="7" y="47" width="86" height="46" clip-path="url(#houseRoomClip)">' +
+                                '<div xmlns="http://www.w3.org/1999/xhtml" class="house-fo">' + html + '</div>' +
+                            '</foreignObject>' +
+                        '</svg>'
                     );
                 } else {
                     bubble.innerHTML = html;
@@ -2923,7 +2917,4 @@
         }
     </script>
 </body>
-</html>
-</html>
-</html>
 </html>
