@@ -1892,12 +1892,27 @@
             const designCoolingLoad = houseLoads.cooling || 40000; // BTU/hr from user input
             
             // Indoor design temperature
-            const indoorTemp = 68; // °F
-            const designTempDiff = indoorTemp - heatingDesign;
+            const indoorTemp = 70; // °F (standard indoor temp)
+            const heatingDesignDiff = indoorTemp - heatingDesign; // Temperature difference for heating
+            const coolingDesignDiff = coolingDesign - indoorTemp; // Temperature difference for cooling
             
-            // Calculate annual loads using degree day method
-            const annualHeatingLoad = (hdd / designTempDiff) * designHeatingLoad * 24; // Total BTU/year
-            const annualCoolingLoad = (cdd / (coolingDesign - 65)) * designCoolingLoad * 24; // Total BTU/year
+            // Calculate heat loss rate (BTU/hr/°F) from design load
+            // Design load = heat loss rate × design temp difference
+            const heatLossRate = designHeatingLoad / heatingDesignDiff; // BTU/hr/°F
+            const coolGainRate = designCoolingLoad / coolingDesignDiff; // BTU/hr/°F
+            
+            // Calculate annual energy using proper degree day method
+            // Annual Energy = Heat Loss Rate × HDD × 24 hours
+            const annualHeatingLoad = heatLossRate * hdd * 24; // Total BTU/year
+            const annualCoolingLoad = coolGainRate * cdd * 24; // Total BTU/year
+            
+            // Debug the calculation
+            console.log('Annual Load Calculation:');
+            console.log('Design Heating Load:', designHeatingLoad, 'BTU/hr');
+            console.log('Heating Design Diff:', heatingDesignDiff, '°F');
+            console.log('Heat Loss Rate:', heatLossRate, 'BTU/hr/°F');
+            console.log('HDD:', hdd);
+            console.log('Annual Heating Load:', annualHeatingLoad, 'BTU/year');
 
             if (systemType === 'furnace') {
                 // Gas furnace heating
@@ -1910,6 +1925,13 @@
                 const heatingkWh = annualHeatingLoad / (specs.cop * 3.412); // COP is BTU/Wh, convert to kWh
                 annualHeatingCost = heatingkWh * electricityRate;
                 annualCoolingCost = 0; // No cooling
+                console.log('Heat pump debug:', {
+                    annualHeatingLoad,
+                    cop: specs.cop,
+                    heatingkWh,
+                    electricityRate,
+                    annualHeatingCost
+                });
 
             } else if (systemType === 'hybrid') {
                 // Determine crossover temperature (typically 35°F)
