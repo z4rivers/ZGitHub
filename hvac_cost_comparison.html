@@ -1084,7 +1084,7 @@
                         Home Energy Needs (BTU per Hour)
                         <span style="position: absolute; top: -5px; right: -20px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                     </label>
-                    <input type="text" id="heatingLoadInput" placeholder="50,000" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; text-align: center;" oninput="formatHeatingInput(this)">
+                    <input type="text" id="heatingLoadInput" placeholder="50,000" value="50000" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; text-align: center;" oninput="formatHeatingInput(this); updateHeatingLoad();">
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; font-size: 0.9rem;">
                     <div style="font-weight: bold; color: #333; margin-bottom: 5px;">Annual:</div>
@@ -1388,7 +1388,7 @@
             // Calculate annual energy needs for heating systems
             updateAnnualHeatingDisplay(heatingLoadInput);
             
-            console.log('Heating load set to:', houseLoads);
+            console.log('Heating load set to:', heatingLoadInput, 'BTU/hr');
         }
 
         function updateAnnualHeatingDisplay(heatingLoad) {
@@ -1446,6 +1446,8 @@
         // Add event listener for heating load input
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('heatingLoadInput').addEventListener('input', updateHeatingLoad);
+            // Initialize heating load with default value
+            updateHeatingLoad();
         });
 
         // Regional climate estimates
@@ -1885,9 +1887,9 @@
             let annualHeatingCost = 0;
             let annualCoolingCost = 0;
 
-            // Use actual house loads from user input
-            const heatingLoadBTU = houseLoads.heating;
-            const coolingLoadBTU = houseLoads.cooling;
+            // Use actual house loads from user input, with fallback defaults
+            const heatingLoadBTU = houseLoads.heating || 50000; // Default 50,000 BTU/hr
+            const coolingLoadBTU = houseLoads.cooling || 40000; // Default 40,000 BTU/hr
             
             // Debug logging
             console.log('Cost calculation inputs:', {
