@@ -1856,11 +1856,20 @@
 
         async function tryLoadExternalCountyJson() {
             // Optional: load a large county dataset without changing code
-            const url = 'ashrae_county_data.json';
+            // Try preferred filename first, then legacy
+            const candidateUrls = ['HVAC_Design_Temps_FULL.json', 'ashrae_county_data.json'];
             try {
-                const res = await fetch(url, { cache: 'no-store' });
-                if (!res.ok) return; // JSON file not present
-                const json = await res.json();
+                let json = null;
+                for (const url of candidateUrls) {
+                    try {
+                        const res = await fetch(url, { cache: 'no-store' });
+                        if (!res.ok) continue;
+                        json = await res.json();
+                        console.log(`Loaded external county JSON: ${url}`);
+                        break;
+                    } catch (_) { /* try next */ }
+                }
+                if (!json) return; // No JSON available
                 const idx = buildCountyFipsIndex(json);
                 let merged = 0;
                 for (const [k, v] of Object.entries(idx)) {
@@ -1869,9 +1878,7 @@
                         merged++;
                     }
                 }
-                if (merged > 0) {
-                    console.log(`Merged ${merged} counties from ashrae_county_data.json`);
-                }
+                if (merged > 0) console.log(`Merged ${merged} counties from external JSON dataset`);
             } catch (e) {
                 console.warn('External county JSON load skipped:', e);
             }
@@ -1926,6 +1933,83 @@
             } catch (e) {
                 console.warn('External county CSV load skipped:', e);
             }
+        }
+
+        // NOAA Normals (HDD/CDD) merger: enrich missing degree days
+        async function tryMergeNoaaNormalsHddCdd() {
+            const url = 'noaa_normals_hdd_cdd_1991_2020.csv';
+            try {
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) return; // CSV not present
+                const text = await res.text();
+                const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+                if (lines.length < 2) return;
+                const header = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const idx = (name) => header.indexOf(name);
+                const idIdx = [idx('station_id'), idx('id'), idx('station')].find(i => i >= 0);
+                const nameIdx = [idx('station_name'), idx('name')].find(i => i >= 0);
+                const latIdx = [idx('latitude'), idx('lat')].find(i => i >= 0);
+                const lonIdx = [idx('longitude'), idx('lon'), idx('lng')].find(i => i >= 0);
+                const hddIdx = [idx('hdd65_ann'), idx('hdd65'), idx('hdd')].find(i => i >= 0);
+                const cddIdx = [idx('cdd65_ann'), idx('cdd65'), idx('cdd')].find(i => i >= 0);
+                if ([idIdx, latIdx, lonIdx].some(i => i == null || i < 0)) {
+                    console.warn('NOAA normals CSV missing required columns; skipping merge');
+                    return;
+                }
+                const stations = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',');
+                    if (cols.length <= Math.max(idIdx, latIdx, lonIdx)) continue;
+                    const station = {
+                        id: String(cols[idIdx]).trim(),
+                        name: nameIdx >= 0 ? String(cols[nameIdx]).trim() : '',
+                        lat: parseFloat(cols[latIdx]),
+                        lon: parseFloat(cols[lonIdx]),
+                        hdd: hddIdx >= 0 ? parseFloat(cols[hddIdx]) : undefined,
+                        cdd: cddIdx >= 0 ? parseFloat(cols[cddIdx]) : undefined
+                    };
+                    if (Number.isFinite(station.lat) && Number.isFinite(station.lon)) stations.push(station);
+                }
+                if (!stations.length) return;
+
+                // Build list of counties missing HDD or CDD
+                const counties = Object.entries(countyAshraeData).map(([fips, entry]) => ({ fips, entry }));
+                let filled = 0;
+                for (const { fips, entry } of counties) {
+                    const needsHdd = !(Number.isFinite(entry.hdd));
+                    const needsCdd = !(Number.isFinite(entry.cdd));
+                    if (!needsHdd && !needsCdd) continue;
+                    // Use nearest station by haversine distance
+                    const nearest = nearestStation(entry.lat, entry.lon, stations);
+                    if (!nearest) continue;
+                    if (needsHdd && Number.isFinite(nearest.hdd)) entry.hdd = nearest.hdd;
+                    if (needsCdd && Number.isFinite(nearest.cdd)) entry.cdd = nearest.cdd;
+                    if ((needsHdd && Number.isFinite(entry.hdd)) || (needsCdd && Number.isFinite(entry.cdd))) filled++;
+                }
+                if (filled > 0) console.log(`NOAA normals merged into ${filled} counties`);
+            } catch (e) {
+                console.warn('NOAA normals merge skipped:', e);
+            }
+        }
+
+        function nearestStation(lat, lon, stations) {
+            if (!Number.isFinite(lat) || !Number.isFinite(lon) || !stations || !stations.length) return null;
+            let best = null; let bestD = Infinity;
+            for (const s of stations) {
+                const d = haversine(lat, lon, s.lat, s.lon);
+                if (d < bestD) { bestD = d; best = s; }
+            }
+            return best;
+        }
+
+        function haversine(lat1, lon1, lat2, lon2) {
+            const R = 6371; // km
+            const toRad = (v) => v * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLon = toRad(lon2 - lon1);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
 
         // Simple Heating Load Input
@@ -2013,8 +2097,6 @@
             // Format initial value with commas and initialize derived values
             formatHeatingInput(hlInput);
             
-y 
-            
             // Initialize hybrid split bar with default 50/50
             updateHybridSplitBar(null, null, null);
         });
@@ -2048,6 +2130,7 @@ y
                 // Opportunistically load a full dataset if present
                 await tryLoadExternalCountyJson();
                 await tryLoadExternalCountyCsv();
+                await tryMergeNoaaNormalsHddCdd();
 
                 // Apply ZIP override first, then manual FIPS, then FCC API
                 let fipsInfo;

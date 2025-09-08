@@ -63,6 +63,20 @@ const ASHRAE_COUNTY_DATA = {
     source: 'Appendix A (design temps, PDX proxy) + HDD/CDD provisional for dev test',
     lat: 45.41,
     lon: -122.57
+  },
+  // Shasta County, CA — Populated from RESNET/ASHRAE (Redding, CA 96001)
+  // FIPS: 06089
+  '06089': {
+    name: 'Shasta County, CA',
+    state: 'CA',
+    fips: '06089',
+    heating: 25, // 99% heating design temp (RESNET/ASHRAE table - Redding)
+    cooling: 108, // 1% cooling design temp (RESNET/ASHRAE table - Redding)
+    hdd: 3000,   // HDD base 65°F (RESNET table - Redding Municipal Airport)
+    cdd: 2500,   // CDD base 65°F (RESNET table - Redding Municipal Airport)
+    source: 'RESNET/ASHRAE (Redding 96001) – Redding Municipal Airport normals',
+    lat: 40.509,
+    lon: -122.293
   }
 };
 
