@@ -60,7 +60,16 @@
 
         .main-content {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
+
+        /* Visual order to match desired flow */
+        #temperatureBar { order: 1; }
+        #resultsSection { order: 2; }
+        #homeNeedsGroup { order: 3; }
+        .controls-grid { order: 4; }
 
         .controls-grid {
             display: grid;
@@ -146,7 +155,7 @@
         .input-row {
             display: flex;
             gap: 10px;
-            align-items: end;
+            align-items: flex-start;
         }
 
         .input-field {
@@ -1316,14 +1325,67 @@
         </div>
 
         <div class="main-content">
-            <!-- Controls -->
-            <div class="controls-grid">
+            <!-- Temperature Bar (at top) -->
+            <div id="temperatureBar">
+                <div class="temp-scale">
+                    <div class="scale-marker">-20°F</div>
+                    <div class="scale-marker">0°F</div>
+                    <div class="scale-marker">20°F</div>
+                    <div class="scale-marker">40°F</div>
+                    <div class="scale-marker">60°F</div>
+                    <div class="scale-marker">80°F</div>
+                    <div class="scale-marker">100°F</div>
+                    <div class="scale-marker">120°F</div>
+                </div>
+                <div class="temperature-bar">
+                    <div class="temp-marker heating-design" id="heatingMarker">
+                        <div class="marker-line">
+                            <div class="snowflake-icon">❄</div>
+                        </div>
+                        <div class="marker-label">
+                            99% Cold<br><span id="heatingDesign">--</span>°F
+                        </div>
+                    </div>
+                    <div class="temp-marker cooling-design" id="coolingMarker">
+                        <div class="marker-line">
+                            <div class="sun-icon-new"></div>
+                        </div>
+                        <div class="marker-label">
+                            1% Heat<br><span id="coolingDesign">--</span>°F
+                        </div>
+                    </div>
+                    <div class="temp-marker average-cold" id="avgColdMarker">
+                        <div class="marker-line">
+                            <div class="cold-triangle"></div>
+                        </div>
+                    </div>
+                    <div class="house-icon" id="houseIcon">
+                        <div class="house-symbol">🏠</div>
+                    </div>
+                    <div class="temp-marker average-hot" id="avgHotMarker">
+                        <div class="marker-line">
+                            <div class="hot-triangle"></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Average temp labels below the bar -->
+                <div style="position: relative; height: 60px; margin-top: 10px;">
+                    <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Cold<br><span id="avgCold">--</span>°F</div>
+                    <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Hot<br><span id="avgHot">--</span>°F</div>
+                </div>
+            </div>
+
+            <!-- Equipment option boxes will render below (single instance kept later in document) -->
+
+            <!-- Home Energy Needs Bar -->
+            <div id="homeNeedsGroup" class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
                 <!-- Location -->
                 <div id="equipmentGroup" class="control-group" style="padding: 15px; height: 175px;">
                     <h3>Location</h3>
                     <div class="input-row">
                         <div class="input-field">
                             <input type="text" id="zipCode" placeholder="Zip Code" maxlength="5">
+                            <input type="hidden" id="countyFipsOverride" value="">
                         </div>
                         <div class="input-field">
                             <button class="btn" id="lookupBtn" onclick="lookupClimateData()">Lookup</button>
@@ -1378,9 +1440,8 @@
                             <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50">
                         </div>
                         <div class="input-field">
-                            <label for="autoCrossover" data-tooltip="Automatically choose the crossover temperature that minimizes cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="position: relative;">
-                                Auto Crossover (recommended)
-                                <span class="info-dot">i</span>
+                            <label for="autoCrossover" data-tooltip="Automatically choose the crossover temperature that minimizes utility cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="position: relative;">
+                                Auto Crossover <span class="info-dot">i</span><br>(Utility Savings)
                             </label>
                             <input type="checkbox" id="autoCrossover" checked>
                         </div>
@@ -1388,7 +1449,7 @@
                 </div>
             </div>
 
-            <!-- Heating Load Input -->
+            <!-- Home Energy Needs (kept prominent) -->
             <div id="homeNeedsGroup" class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label for="heatingLoadInput" data-tooltip="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
@@ -1417,55 +1478,7 @@
                 </div>
             </div>
 
-            <!-- Temperature Bar -->
-            <div id="temperatureBar">
-                <div class="temp-scale">
-                    <div class="scale-marker">-20°F</div>
-                    <div class="scale-marker">0°F</div>
-                    <div class="scale-marker">20°F</div>
-                    <div class="scale-marker">40°F</div>
-                    <div class="scale-marker">60°F</div>
-                    <div class="scale-marker">80°F</div>
-                    <div class="scale-marker">100°F</div>
-                    <div class="scale-marker">120°F</div>
-                </div>
-                <div class="temperature-bar">
-                    <div class="temp-marker heating-design" id="heatingMarker">
-                        <div class="marker-line">
-                            <div class="snowflake-icon">❄</div>
-                        </div>
-                        <div class="marker-label">
-                            99% Cold<br><span id="heatingDesign">--</span>°F
-                        </div>
-                    </div>
-                    <div class="temp-marker cooling-design" id="coolingMarker">
-                        <div class="marker-line">
-                            <div class="sun-icon-new"></div>
-                        </div>
-                        <div class="marker-label">
-                            1% Heat<br><span id="coolingDesign">--</span>°F
-                        </div>
-                    </div>
-                    <div class="temp-marker average-cold" id="avgColdMarker">
-                        <div class="marker-line">
-                            <div class="cold-triangle"></div>
-                        </div>
-                    </div>
-                    <div class="house-icon" id="houseIcon">
-                        <div class="house-symbol">🏠</div>
-                    </div>
-                    <div class="temp-marker average-hot" id="avgHotMarker">
-                        <div class="marker-line">
-                            <div class="hot-triangle"></div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Average temp labels below the bar -->
-                <div style="position: relative; height: 60px; margin-top: 10px;">
-                    <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Cold<br><span id="avgCold">--</span>°F</div>
-                    <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Hot<br><span id="avgHot">--</span>°F</div>
-                </div>
-            </div>
+            <!-- Temperature Bar (single instance at top retained above) -->
 
             <!-- Loading -->
             <div id="loadingSection" class="loading" style="display: none;">
@@ -1531,7 +1544,7 @@
                 </div>
 
                 <!-- Hybrid System Split -->
-                <div class="hybrid-split" id="hybridSplit" style="display: none;">
+                <div class="hybrid-split" id="hybridSplit">
                     <h4>Hybrid System Heating Split</h4>
                     <div class="usage-bar-container">
                         <div class="usage-bar">
@@ -1926,8 +1939,16 @@
                 await tryLoadExternalCountyJson();
                 await tryLoadExternalCountyCsv();
 
-                // Get county FIPS from FCC API using lat/lon
-                const fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
+                // Allow FIPS override to bypass external API (advanced)
+                let fipsInfo;
+                const fipsOverrideEl = document.getElementById('countyFipsOverride');
+                const fipsOverride = fipsOverrideEl ? (fipsOverrideEl.value || '').trim() : '';
+                if (fipsOverride && /^\d{5}$/.test(fipsOverride)) {
+                    fipsInfo = { countyFIPS: fipsOverride, countyName: 'Manual FIPS', stateAbbr: '' };
+                } else {
+                    // Get county FIPS from FCC API using lat/lon
+                    fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
+                }
                 if (!fipsInfo || !fipsInfo.countyFIPS) {
                     throw new Error('Unable to resolve county FIPS');
                 }
@@ -2306,7 +2327,8 @@
             updateTechnicalDetails(results, hdd, 0, heatingDesign, 0, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
 
             document.getElementById('resultsSection').style.display = 'block';
-            document.getElementById('hybridSplit').style.display = 'block';
+            const hs = document.getElementById('hybridSplit');
+            if (hs) hs.style.display = 'block';
 
             // Update hybrid decision panel
             updateHybridDecision(results, heatingDesign, crossoverTemp);
@@ -2783,7 +2805,7 @@
                 const params = new URLSearchParams(window.location.search);
                 return params.get(name);
             }
-            const mode = (getQueryParam('mode') || 'guided').toLowerCase();
+            const mode = (getQueryParam('mode') || 'pro').toLowerCase();
             const sections = {
                 equipment: document.getElementById('equipmentGroup'),
                 hybridRow: document.getElementById('hybridControlsRow'),
@@ -2823,7 +2845,7 @@
                 default:
                     show(sections.equipment, true);
                     show(sections.hybridRow, true);
-                    show(sections.technical, false);
+                    show(sections.technical, true);
                     show(sections.emissionsBars, true);
                     show(sections.hybridDecision, true);
                     break;
