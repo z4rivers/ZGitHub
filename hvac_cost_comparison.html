@@ -1860,7 +1860,10 @@
 
         // ZIP → FIPS override for known ambiguous ZIPs
         const ZIP_TO_FIPS_OVERRIDE = {
-            '97219': '41051' // Force Multnomah County for 97219
+            '97201': '41051', // Portland, OR - Multnomah County
+            '97219': '41051', // Portland, OR - Multnomah County  
+            '97501': '41029', // Medford, OR - Jackson County
+            '97015': '41005'  // Clackamas, OR - Clackamas County
         };
 
         function buildCountyFipsIndex(dataset) {
@@ -2042,6 +2045,12 @@
             
             // Initialize the hybrid split bar with default 50/50 split
             updateUsageBar(null, null, null);
+            
+            // Also ensure the hybrid split section is visible
+            const hybridSplit = document.getElementById('hybridSplit');
+            if (hybridSplit) {
+                hybridSplit.style.display = 'block';
+            }
         });
 
         // Regional estimates removed to enforce ASHRAE-only mandate
@@ -2096,7 +2105,10 @@
                 console.log('Resolved county FIPS:', fipsInfo);
 
                 // Lookup county in authoritative ASHRAE county dataset
+                console.log('REAL PAGE - Looking up FIPS:', fipsInfo.countyFIPS, 'in countyAshraeData');
+                console.log('REAL PAGE - Available counties:', Object.keys(countyAshraeData));
                 const countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
+                console.log('REAL PAGE - County entry found:', countyEntry);
                 if (!countyEntry) {
                     console.error('No county ASHRAE data found for FIPS:', fipsInfo.countyFIPS, fipsInfo);
                     reportMissingCounty(fipsInfo);
@@ -2105,11 +2117,13 @@
 
                 // Normalize expected fields
                 const normalized = normalizeCountyEntry(countyEntry, fipsInfo);
+                console.log('REAL PAGE - Normalized data:', normalized);
                 if (!Number.isFinite(normalized.heating) || !Number.isFinite(normalized.hdd)) {
                     console.error('County entry missing required heating/HDD fields after normalization:', countyEntry);
                     throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
                 }
                 climateData = normalized;
+                console.log('REAL PAGE - climateData set to:', climateData);
 
                 displayClimateData();
                 calculateHVACCosts();
@@ -2425,8 +2439,10 @@
         }
 
         function calculateHVACCosts() {
+            console.log('REAL PAGE calculateHVACCosts called with climateData:', climateData);
             const hdd = climateData.hdd;
             const heatingDesign = climateData.heating;
+            console.log('REAL PAGE - hdd:', hdd, 'heatingDesign:', heatingDesign);
 
             const electricityRate = parseFloat(document.getElementById('electricityRate').value) || 0.12;
             const gasRate = parseFloat(document.getElementById('gasRate').value) || 1.20;
@@ -2477,17 +2493,17 @@
 
             const rsTop = document.getElementById('resultsSectionTop');
             if (rsTop) rsTop.style.display = 'block';
-            const hs = document.getElementById('hybridSplit');
-            if (hs) {
-                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
-                console.log('Updating hybrid split bar with data:', {
-                    heatingDesign,
-                    crossoverTemp,
-                    hdd,
-                    hpEff
-                });
-                updateUsageBar(hpEff, heatingDesign, crossoverTemp);
-            }
+            
+            // Always update hybrid split bar when we have data
+            const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
+            console.log('REAL PAGE DEBUG - Updating hybrid split:', {
+                heatingDesign,
+                crossoverTemp,
+                hdd,
+                hpEff,
+                climateData
+            });
+            updateUsageBar(hpEff, heatingDesign, crossoverTemp);
 
             // Update hybrid decision panel
             updateHybridDecision(results, heatingDesign, crossoverTemp, hdd);
@@ -2591,12 +2607,14 @@
         }
 
         function calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd) {
+            console.log('REAL PAGE calculateHeatPumpEfficiency called with:', {heatingDesign, crossoverTemp, hdd});
             // Calculate heat pump share using actual HDD and temperature thresholds
             // Heat pump runs when temperature > crossover, furnace when temperature <= crossover
             const baseTemp = 65; // HDD base temperature
 
             if (!hdd || hdd <= 0) {
-                return 0; // No heating data available
+                console.log('REAL PAGE - No HDD data, returning null');
+                return null; // No heating data available - use null to indicate no data
             }
 
             // If crossover temperature is above or equal to base temp, heat pump handles everything
@@ -2619,6 +2637,7 @@
 
             // Heat pump handles the portion above crossover temperature
             const share = Math.min(1, hpRange / totalRange);
+            console.log('REAL PAGE calculateHeatPumpEfficiency result:', share);
 
             return share;
         }
@@ -3202,20 +3221,20 @@
         }
 
         function updateUsageBar(heatPumpEfficiency, heatingDesign, crossoverTemp) {
-            console.log('updateUsageBar called with:', {
+            console.log('REAL PAGE updateUsageBar called with:', {
                 heatPumpEfficiency,
                 heatingDesign,
                 crossoverTemp
             });
             
             // If no valid data, show default 50/50 split
-            if (!heatPumpEfficiency || heatPumpEfficiency < 0 || heatPumpEfficiency > 1) {
-                console.log('No valid data, using default 50/50 split');
+            if (heatPumpEfficiency === null || heatPumpEfficiency === undefined || heatPumpEfficiency < 0 || heatPumpEfficiency > 1) {
+                console.log('REAL PAGE - Using default 50/50 split');
                 heatPumpEfficiency = 0.5; // Default 50%
                 heatingDesign = null;
                 crossoverTemp = null;
             } else {
-                console.log('Valid data received, using calculated values');
+                console.log('REAL PAGE - Using calculated values:', heatPumpEfficiency);
             }
 
             const heatPumpPercentage = (heatPumpEfficiency * 100).toFixed(0);
