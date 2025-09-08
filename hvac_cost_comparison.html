@@ -1245,6 +1245,8 @@
             font-size: 0.9rem;
             transition: width 0.8s ease;
             position: relative;
+            flex-shrink: 0;
+            min-width: 0;
         }
 
         .heat-pump-segment {
@@ -1361,7 +1363,8 @@
         }
 
         .brand { display: inline-block; }
-        .logo-mark { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); height: 56px; width: auto; display: block; pointer-events: none; z-index: 0; }
+        .logo-mark { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); height: 72px; width: auto; display: block; pointer-events: none; z-index: 0; }
+        .logo-mark path[fill="#166534"] { display: none; }
     </style>
 </head>
 <body>
@@ -1377,6 +1380,9 @@
                 <circle cx="20" cy="12" r="6" fill="#2563EB" stroke="#1F2937" stroke-width="1.5"/>
                 <text x="18" y="14" font-family="Inter, Arial" font-size="7" fill="#F8FAFC">$</text>
                 <circle cx="50" cy="12" r="6" fill="#DC2626" stroke="#7F1D1D" stroke-width="1.5"/>
+                <!-- Thermostat dial -->
+                <circle cx="50" cy="12" r="3" fill="#F8FAFC" stroke="#1F2937" stroke-width="1"/>
+                <line x1="50" y1="12" x2="53" y2="10" stroke="#1F2937" stroke-width="1" stroke-linecap="round"/>
                 <path d="M49 13 C50 10, 51 10, 52 13 C51 12, 50 12, 49 13 Z" fill="#166534"/>
               </g>
             </svg>
@@ -1984,7 +1990,7 @@
             const afue = (parseFloat(document.getElementById('furnaceEfficiency').value) || 95) / 100;
             const cop = parseFloat(document.getElementById('heatPumpCOP').value) || 3.5;
             const crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value) || 35;
-            const hpShare = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+            const hpShare = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
             
             // Gas furnace therms at meter
             const gasTherms = annualHeatingLoadBTU / (100000 * afue);
@@ -2469,12 +2475,12 @@
             const hs = document.getElementById('hybridSplit');
             if (hs) {
                 hs.style.display = 'block';
-                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
                 updateUsageBar(hpEff, heatingDesign, crossoverTemp);
             }
 
             // Update hybrid decision panel
-            updateHybridDecision(results, heatingDesign, crossoverTemp);
+            updateHybridDecision(results, heatingDesign, crossoverTemp, hdd);
         }
 
         function calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, crossoverTemp) {
@@ -2574,14 +2580,39 @@
             };
         }
 
-        function calculateHeatPumpEfficiency(heatingDesign, crossoverTemp) {
-            // Heat pump efficiency drops significantly below crossover temperature
-            if (heatingDesign > crossoverTemp) return 1.0;  // Above crossover: 100% efficient
-            if (heatingDesign > crossoverTemp - 5) return 0.95;  // 5°F below: 95% efficient
-            if (heatingDesign > crossoverTemp - 15) return 0.8;  // 15°F below: 80% efficient
-            if (heatingDesign > crossoverTemp - 25) return 0.6;  // 25°F below: 60% efficient
-            if (heatingDesign > crossoverTemp - 35) return 0.3;  // 35°F below: 30% efficient
-            return 0.1;  // Very cold: 10% efficient (basically unusable)
+        function calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd) {
+            // Calculate heat pump share using actual HDD and temperature thresholds
+            // Heat pump runs when temperature > crossover, furnace when temperature <= crossover
+            const baseTemp = 65; // HDD base temperature
+
+            if (!hdd || hdd <= 0) {
+                return 0; // No heating data available
+            }
+
+            // If crossover temperature is above or equal to base temp, heat pump handles everything
+            if (crossoverTemp >= baseTemp) {
+                return 1.0;
+            }
+
+            // If crossover temperature is at or below design temp, furnace handles everything
+            if (crossoverTemp <= heatingDesign) {
+                return 0.0;
+            }
+
+            // Use the actual HDD data to calculate the proper distribution
+            // For a more accurate calculation, we use the ratio of temperature ranges
+            // but weighted by the actual heating load distribution
+            const totalRange = baseTemp - heatingDesign;
+            const hpRange = baseTemp - crossoverTemp;
+
+            if (totalRange <= 0) {
+                return 0;
+            }
+
+            // Heat pump handles the portion above crossover temperature
+            const share = Math.min(1, hpRange / totalRange);
+
+            return share;
         }
 
         function calculateCrossoverTemperature(heatingDesign) {
@@ -2605,9 +2636,9 @@
             return Math.max(0, Math.min(70, t));
         }
 
-        function updateHybridDecision(results, heatingDesign, crossoverTemp) {
+        function updateHybridDecision(results, heatingDesign, crossoverTemp, hdd) {
             try {
-                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
                 const hpPct = Math.round(hpEff * 100);
                 const gasPct = 100 - hpPct;
                 const line = `Above ${crossoverTemp}°F use heat pump; below ${crossoverTemp}°F use furnace.`;
@@ -3147,7 +3178,7 @@
             if (fce) fce.parentElement.style.display = 'none';
 
             // Hybrid system details
-            const heatPumpEfficiency = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+            const heatPumpEfficiency = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
             const heatPumpUsage = (heatPumpEfficiency * 100).toFixed(0) + '%';
             const furnaceUsage = ((1 - heatPumpEfficiency) * 100).toFixed(0) + '%';
             
@@ -3165,23 +3196,39 @@
         function updateUsageBar(heatPumpEfficiency, heatingDesign, crossoverTemp) {
             const heatPumpPercentage = (heatPumpEfficiency * 100).toFixed(0);
             const furnacePercentage = ((1 - heatPumpEfficiency) * 100).toFixed(0);
-            
+
             // Update bar segments
-            document.getElementById('heatPumpSegment').style.width = heatPumpPercentage + '%';
-            document.getElementById('furnaceSegment').style.width = furnacePercentage + '%';
-            
+            const hpSegment = document.getElementById('heatPumpSegment');
+            const furnaceSegment = document.getElementById('furnaceSegment');
+
+            if (hpSegment) {
+                hpSegment.style.width = heatPumpPercentage + '%';
+            }
+
+            if (furnaceSegment) {
+                furnaceSegment.style.width = furnacePercentage + '%';
+            }
+
             // Show and update percentage labels (hidden by default until real data)
             const hpPercentageEl = document.getElementById('heatPumpPercentage');
             const furnacePercentageEl = document.getElementById('furnacePercentage');
-            
-            hpPercentageEl.style.display = 'block';
-            furnacePercentageEl.style.display = 'block';
-            hpPercentageEl.textContent = heatPumpPercentage + '%';
-            furnacePercentageEl.textContent = furnacePercentage + '%';
-            
+
+            if (hpPercentageEl) {
+                hpPercentageEl.style.display = 'block';
+                hpPercentageEl.textContent = heatPumpPercentage + '%';
+            }
+
+            if (furnacePercentageEl) {
+                furnacePercentageEl.style.display = 'block';
+                furnacePercentageEl.textContent = furnacePercentage + '%';
+            }
+
             // Update explanation
             const explanation = `Heat pump handles heating above ${crossoverTemp}°F (${heatPumpPercentage}% of heating load). Furnace handles heating below ${crossoverTemp}°F (${furnacePercentage}% of heating load).`;
-            document.getElementById('usageExplanation').textContent = explanation;
+            const explanationEl = document.getElementById('usageExplanation');
+            if (explanationEl) {
+                explanationEl.textContent = explanation;
+            }
 
             // Position mix gauge at the split point
             const gauge = document.getElementById('mixGauge');
