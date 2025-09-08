@@ -49,6 +49,20 @@ const ASHRAE_COUNTY_DATA = {
     source: 'Appendix A (Normative) + RESNET HDD/CDD (Rogue Valley Intl–Medford)',
     lat: 42.33,
     lon: -122.87
+  },
+  // Clackamas County, OR — Added to support ZIP 97219 test flow (proxied HDD/CDD)
+  // FIPS: 41005
+  '41005': {
+    name: 'Clackamas County, OR',
+    state: 'OR',
+    fips: '41005',
+    heating: 24, // 99% heating design temp (Appendix A proxy to PDX region)
+    cooling: 88, // 1% cooling design temp (Appendix A proxy to PDX region)
+    hdd: 4000,   // HDD base 65°F (proxied from PDX for testing)
+    cdd: 400,    // CDD base 65°F (proxied from PDX for testing)
+    source: 'Appendix A (design temps, PDX proxy) + HDD/CDD provisional for dev test',
+    lat: 45.41,
+    lon: -122.57
   }
 };
 

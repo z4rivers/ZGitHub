@@ -46,30 +46,52 @@
             opacity: 0.9;
         }
 
-        .emissions-toggle {
+        .header-toggles {
             position: absolute;
             top: 10px;
             right: 12px;
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.8);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 12px;
         }
-        .emissions-toggle input { transform: scale(0.9); }
+        .header-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.8);
+        }
 
         .main-content {
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 12px;
         }
 
-        /* Visual order to match desired flow */
-        #temperatureBar { order: 1; }
-        #resultsSection { order: 2; }
-        #homeNeedsGroup { order: 3; }
-        .controls-grid { order: 4; }
+        /* Card system - prevents overlap and ensures proper stacking */
+        .card {
+            width: 100%;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+            clear: both;
+            overflow: visible;
+        }
+
+        /* Ensure no floating elements interfere with card layout */
+        .card::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* Visual order to match desired flow (card-level) */
+        #card-inputs { order: 1; }
+        #card-results { order: 2; }
+        #card-temperature { order: 3; }
+        #card-hybrid { order: 4; }
+        #card-technical { order: 5; }
 
         .controls-grid {
             display: grid;
@@ -694,7 +716,7 @@
             background: white;
             border-radius: 50%;
             width: 60px;
-            height: 60px;
+            height: 45px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -705,9 +727,9 @@
         .temp-scale {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
-            padding: 0 10px;
-            font-size: 0.8rem;
+            margin-bottom: 2px;
+            padding: 0 8px;
+            font-size: 0.75rem;
             color: #666;
         }
 
@@ -985,7 +1007,7 @@
         }
 
         .bar-fill.furnace {
-            background: #dc3545;
+            background: #f1c40f;
         }
 
         .bar-fill.hybrid {
@@ -1192,17 +1214,33 @@
         .usage-bar {
             display: flex;
             height: 40px;
-            border: 1px solid #ccc;
+            border: 1px solid #374151;
             border-radius: 4px;
-            overflow: hidden;
+            overflow: visible;
             margin-bottom: 10px;
+            position: relative;
+        }
+
+        .mix-gauge {
+            position: absolute;
+            top: -4px;
+            bottom: -4px;
+            width: 0;
+            border-left: 3px solid #111827;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .mix-gauge::before,
+        .mix-gauge::after {
+            content: none;
+            display: none;
         }
 
         .usage-segment {
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: #333 !important;
             font-weight: bold;
             font-size: 0.9rem;
             transition: width 0.8s ease;
@@ -1210,22 +1248,32 @@
         }
 
         .heat-pump-segment {
-            background: #28a745;
+            background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 100%);
+            border-right: 1px solid rgba(0,0,0,0.06);
         }
 
         .furnace-segment {
-            background: #dc3545;
+            background: linear-gradient(135deg, #ffe8e8 0%, #fff0f0 100%);
+            border-left: 1px solid rgba(0,0,0,0.06);
         }
 
         .usage-label {
             margin-right: 8px;
+            color: #333 !important;
+        }
+
+        /* Extra specificity to ensure labels are dark inside the hybrid bar */
+        .hybrid-split .usage-segment, .hybrid-split .usage-label {
+            color: #222 !important;
         }
 
         .usage-percentage {
             font-size: 0.8rem;
-            background: rgba(0,0,0,0.2);
+            background: rgba(255,255,255,0.8);
+            color: #222 !important;
             padding: 2px 6px;
             border-radius: 3px;
+            border: 1px solid rgba(0,0,0,0.08);
         }
 
         .usage-explanation {
@@ -1255,7 +1303,7 @@
         /* Match main box themes */
         /* Bright palette (Run Cost Totals) */
         .mini-bar.color-heatpump { background: #28a745; }
-        .mini-bar.color-furnace { background: #dc3545; }
+        .mini-bar.color-furnace { background: #f1c40f; }
         .mini-bar.color-hybrid { background: #ffc107; }
         /* Darker palette for CO2 chart only */
         #co2Chart .mini-bar.color-heatpump { background: #166534; }
@@ -1311,22 +1359,137 @@
                 flex-direction: column;
             }
         }
+
+        .brand { display: inline-block; }
+        .logo-mark { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); height: 56px; width: auto; display: block; pointer-events: none; z-index: 0; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1 id="appTitle">Heat Pump - Furnace - Hybrid</h1>
-            <p>Cost to Run Comparison</p>
-            <div class="emissions-toggle">
-                <input type="checkbox" id="includeEmissions" onchange="recalculateIfDataAvailable()">
-                <label for="includeEmissions">Include emissions</label>
+            <svg class="logo-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 30" aria-hidden="true">
+              <rect width="92" height="30" fill="transparent"/>
+              <g transform="translate(6,4)">
+                <rect x="10" y="16" width="50" height="3" fill="#B8860B"/>
+                <line x1="35" y1="4" x2="35" y2="16" stroke="#B8860B" stroke-width="2"/>
+                <line x1="35" y1="4" x2="20" y2="12" stroke="#B8860B" stroke-width="1.6"/>
+                <line x1="35" y1="4" x2="50" y2="12" stroke="#B8860B" stroke-width="1.6"/>
+                <circle cx="20" cy="12" r="6" fill="#2563EB" stroke="#1F2937" stroke-width="1.5"/>
+                <text x="18" y="14" font-family="Inter, Arial" font-size="7" fill="#F8FAFC">$</text>
+                <circle cx="50" cy="12" r="6" fill="#DC2626" stroke="#7F1D1D" stroke-width="1.5"/>
+                <path d="M49 13 C50 10, 51 10, 52 13 C51 12, 50 12, 49 13 Z" fill="#166534"/>
+              </g>
+            </svg>
+            <div class="brand">
+                <div>
+                    <h1 id="appTitle">HVAC Compare</h1>
+                    <p>Heat Pump · Furnace · AC Comparison Guide</p>
+                </div>
+            </div>
+            <div class="header-toggles">
+                <label class="header-toggle" for="includeEmissions">
+                    <input type="checkbox" id="includeEmissions" onchange="recalculateIfDataAvailable()">
+                    <span>Include emissions</span>
+                </label>
+                <label class="header-toggle" for="includeTCO">
+                    <input type="checkbox" id="includeTCO" onchange="toggleTCO()">
+                    <span>Full ownership (TCO)</span>
+                </label>
             </div>
         </div>
 
-        <div class="main-content">
-            <!-- Temperature Bar (at top) -->
-            <div id="temperatureBar">
+        <div class="main-content" id="dashboard">
+            <!-- Card: Equipment Options (Results) -->
+            <div id="card-results" class="card" data-card="results">
+                <div id="resultsSectionTop" class="cost-comparison">
+                    <div class="cost-grid">
+                        <div class="cost-box heat-pump-box" id="heatPumpBox">
+                            <h3>Heat Pump</h3>
+                            <div class="cost-amount" id="heatPumpTotal">$0</div>
+                            <div style="font-size: 0.8rem; color: #28a745; font-weight: bold; margin-top: 4px;" id="annualHeatPump">0 kWh</div>
+                            <div class="tco-line" id="tcoHeatPump" style="display:none; font-size:0.8rem; color:#333; margin-top:4px;">TCO (NPV, <span class="tco-years">15</span> yrs): $0</div>
+                        </div>
+                        <div class="cost-box furnace-box" id="furnaceBox">
+                            <h3>Furnace</h3>
+                            <div class="cost-amount" id="furnaceTotal">$0</div>
+                            <div style="font-size: 0.8rem; color: #dc3545; font-weight: bold; margin-top: 4px;" id="annualGasHeat">0 therms</div>
+                            <div class="tco-line" id="tcoFurnace" style="display:none; font-size:0.8rem; color:#333; margin-top:4px;">TCO (NPV, <span class="tco-years">15</span> yrs): $0</div>
+                        </div>
+                        <div class="cost-box hybrid-box" id="hybridBox">
+                            <h3>Hybrid</h3>
+                            <div class="cost-amount" id="hybridTotal">$0</div>
+                            <div style="font-size: 0.75rem; margin-top: 4px;">
+                                <div style="color: #28a745; font-weight: bold;" id="annualHybridElec">0 kWh</div>
+                                <div style="color: #dc3545; font-weight: bold;" id="annualHybridGas">0 therms</div>
+                            </div>
+                            <div class="tco-line" id="tcoHybrid" style="display:none; font-size:0.8rem; color:#333; margin-top:4px;">TCO (NPV, <span class="tco-years">15</span> yrs): $0</div>
+                        </div>
+                    </div>
+
+                    <div class="emissions-bars" id="emissionsBars">
+                        <div class="emissions-grid">
+                            <div class="emission-bar">
+                                <div class="coal-stack">
+                                    <div class="emissions-row" id="hpCoalRow1"></div>
+                                    <div class="emissions-row" id="hpCoalRow2"></div>
+                                </div>
+                                <div class="co2-label" id="hpCo2Label"></div>
+                            </div>
+                            <div class="emission-bar">
+                                <div class="coal-stack">
+                                    <div class="emissions-row" id="furnaceCoalRow1"></div>
+                                    <div class="emissions-row" id="furnaceCoalRow2"></div>
+                                </div>
+                                <div class="co2-label" id="furnaceCo2Label"></div>
+                            </div>
+                            <div class="emission-bar">
+                                <div class="coal-stack">
+                                    <div class="emissions-row" id="hybridCoalRow1"></div>
+                                    <div class="emissions-row" id="hybridCoalRow2"></div>
+                                </div>
+                                <div class="co2-label" id="hybridCo2Label"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card: Hybrid (decision + split) moved near bottom -->
+            <div id="card-hybrid" class="card" data-card="hybrid">
+                <div id="hybridDecision" style="margin-top: 0; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fafafa;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; font-size: 1rem;">Hybrid decision</h4>
+                        <div id="hybridDecisionBadge" style="font-size: 0.8rem; color: #155724; background: #d4edda; padding: 2px 8px; border-radius: 9999px; display: none;">Lowest cost</div>
+                    </div>
+                    <div id="hybridDecisionLine" style="margin-top: 6px; color: #333;">Above --°F use heat pump; below --°F use furnace.</div>
+                    <div id="hybridSeasonSplit" style="margin-top: 4px; color: #555; font-size: 0.9rem;">Season split: --% heat pump, --% furnace.</div>
+                    <div id="hybridSavingsLine" style="margin-top: 4px; color: #111; font-weight: 600;">Savings: --</div>
+                </div>
+                <div class="hybrid-split" id="hybridSplit" style="margin-top: 16px;">
+                    <h4>Hybrid System Heating Split</h4>
+                    <div class="usage-bar-container">
+                        <div class="usage-bar">
+                            <div class="mix-gauge" id="mixGauge" style="left: 50%;"></div>
+                            <div class="usage-segment heat-pump-segment" id="heatPumpSegment" style="width: 50%;">
+                                <span class="usage-label">Heat Pump</span>
+                                <span class="usage-percentage" id="heatPumpPercentage" style="display: none;">0%</span>
+                            </div>
+                            <div class="usage-segment furnace-segment" id="furnaceSegment" style="width: 50%;">
+                                <span class="usage-label">Furnace</span>
+                                <span class="usage-percentage" id="furnacePercentage" style="display: none;">0%</span>
+                            </div>
+                        </div>
+                        <div class="usage-explanation">
+                            <p id="usageExplanation"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Temperature Bar (now below results) -->
+            <div id="card-temperature" class="card" data-card="temperature" style="margin-bottom: 10px;">
+            <div id="temperatureBar" style="margin: 0; padding: 4px 0;">
                 <div class="temp-scale">
                     <div class="scale-marker">-20°F</div>
                     <div class="scale-marker">0°F</div>
@@ -1369,114 +1532,103 @@
                     </div>
                 </div>
                 <!-- Average temp labels below the bar -->
-                <div style="position: relative; height: 60px; margin-top: 10px;">
+                <div style="position: relative; height: 40px; margin-top: 8px;">
                     <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Cold<br><span id="avgCold">--</span>°F</div>
                     <div class="marker-label" style="position: absolute; text-align: center; transform: translateX(-50%);">Avg Hot<br><span id="avgHot">--</span>°F</div>
                 </div>
             </div>
+            </div>
 
-            <!-- Equipment option boxes will render below (single instance kept later in document) -->
+            <!-- Card: Equipment Options (Results) -->
 
-            <!-- Home Energy Needs Bar -->
-            <div id="homeNeedsGroup" class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
-                <!-- Location -->
-                <div id="equipmentGroup" class="control-group" style="padding: 15px; height: 175px;">
-                    <h3>Location</h3>
-                    <div class="input-row">
-                        <div class="input-field">
-                            <input type="text" id="zipCode" placeholder="Zip Code" maxlength="5">
-                            <input type="hidden" id="countyFipsOverride" value="">
-                        </div>
-                        <div class="input-field">
-                            <button class="btn" id="lookupBtn" onclick="lookupClimateData()">Lookup</button>
-                        </div>
+            <!-- Card: Top Input Bar (Home Energy Needs + Location) -->
+            <div id="card-inputs" class="card" data-card="inputs">
+                <!-- Top Bar: Location + Home Energy Needs -->
+                <div style="display: flex; flex-direction: row; gap: 20px; align-items: center; justify-content: space-between; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #fafafa; margin-bottom: 10px; flex-wrap: nowrap;">
+                    <!-- Location Group (Left) -->
+                    <div id="equipmentGroup" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; white-space: nowrap; flex-wrap: nowrap;">
+                        <label style="font-size: 0.9rem; font-weight: bold; color: #333; white-space: nowrap; display: inline-block; vertical-align: middle;">Location:</label>
+                        <input type="text" id="zipCode" placeholder="Zip Code" maxlength="5" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; display: inline-block; vertical-align: middle;">
+                        <input type="hidden" id="countyFipsOverride" value="">
+                        <button class="btn" id="lookupBtn" onclick="lookupClimateData()" style="padding: 6px 10px; font-size: 0.85rem; white-space: nowrap; display: inline-block; vertical-align: middle; max-width: 90px; margin-left: 6px;">Lookup</button>
                     </div>
-                    <div id="locationInfo" class="location-info" style="display: none;">
+                    
+                    <!-- Location Info (Center - Expands) -->
+                    <div id="locationInfo" class="location-info" style="display: none; font-size: 0.75rem; color: #666; flex-grow: 1; flex-shrink: 1;">
                         <div id="locationName" class="location-name"></div>
                         <div id="dataSource" class="data-source"></div>
                     </div>
-                </div>
-
-                <!-- Energy Costs -->
-                <div class="control-group" style="padding: 15px; height: 175px;">
-                    <div style="margin-bottom: 15px;">
-                        <label for="electricityRate" class="tooltip-below" data-tooltip="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary greatly by region and provider. National average: $.12-.15/kWh energy cost." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
-                            Electricity Rate ($/kWh)
-                            <span class="info-dot">i</span>
+                    
+                    <!-- Home Energy Needs Group (Right) -->
+                    <div id="homeNeedsGroup" style="display: flex; flex-direction: row; align-items: center; gap: 12px; flex-shrink: 0;">
+                        <label for="heatingLoadInput" data-tooltip="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
+                            Home Energy Needs (BTU/hr)
+                            <span style="position: absolute; top: -5px; right: -18px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
-                        <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
-                    </div>
-                    <div>
-                        <label for="gasRate" class="tooltip-below" data-tooltip="Use 'total delivered rate' per therm - includes all fees. Rates vary significantly by season. National average: $1.64/therm delivered." style="display: block; font-size: 0.9rem; font-weight: bold; color: #333; margin-bottom: 5px; position: relative;">
-                            Natural Gas Rate ($/therm)
-                            <span class="info-dot">i</span>
-                        </label>
-                        <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 120px; padding: 8px 12px; border: 1px solid #ccc; font-size: 0.9rem;">
+                        <input type="text" id="heatingLoadInput" placeholder="50,000" value="50000" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; text-align: center;" oninput="formatHeatingInput(this); updateHeatingLoad();">
                     </div>
                 </div>
 
-                <!-- Equipment Performance -->
-                <div class="control-group" style="padding: 15px; height: 175px;">
-                    <div class="input-row">
-                        <div class="input-field">
-                            <label for="heatPumpCOP" data-tooltip="A heat pump's &quot;Coefficient of Performance&quot; describes how much heat it can deliver for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient! A heat pump with a C.O.P. of 3 uses one-third the electricity of resistance heat for the same amount of heating.\n\nHeat pumps differ greatly in their performance based on their rated capacity, matched equipment in the rest of the system, the quality of installation, and operating conditions. Current high performance heat pumps have C.O.P.'s of 3 to 4." style="position: relative;">
-                                Heat Pump <span class="info-dot">i</span><br>Performance
-                            </label>
-                            <input type="number" id="heatPumpCOP" value="3.5" step="0.1" min="1" max="5">
-                        </div>
-                        <div class="input-field">
-                            <label for="furnaceEfficiency" data-tooltip="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="position: relative;">
-                                Furnace <span class="info-dot">i</span><br>Efficiency (%)
-                            </label>
-                            <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100">
+                <!-- Input Boxes Grid: Utility Rates + Equipment Performance -->
+                <div class="inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    
+                    <!-- Utility Rates Box -->
+                    <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333;">Utility Rates</h3>
+                        <div style="display:flex; gap:24px; align-items: end;">
+                            <div>
+                                <label for="electricityRate" class="tooltip-below" data-tooltip="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary greatly by region and provider. National average: $.12-.15/kWh energy cost." style="display: block; font-size: 0.8rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
+                                    Electricity ($/kWh)
+                                    <span class="info-dot" style="font-size: 0.6rem;">i</span>
+                                </label>
+                                <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                            </div>
+                            <div>
+                                <label for="gasRate" class="tooltip-below" data-tooltip="Use 'total delivered rate' per therm - includes all fees. Rates vary significantly by season. National average: $1.64/therm delivered." style="display: block; font-size: 0.8rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
+                                    Natural Gas ($/therm)
+                                    <span class="info-dot" style="font-size: 0.6rem;">i</span>
+                                </label>
+                                <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                            </div>
                         </div>
                     </div>
-                    <div id="hybridControlsRow" class="input-row" style="margin-top: 15px;">
-                        <div class="input-field">
-                            <label for="crossoverTemp" data-tooltip="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="position: relative;">
-                                Hybrid Crossover Temperature (°F)
-                                <span class="info-dot">i</span>
-                            </label>
-                            <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50">
+
+                    <!-- Equipment Performance Box -->
+                    <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333;">Equipment Performance</h3>
+                        <div style="display: flex; gap: 10px; margin-bottom: 6px;">
+                            <div>
+                                <label for="heatPumpCOP" data-tooltip="A heat pump's 'Coefficient of Performance' describes how much heat it can deliver for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient! A heat pump with a C.O.P. of 3 uses one-third the electricity of resistance heat for the same amount of heating." style="display: block; font-size: 0.75rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
+                                    HP COP <span class="info-dot" style="font-size: 0.6rem;">i</span>
+                                </label>
+                                <input type="number" id="heatPumpCOP" value="3.5" step="0.1" min="1" max="5" style="width: 50px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                            </div>
+                            <div>
+                                <label for="furnaceEfficiency" data-tooltip="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="display: block; font-size: 0.75rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
+                                    Furnace % <span class="info-dot" style="font-size: 0.6rem;">i</span>
+                                </label>
+                                <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100" style="width: 50px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="autoCrossover" data-tooltip="Automatically choose the crossover temperature that minimizes utility cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="position: relative;">
-                                Auto Crossover <span class="info-dot">i</span><br>(Utility Savings)
-                            </label>
-                            <input type="checkbox" id="autoCrossover" checked>
+                        <div id="hybridControlsRow" style="display: flex; gap: 15px; align-items: end; margin-top: 4px;">
+                            <div>
+                                <label for="crossoverTemp" data-tooltip="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="display: block; font-size: 0.75rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
+                                    Crossover °F <span class="info-dot" style="font-size: 0.6rem;">i</span>
+                                </label>
+                                <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50" style="width: 50px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
+                                <input type="checkbox" id="autoCrossover" checked style="transform: scale(0.8);">
+                                <label for="autoCrossover" data-tooltip="Automatically choose the crossover temperature that minimizes utility cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="font-size: 0.7rem; font-weight: bold; color: #333; position: relative; line-height: 1.1;">
+                                    Auto <span class="info-dot" style="font-size: 0.55rem;">i</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Home Energy Needs (kept prominent) -->
-            <div id="homeNeedsGroup" class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <label for="heatingLoadInput" data-tooltip="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
-                        Home Energy Needs (BTU per Hour)
-                        <span style="position: absolute; top: -5px; right: -20px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
-                    </label>
-                    <input type="text" id="heatingLoadInput" placeholder="50,000" value="50000" style="width: 120px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; text-align: center;" oninput="formatHeatingInput(this); updateHeatingLoad();">
-                </div>
-                <div class="annual-summary" style="font-size: 0.9rem;">
-                    <div style="font-weight: bold; color: #333; margin-bottom: 5px;">Annual:</div>
-                    <div style="display: flex; gap: 25px; font-size: 0.8rem;">
-                        <div style="text-align: center;">
-                            <div style="color: #dc3545; font-weight: bold;" id="annualGasHeat">0 therms</div>
-                            <div style="color: #666; font-size: 0.7rem;">Gas Furnace</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="color: #007bff; font-weight: bold;" id="annualHeatPump">0 kWh</div>
-                            <div style="color: #666; font-size: 0.7rem;">Heat Pump</div>
-                        </div>
-                        <div style="text-align: center;" class="annual-hybrid">
-                            <div style="color: #28a745; font-weight: bold;" id="annualHybridGas">0 therms</div>
-                            <div style="color: #ffc107; font-weight: bold;" id="annualHybridElec">0 kWh</div>
-                            <div style="color: #666; font-size: 0.7rem;">Hybrid</div>
-                        </div>
-                    </div>
-                </div>
             </div>
+
 
             <!-- Temperature Bar (single instance at top retained above) -->
 
@@ -1489,82 +1641,10 @@
             <!-- Error -->
             <div id="errorSection" class="error" style="display: none;"></div>
 
-            <!-- Cost Comparison -->
-            <div id="resultsSection" class="cost-comparison">
-                <div class="cost-grid">
-                    <div class="cost-box heat-pump-box" id="heatPumpBox">
-                        <h3>Heat Pump</h3>
-                        <div class="cost-amount" id="heatPumpTotal">$0</div>
-                    </div>
-                    <div class="cost-box furnace-box" id="furnaceBox">
-                        <h3>Furnace</h3>
-                        <div class="cost-amount" id="furnaceTotal">$0</div>
-                    </div>
-                    <div class="cost-box hybrid-box" id="hybridBox">
-                        <h3>Hybrid</h3>
-                        <div class="cost-amount" id="hybridTotal">$0</div>
-                    </div>
-                </div>
+            <!-- All duplicates removed - single instances remain in proper cards above -->
 
-                <div class="emissions-bars" id="emissionsBars">
-                    <div class="emissions-grid">
-                        <div class="emission-bar">
-                            <div class="coal-stack">
-                                <div class="emissions-row" id="hpCoalRow1"></div>
-                                <div class="emissions-row" id="hpCoalRow2"></div>
-                            </div>
-                            <div class="co2-label" id="hpCo2Label"></div>
-                        </div>
-                        <div class="emission-bar">
-                            <div class="coal-stack">
-                                <div class="emissions-row" id="furnaceCoalRow1"></div>
-                                <div class="emissions-row" id="furnaceCoalRow2"></div>
-                            </div>
-                            <div class="co2-label" id="furnaceCo2Label"></div>
-                        </div>
-                        <div class="emission-bar">
-                            <div class="coal-stack">
-                                <div class="emissions-row" id="hybridCoalRow1"></div>
-                                <div class="emissions-row" id="hybridCoalRow2"></div>
-                            </div>
-                            <div class="co2-label" id="hybridCo2Label"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hybrid Decision Card -->
-                <div id="hybridDecision" style="margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fafafa;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <h4 style="margin: 0; font-size: 1rem;">Hybrid decision</h4>
-                        <div id="hybridDecisionBadge" style="font-size: 0.8rem; color: #155724; background: #d4edda; padding: 2px 8px; border-radius: 9999px; display: none;">Lowest cost</div>
-                    </div>
-                    <div id="hybridDecisionLine" style="margin-top: 6px; color: #333;">Above --°F use heat pump; below --°F use furnace.</div>
-                    <div id="hybridSeasonSplit" style="margin-top: 4px; color: #555; font-size: 0.9rem;">Season split: --% heat pump, --% furnace.</div>
-                    <div id="hybridSavingsLine" style="margin-top: 4px; color: #111; font-weight: 600;">Savings: --</div>
-                </div>
-
-                <!-- Hybrid System Split -->
-                <div class="hybrid-split" id="hybridSplit">
-                    <h4>Hybrid System Heating Split</h4>
-                    <div class="usage-bar-container">
-                        <div class="usage-bar">
-                            <div class="usage-segment heat-pump-segment" id="heatPumpSegment" style="width: 0%">
-                                <span class="usage-label">Heat Pump</span>
-                                <span class="usage-percentage" id="heatPumpPercentage">0%</span>
-                            </div>
-                            <div class="usage-segment furnace-segment" id="furnaceSegment" style="width: 0%">
-                                <span class="usage-label">Furnace</span>
-                                <span class="usage-percentage" id="furnacePercentage">0%</span>
-                            </div>
-                        </div>
-                        <div class="usage-explanation">
-                            <p id="usageExplanation">Enter a zip code to see how the hybrid system splits heating between heat pump and furnace.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Technical Information -->
+            <!-- Card: Technical Information (always at bottom) -->
+            <div id="card-technical" class="card" data-card="technical">
             <div id="technicalSection" class="technical-section">
                 <button class="tech-toggle" onclick="toggleTechnicalInfo()">
                     <span id="techToggleText">Show Technical Details</span>
@@ -1702,6 +1782,46 @@
 
                 </div>
             </div>
+            </div>
+
+            <!-- Card: Ownership / TCO (hidden by default) -->
+            <div id="card-ownership" class="card" data-card="ownership" style="display: none;">
+            <div class="control-group" style="padding: 12px;">
+                <h3 style="margin: 0 0 8px 0; font-size: 0.95rem;">Ownership (TCO)</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, auto); gap: 12px; align-items: end;">
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:0.85rem;">Years</label>
+                        <input type="number" id="tcoYears" value="15" min="1" max="30" step="1" style="width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:0.85rem;">Discount rate (%)</label>
+                        <input type="number" id="tcoDiscount" value="3" min="0" max="20" step="0.5" style="width: 70px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:0.85rem;">Install (HP / Furnace / Hybrid)</label>
+                        <input type="text" id="tcoInstallHP" value="9000" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"> 
+                        <input type="text" id="tcoInstallF" value="4500" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"> 
+                        <input type="text" id="tcoInstallH" value="12000" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:0.85rem;">Maint ($/yr HP / F / H)</label>
+                        <input type="text" id="tcoMaintHP" value="150" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"> 
+                        <input type="text" id="tcoMaintF" value="120" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"> 
+                        <input type="text" id="tcoMaintH" value="220" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:0.85rem;">Rebates ($ HP / F / H)</label>
+                        <input type="text" id="tcoRebateHP" value="2000" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"> 
+                        <input type="text" id="tcoRebateF" value="0" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;"> 
+                        <input type="text" id="tcoRebateH" value="2000" style="width: 80px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-weight:600; font-size:0.85rem;">Carbon price ($/t CO2)</label>
+                        <input type="number" id="tcoCarbonPrice" value="0" min="0" step="5" style="width: 90px; padding: 6px; border: 1px solid #ccc; border-radius: 4px;">
+                    </div>
+                </div>
+            </div>
+            </div>
         </div>
 
         <div class="attribution">
@@ -1730,6 +1850,11 @@
         const rawCountyDataset = (typeof ASHRAE_COUNTY_DATA !== 'undefined') ? ASHRAE_COUNTY_DATA : {};
         const countyAshraeData = buildCountyFipsIndex(rawCountyDataset);
         console.log('County ASHRAE data loaded:', Object.keys(countyAshraeData).length, 'counties');
+
+        // ZIP → FIPS override for known ambiguous ZIPs
+        const ZIP_TO_FIPS_OVERRIDE = {
+            '97219': '41051' // Force Multnomah County for 97219
+        };
 
         function buildCountyFipsIndex(dataset) {
             try {
@@ -1939,15 +2064,21 @@
                 await tryLoadExternalCountyJson();
                 await tryLoadExternalCountyCsv();
 
-                // Allow FIPS override to bypass external API (advanced)
+                // Apply ZIP override first, then manual FIPS, then FCC API
                 let fipsInfo;
-                const fipsOverrideEl = document.getElementById('countyFipsOverride');
-                const fipsOverride = fipsOverrideEl ? (fipsOverrideEl.value || '').trim() : '';
-                if (fipsOverride && /^\d{5}$/.test(fipsOverride)) {
-                    fipsInfo = { countyFIPS: fipsOverride, countyName: 'Manual FIPS', stateAbbr: '' };
+                const zipOverrideFips = ZIP_TO_FIPS_OVERRIDE[zipCode];
+                if (zipOverrideFips && /^\d{5}$/.test(zipOverrideFips)) {
+                    fipsInfo = { countyFIPS: zipOverrideFips, countyName: 'ZIP override', stateAbbr: '' };
                 } else {
-                    // Get county FIPS from FCC API using lat/lon
-                    fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
+                    // Allow FIPS override to bypass external API (advanced)
+                    const fipsOverrideEl = document.getElementById('countyFipsOverride');
+                    const fipsOverride = fipsOverrideEl ? (fipsOverrideEl.value || '').trim() : '';
+                    if (fipsOverride && /^\d{5}$/.test(fipsOverride)) {
+                        fipsInfo = { countyFIPS: fipsOverride, countyName: 'Manual FIPS', stateAbbr: '' };
+                    } else {
+                        // Get county FIPS from FCC API using lat/lon
+                        fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
+                    }
                 }
                 if (!fipsInfo || !fipsInfo.countyFIPS) {
                     throw new Error('Unable to resolve county FIPS');
@@ -1972,6 +2103,7 @@
 
                 displayClimateData();
                 calculateHVACCosts();
+                hideError();
 
             } catch (error) {
                 console.error('Error fetching climate data:', error);
@@ -1981,6 +2113,12 @@
                 showError(msg);
             } finally {
                 hideLoading();
+            }
+
+            const zipOverrideFips = ZIP_TO_FIPS_OVERRIDE[zipCode];
+            if (zipOverrideFips) {
+                const fipsOverrideEl = document.getElementById('countyFipsOverride');
+                if (fipsOverrideEl) fipsOverrideEl.value = zipOverrideFips;
             }
         }
 
@@ -2326,9 +2464,14 @@
             showWinner(results);
             updateTechnicalDetails(results, hdd, 0, heatingDesign, 0, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
 
-            document.getElementById('resultsSection').style.display = 'block';
+            const rsTop = document.getElementById('resultsSectionTop');
+            if (rsTop) rsTop.style.display = 'block';
             const hs = document.getElementById('hybridSplit');
-            if (hs) hs.style.display = 'block';
+            if (hs) {
+                hs.style.display = 'block';
+                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+                updateUsageBar(hpEff, heatingDesign, crossoverTemp);
+            }
 
             // Update hybrid decision panel
             updateHybridDecision(results, heatingDesign, crossoverTemp);
@@ -3027,14 +3170,127 @@
             document.getElementById('heatPumpSegment').style.width = heatPumpPercentage + '%';
             document.getElementById('furnaceSegment').style.width = furnacePercentage + '%';
             
-            // Update percentage labels
-            document.getElementById('heatPumpPercentage').textContent = heatPumpPercentage + '%';
-            document.getElementById('furnacePercentage').textContent = furnacePercentage + '%';
+            // Show and update percentage labels (hidden by default until real data)
+            const hpPercentageEl = document.getElementById('heatPumpPercentage');
+            const furnacePercentageEl = document.getElementById('furnacePercentage');
+            
+            hpPercentageEl.style.display = 'block';
+            furnacePercentageEl.style.display = 'block';
+            hpPercentageEl.textContent = heatPumpPercentage + '%';
+            furnacePercentageEl.textContent = furnacePercentage + '%';
             
             // Update explanation
             const explanation = `Heat pump handles heating above ${crossoverTemp}°F (${heatPumpPercentage}% of heating load). Furnace handles heating below ${crossoverTemp}°F (${furnacePercentage}% of heating load).`;
             document.getElementById('usageExplanation').textContent = explanation;
+
+            // Position mix gauge at the split point
+            const gauge = document.getElementById('mixGauge');
+            if (gauge) {
+                gauge.style.left = heatPumpPercentage + '%';
+            }
         }
+
+        function toggleTCO() {
+            const on = document.getElementById('includeTCO').checked;
+            document.getElementById('card-ownership').style.display = on ? '' : 'none';
+            // Toggle TCO lines under boxes
+            const lines = document.querySelectorAll('.tco-line');
+            lines.forEach(el => el.style.display = on ? '' : 'none');
+            if (on) recalculateIfDataAvailable();
+        }
+
+        function parseMoney(inputId) {
+            const el = document.getElementById(inputId);
+            if (!el) return 0;
+            const n = Number(String(el.value).replace(/[^0-9.\-]/g, ''));
+            return Number.isFinite(n) ? n : 0;
+        }
+
+        function npvOfSeries(years, ratePct, annualSeries) {
+            const r = (Number(ratePct) || 0) / 100;
+            let npv = 0;
+            for (let y = 1; y <= years; y++) {
+                const cf = annualSeries[y-1] || 0;
+                npv += cf / Math.pow(1 + r, y);
+            }
+            return npv;
+        }
+
+        function computeCarbonCost(annualTons, pricePerTon) {
+            const p = Number(pricePerTon) || 0;
+            return (annualTons || 0) * p;
+        }
+
+        function computeTCO(results) {
+            const enabled = document.getElementById('includeTCO') && document.getElementById('includeTCO').checked;
+            if (!enabled) return;
+            const years = Math.max(1, Math.min(30, Number(document.getElementById('tcoYears').value) || 15));
+            const rate = Number(document.getElementById('tcoDiscount').value) || 0;
+
+            const install = {
+                heatPump: parseMoney('tcoInstallHP'),
+                furnace: parseMoney('tcoInstallF'),
+                hybrid: parseMoney('tcoInstallH')
+            };
+            const maint = {
+                heatPump: parseMoney('tcoMaintHP'),
+                furnace: parseMoney('tcoMaintF'),
+                hybrid: parseMoney('tcoMaintH')
+            };
+            const rebate = {
+                heatPump: parseMoney('tcoRebateHP'),
+                furnace: parseMoney('tcoRebateF'),
+                hybrid: parseMoney('tcoRebateH')
+            };
+            const carbonPrice = Number(document.getElementById('tcoCarbonPrice').value) || 0;
+
+            // Annual run costs from existing results
+            const annualRun = {
+                heatPump: results.heatPump.total,
+                furnace: results.furnace.total,
+                hybrid: results.hybrid.total
+            };
+            // Annual emissions (metric tons) derived from existing labels if available later; default 0
+            const annualTons = { heatPump: 0, furnace: 0, hybrid: 0 };
+
+            const series = {};
+            ['heatPump', 'furnace', 'hybrid'].forEach(k => {
+                const carbonCost = computeCarbonCost(annualTons[k], carbonPrice);
+                const annual = (annualRun[k] + maint[k] + carbonCost);
+                series[k] = Array.from({ length: years }, () => annual);
+            });
+
+            const tco = {};
+            Object.keys(series).forEach(k => {
+                const upfront = Math.max(0, install[k] - rebate[k]);
+                const pv = npvOfSeries(years, rate, series[k]);
+                tco[k] = upfront + pv;
+            });
+
+            // Update UI
+            document.querySelectorAll('.tco-years').forEach(el => el.textContent = String(years));
+            const fmt = (v) => '$' + Math.round(v).toLocaleString();
+            const elHP = document.getElementById('tcoHeatPump'); if (elHP) elHP.textContent = `TCO (NPV, ${years} yrs): ${fmt(tco.heatPump)}`;
+            const elF  = document.getElementById('tcoFurnace'); if (elF) elF.textContent = `TCO (NPV, ${years} yrs): ${fmt(tco.furnace)}`;
+            const elH  = document.getElementById('tcoHybrid'); if (elH) elH.textContent = `TCO (NPV, ${years} yrs): ${fmt(tco.hybrid)}`;
+        }
+
+        // Recalc hook: extend existing pipeline without breaking defaults
+        const _origDisplaySystemResults = displaySystemResults;
+        displaySystemResults = function(results) {
+            _origDisplaySystemResults(results);
+            computeTCO(results);
+        };
+
+        // Wire inputs to recalc
+        function wireTcoInputs() {
+            const ids = ['tcoYears','tcoDiscount','tcoInstallHP','tcoInstallF','tcoInstallH','tcoMaintHP','tcoMaintF','tcoMaintH','tcoRebateHP','tcoRebateF','tcoRebateH','tcoCarbonPrice'];
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', recalculateIfDataAvailable);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', wireTcoInputs);
     </script>
 </body>
 </html>
