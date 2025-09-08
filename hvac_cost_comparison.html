@@ -941,6 +941,7 @@
             margin-top: 20px;
             padding-top: 20px;
             border-top: 1px solid #dee2e6;
+            display: block; /* Always visible */
         }
 
         .hybrid-split h4 {
@@ -1475,13 +1476,13 @@
                 <div class="hybrid-split" id="hybridSplit" style="margin-top: 16px;">
                     <h4>Hybrid System Heating Split</h4>
                     <div class="usage-bar-container">
-                        <div class="usage-bar">
+                        <div class="usage-bar" id="usageBar">
                             <div class="mix-gauge" id="mixGauge" style="left: 50%;"></div>
-                            <div class="usage-segment heat-pump-segment" id="heatPumpSegment" style="width: 50%;">
+                            <div class="usage-segment heat-pump-segment" id="heatPumpSegment">
                                 <span class="usage-label">Heat Pump</span>
                                 <span class="usage-percentage" id="heatPumpPercentage" style="display: none;">0%</span>
                             </div>
-                            <div class="usage-segment furnace-segment" id="furnaceSegment" style="width: 50%;">
+                            <div class="usage-segment furnace-segment" id="furnaceSegment">
                                 <span class="usage-label">Furnace</span>
                                 <span class="usage-percentage" id="furnacePercentage" style="display: none;">0%</span>
                             </div>
@@ -2038,6 +2039,9 @@
             hlInput.addEventListener('input', updateHeatingLoad);
             // Format initial value with commas and initialize derived values
             formatHeatingInput(hlInput);
+            
+            // Initialize the hybrid split bar with default 50/50 split
+            updateUsageBar(null, null, null);
         });
 
         // Regional estimates removed to enforce ASHRAE-only mandate
@@ -2431,6 +2435,7 @@
             const autoX = document.getElementById('autoCrossover') && document.getElementById('autoCrossover').checked;
             let crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value);
             if (!Number.isFinite(crossoverTemp)) crossoverTemp = 35;
+            
             if (autoX) {
                 const auto = computeAutoCrossoverTemperature(electricityRate, gasRate, furnaceEfficiency, heatPumpCOP);
                 crossoverTemp = Math.max(20, Math.min(50, Math.round(auto)));
@@ -2474,8 +2479,13 @@
             if (rsTop) rsTop.style.display = 'block';
             const hs = document.getElementById('hybridSplit');
             if (hs) {
-                hs.style.display = 'block';
                 const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
+                console.log('Updating hybrid split bar with data:', {
+                    heatingDesign,
+                    crossoverTemp,
+                    hdd,
+                    hpEff
+                });
                 updateUsageBar(hpEff, heatingDesign, crossoverTemp);
             }
 
@@ -2599,11 +2609,9 @@
                 return 0.0;
             }
 
-            // Use the actual HDD data to calculate the proper distribution
-            // For a more accurate calculation, we use the ratio of temperature ranges
-            // but weighted by the actual heating load distribution
-            const totalRange = baseTemp - heatingDesign;
-            const hpRange = baseTemp - crossoverTemp;
+            // Calculate the temperature range where heat pump operates
+            const totalRange = baseTemp - heatingDesign; // Total heating range
+            const hpRange = baseTemp - crossoverTemp; // Range where heat pump operates
 
             if (totalRange <= 0) {
                 return 0;
@@ -3194,46 +3202,95 @@
         }
 
         function updateUsageBar(heatPumpEfficiency, heatingDesign, crossoverTemp) {
+            console.log('updateUsageBar called with:', {
+                heatPumpEfficiency,
+                heatingDesign,
+                crossoverTemp
+            });
+            
+            // If no valid data, show default 50/50 split
+            if (!heatPumpEfficiency || heatPumpEfficiency < 0 || heatPumpEfficiency > 1) {
+                console.log('No valid data, using default 50/50 split');
+                heatPumpEfficiency = 0.5; // Default 50%
+                heatingDesign = null;
+                crossoverTemp = null;
+            } else {
+                console.log('Valid data received, using calculated values');
+            }
+
             const heatPumpPercentage = (heatPumpEfficiency * 100).toFixed(0);
             const furnacePercentage = ((1 - heatPumpEfficiency) * 100).toFixed(0);
 
-            // Update bar segments
-            const hpSegment = document.getElementById('heatPumpSegment');
-            const furnaceSegment = document.getElementById('furnaceSegment');
-
-            if (hpSegment) {
-                hpSegment.style.width = heatPumpPercentage + '%';
-            }
-
-            if (furnaceSegment) {
-                furnaceSegment.style.width = furnacePercentage + '%';
-            }
-
-            // Show and update percentage labels (hidden by default until real data)
-            const hpPercentageEl = document.getElementById('heatPumpPercentage');
-            const furnacePercentageEl = document.getElementById('furnacePercentage');
-
-            if (hpPercentageEl) {
-                hpPercentageEl.style.display = 'block';
-                hpPercentageEl.textContent = heatPumpPercentage + '%';
-            }
-
-            if (furnacePercentageEl) {
-                furnacePercentageEl.style.display = 'block';
-                furnacePercentageEl.textContent = furnacePercentage + '%';
+            // Get the usage bar and rebuild it completely
+            const usageBar = document.getElementById('usageBar');
+            if (usageBar) {
+                // Clear the bar and rebuild it
+                usageBar.innerHTML = '';
+                
+                // Create the mix gauge
+                const gauge = document.createElement('div');
+                gauge.className = 'mix-gauge';
+                gauge.id = 'mixGauge';
+                gauge.style.left = heatPumpPercentage + '%';
+                usageBar.appendChild(gauge);
+                
+                // Create heat pump segment
+                const hpSeg = document.createElement('div');
+                hpSeg.className = 'usage-segment heat-pump-segment';
+                hpSeg.id = 'heatPumpSegment';
+                hpSeg.style.width = heatPumpPercentage + '%';
+                hpSeg.style.flexBasis = heatPumpPercentage + '%';
+                hpSeg.style.flexShrink = '0';
+                hpSeg.style.minWidth = '0';
+                
+                const hpLabel = document.createElement('span');
+                hpLabel.className = 'usage-label';
+                hpLabel.textContent = 'Heat Pump';
+                hpSeg.appendChild(hpLabel);
+                
+                const hpPct = document.createElement('span');
+                hpPct.className = 'usage-percentage';
+                hpPct.id = 'heatPumpPercentage';
+                hpPct.style.display = heatingDesign ? 'block' : 'none'; // Only show % when data is available
+                hpPct.textContent = heatPumpPercentage + '%';
+                hpSeg.appendChild(hpPct);
+                
+                usageBar.appendChild(hpSeg);
+                
+                // Create furnace segment
+                const furnaceSeg = document.createElement('div');
+                furnaceSeg.className = 'usage-segment furnace-segment';
+                furnaceSeg.id = 'furnaceSegment';
+                furnaceSeg.style.width = furnacePercentage + '%';
+                furnaceSeg.style.flexBasis = furnacePercentage + '%';
+                furnaceSeg.style.flexShrink = '0';
+                furnaceSeg.style.minWidth = '0';
+                
+                const furnaceLabel = document.createElement('span');
+                furnaceLabel.className = 'usage-label';
+                furnaceLabel.textContent = 'Furnace';
+                furnaceSeg.appendChild(furnaceLabel);
+                
+                const furnacePct = document.createElement('span');
+                furnacePct.className = 'usage-percentage';
+                furnacePct.id = 'furnacePercentage';
+                furnacePct.style.display = heatingDesign ? 'block' : 'none'; // Only show % when data is available
+                furnacePct.textContent = furnacePercentage + '%';
+                furnaceSeg.appendChild(furnacePct);
+                
+                usageBar.appendChild(furnaceSeg);
             }
 
             // Update explanation
-            const explanation = `Heat pump handles heating above ${crossoverTemp}°F (${heatPumpPercentage}% of heating load). Furnace handles heating below ${crossoverTemp}°F (${furnacePercentage}% of heating load).`;
+            let explanation;
+            if (heatingDesign && crossoverTemp) {
+                explanation = `Heat pump handles heating above ${crossoverTemp}°F (${heatPumpPercentage}% of heating load). Furnace handles heating below ${crossoverTemp}°F (${furnacePercentage}% of heating load).`;
+            } else {
+                explanation = 'Enter a location to see the hybrid system heating split based on your climate data.';
+            }
             const explanationEl = document.getElementById('usageExplanation');
             if (explanationEl) {
                 explanationEl.textContent = explanation;
-            }
-
-            // Position mix gauge at the split point
-            const gauge = document.getElementById('mixGauge');
-            if (gauge) {
-                gauge.style.left = heatPumpPercentage + '%';
             }
         }
 
