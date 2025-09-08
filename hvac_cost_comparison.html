@@ -474,7 +474,7 @@
             align-items: center;
             justify-content: center;
         }
-?        .heating-design .marker-line,
+        .heating-design .marker-line,
         .cooling-design .marker-line {
             display: flex;
             align-items: center;
@@ -1307,7 +1307,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Heat Pump - Furnace - Hybrid</h1>
+            <h1 id="appTitle">Heat Pump - Furnace - Hybrid</h1>
             <p>Cost to Run Comparison</p>
             <div class="emissions-toggle">
                 <input type="checkbox" id="includeEmissions" onchange="recalculateIfDataAvailable()">
@@ -1319,7 +1319,7 @@
             <!-- Controls -->
             <div class="controls-grid">
                 <!-- Location -->
-                <div class="control-group" style="padding: 15px; height: 175px;">
+                <div id="equipmentGroup" class="control-group" style="padding: 15px; height: 175px;">
                     <h3>Location</h3>
                     <div class="input-row">
                         <div class="input-field">
@@ -1369,7 +1369,7 @@
                             <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100">
                         </div>
                     </div>
-                    <div class="input-row" style="margin-top: 15px;">
+                    <div id="hybridControlsRow" class="input-row" style="margin-top: 15px;">
                         <div class="input-field">
                             <label for="crossoverTemp" data-tooltip="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="position: relative;">
                                 Hybrid Crossover Temperature (°F)
@@ -1377,12 +1377,19 @@
                             </label>
                             <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50">
                         </div>
+                        <div class="input-field">
+                            <label for="autoCrossover" data-tooltip="Automatically choose the crossover temperature that minimizes cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="position: relative;">
+                                Auto Crossover (recommended)
+                                <span class="info-dot">i</span>
+                            </label>
+                            <input type="checkbox" id="autoCrossover" checked>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Heating Load Input -->
-            <div class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
+            <div id="homeNeedsGroup" class="control-group" style="padding: 10px; height: 60px; grid-column: 1 / -1; width: 100%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px;">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <label for="heatingLoadInput" data-tooltip="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
                         Home Energy Needs (BTU per Hour)
@@ -1512,6 +1519,17 @@
                     </div>
                 </div>
 
+                <!-- Hybrid Decision Card -->
+                <div id="hybridDecision" style="margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fafafa;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; font-size: 1rem;">Hybrid decision</h4>
+                        <div id="hybridDecisionBadge" style="font-size: 0.8rem; color: #155724; background: #d4edda; padding: 2px 8px; border-radius: 9999px; display: none;">Lowest cost</div>
+                    </div>
+                    <div id="hybridDecisionLine" style="margin-top: 6px; color: #333;">Above --°F use heat pump; below --°F use furnace.</div>
+                    <div id="hybridSeasonSplit" style="margin-top: 4px; color: #555; font-size: 0.9rem;">Season split: --% heat pump, --% furnace.</div>
+                    <div id="hybridSavingsLine" style="margin-top: 4px; color: #111; font-weight: 600;">Savings: --</div>
+                </div>
+
                 <!-- Hybrid System Split -->
                 <div class="hybrid-split" id="hybridSplit" style="display: none;">
                     <h4>Hybrid System Heating Split</h4>
@@ -1534,7 +1552,7 @@
             </div>
 
             <!-- Technical Information -->
-            <div class="technical-section">
+            <div id="technicalSection" class="technical-section">
                 <button class="tech-toggle" onclick="toggleTechnicalInfo()">
                     <span id="techToggleText">Show Technical Details</span>
                     <span id="techToggleIcon">▼</span>
@@ -2245,7 +2263,18 @@
             const gasRate = parseFloat(document.getElementById('gasRate').value) || 1.20;
             const heatPumpCOP = parseFloat(document.getElementById('heatPumpCOP').value) || 3.5;
             const furnaceEfficiency = parseFloat(document.getElementById('furnaceEfficiency').value) || 95;
-            const crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value) || 35;
+            const autoX = document.getElementById('autoCrossover') && document.getElementById('autoCrossover').checked;
+            let crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value);
+            if (!Number.isFinite(crossoverTemp)) crossoverTemp = 35;
+            if (autoX) {
+                const auto = computeAutoCrossoverTemperature(electricityRate, gasRate, furnaceEfficiency, heatPumpCOP);
+                crossoverTemp = Math.max(20, Math.min(50, Math.round(auto)));
+                const xEl = document.getElementById('crossoverTemp');
+                if (xEl) { xEl.value = crossoverTemp; xEl.disabled = true; }
+            } else {
+                const xEl = document.getElementById('crossoverTemp');
+                if (xEl) xEl.disabled = false;
+            }
 
             const systems = {
                 heatPump: {
@@ -2278,6 +2307,9 @@
 
             document.getElementById('resultsSection').style.display = 'block';
             document.getElementById('hybridSplit').style.display = 'block';
+
+            // Update hybrid decision panel
+            updateHybridDecision(results, heatingDesign, crossoverTemp);
         }
 
         function calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, crossoverTemp) {
@@ -2391,6 +2423,53 @@
             // Crossover temperature is typically 35°F for most heat pumps
             // Below this temperature, heat pump efficiency drops significantly
             return 35;
+        }
+
+        // Compute economic break-even crossover temperature from prices, AFUE, and a simple COP curve
+        function computeAutoCrossoverTemperature(pricePerKWh, pricePerTherm, furnaceEffPercent, copAt47F) {
+            const afue = Math.max(0.5, Math.min(1.0, (parseFloat(furnaceEffPercent) || 95) / 100));
+            const e = Math.max(0.01, parseFloat(pricePerKWh) || 0.12);
+            const g = Math.max(0.01, parseFloat(pricePerTherm) || 1.2);
+            const cop47 = Math.max(1.0, parseFloat(copAt47F) || 3.5);
+            const cop17 = Math.max(1.0, cop47 - 1.5); // simple default slope
+            const slopePerDeg = (cop17 - cop47) / (17 - 47); // ~ (ΔCOP)/(-30)
+            const copThreshold = 29.3 * afue * (e / g);
+            if (Math.abs(slopePerDeg) < 1e-6) return 35; // avoid divide-by-zero
+            const t = 47 + (copThreshold - cop47) / slopePerDeg;
+            // Clamp to UI range
+            return Math.max(0, Math.min(70, t));
+        }
+
+        function updateHybridDecision(results, heatingDesign, crossoverTemp) {
+            try {
+                const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp);
+                const hpPct = Math.round(hpEff * 100);
+                const gasPct = 100 - hpPct;
+                const line = `Above ${crossoverTemp}°F use heat pump; below ${crossoverTemp}°F use furnace.`;
+                const split = `Season split: ${hpPct}% heat pump, ${gasPct}% furnace.`;
+                const r = results || {};
+                const hpCost = r.heatPump ? r.heatPump.total : NaN;
+                const gasCost = r.furnace ? r.furnace.total : NaN;
+                const hybCost = r.hybrid ? r.hybrid.total : NaN;
+                let savingsText = 'Savings: --';
+                let lowestBadge = false;
+                if ([hpCost, gasCost, hybCost].every(Number.isFinite)) {
+                    const saveVsHP = hpCost - hybCost;
+                    const saveVsGas = gasCost - hybCost;
+                    savingsText = `Hybrid saves $${Math.round(Math.max(0, saveVsHP)).toLocaleString()} vs heat pump and $${Math.round(Math.max(0, saveVsGas)).toLocaleString()} vs furnace (per year).`;
+                    lowestBadge = (hybCost <= hpCost && hybCost <= gasCost);
+                }
+                const lineEl = document.getElementById('hybridDecisionLine');
+                const splitEl = document.getElementById('hybridSeasonSplit');
+                const saveEl = document.getElementById('hybridSavingsLine');
+                const badgeEl = document.getElementById('hybridDecisionBadge');
+                if (lineEl) lineEl.textContent = line;
+                if (splitEl) splitEl.textContent = split;
+                if (saveEl) saveEl.textContent = savingsText;
+                if (badgeEl) badgeEl.style.display = lowestBadge ? 'inline-block' : 'none';
+            } catch (e) {
+                console.warn('updateHybridDecision error', e);
+            }
         }
 
         function displayCostBars(results) {
@@ -2557,6 +2636,8 @@
         document.getElementById('heatPumpCOP').addEventListener('input', recalculateIfDataAvailable);
         document.getElementById('furnaceEfficiency').addEventListener('input', recalculateIfDataAvailable);
         document.getElementById('crossoverTemp').addEventListener('input', recalculateIfDataAvailable);
+        const autoX = document.getElementById('autoCrossover');
+        if (autoX) autoX.addEventListener('change', recalculateIfDataAvailable);
 
         function recalculateIfDataAvailable() {
             if (climateData) {
@@ -2694,6 +2775,59 @@
                     hideTimer = setTimeout(() => hideBubble(), 200);
                 }
             }, true);
+        })();
+
+        // Modes system: basic | guided | pro | nonprofit
+        (function initModes() {
+            function getQueryParam(name) {
+                const params = new URLSearchParams(window.location.search);
+                return params.get(name);
+            }
+            const mode = (getQueryParam('mode') || 'guided').toLowerCase();
+            const sections = {
+                equipment: document.getElementById('equipmentGroup'),
+                hybridRow: document.getElementById('hybridControlsRow'),
+                homeNeeds: document.getElementById('homeNeedsGroup'),
+                emissionsBars: document.getElementById('emissionsBars'),
+                hybridDecision: document.getElementById('hybridDecision'),
+                technical: document.getElementById('technicalSection'),
+                title: document.getElementById('appTitle')
+            };
+
+            function show(el, visible) { if (el) el.style.display = visible ? '' : 'none'; }
+
+            switch (mode) {
+                case 'basic':
+                    show(sections.equipment, false);
+                    show(sections.hybridRow, false);
+                    show(sections.technical, false);
+                    show(sections.emissionsBars, false);
+                    show(sections.hybridDecision, true);
+                    break;
+                case 'nonprofit':
+                    show(sections.equipment, true);
+                    show(sections.hybridRow, true);
+                    show(sections.technical, false);
+                    show(sections.emissionsBars, true);
+                    show(sections.hybridDecision, true);
+                    if (sections.title) sections.title.textContent = 'Electrify Now: Home Heating Cost Guide';
+                    break;
+                case 'pro':
+                    show(sections.equipment, true);
+                    show(sections.hybridRow, true);
+                    show(sections.technical, true);
+                    show(sections.emissionsBars, true);
+                    show(sections.hybridDecision, true);
+                    break;
+                case 'guided':
+                default:
+                    show(sections.equipment, true);
+                    show(sections.hybridRow, true);
+                    show(sections.technical, false);
+                    show(sections.emissionsBars, true);
+                    show(sections.hybridDecision, true);
+                    break;
+            }
         })();
 
         function updateTechnicalDetails(results, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp) {
