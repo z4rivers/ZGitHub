@@ -1617,6 +1617,8 @@
 
             <!-- Error -->
             <div id="errorSection" class="error" style="display: none;"></div>
+            <!-- Status Line (diagnostics) -->
+            <div id="statusLine" style="display:none; font-size: 0.75rem; color: #666; margin: 6px 0 0 0;"></div>
 
             <!-- All duplicates removed - single instances remain in proper cards above -->
 
@@ -2154,8 +2156,40 @@
             hideError();
             hideResults();
 
+            // Immediate ZIP-level fallback using RESNET dataset (robust UX)
+            try {
+                setStatus('Trying ZIP data first...');
+                const resnetFallback = (z) => {
+                    // Minimal built-in fallback for critical ZIPs if RESNET script isn't loaded
+                    if (z === '96001') return { name: 'Redding, CA', heating: 25, cooling: 108, hdd: 3000, cdd: 2500, source: 'Redding Municipal Airport', lat: 40.509, lon: -122.293 };
+                    return null;
+                };
+                const resnetSource = (typeof RESNET_ASHRAE_DATA !== 'undefined') ? RESNET_ASHRAE_DATA : null;
+                const resnet = resnetSource ? resnetSource[zipCode] : resnetFallback(zipCode);
+                if (resnet && ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(Number(resnet[k])))) {
+                        setStatus('Using ZIP dataset.');
+                        climateData = {
+                            name: resnet.name + ' (ZIP data)',
+                            heating: Number(resnet.heating),
+                            cooling: Number(resnet.cooling),
+                            hdd: Number(resnet.hdd),
+                            cdd: Number(resnet.cdd),
+                            source: resnet.source,
+                            lat: resnet.lat,
+                            lon: resnet.lon
+                        };
+                        displayClimateData();
+                        calculateHVACCosts();
+                        hideLoading();
+                        return;
+                }
+            } catch (e) {
+                console.warn('Early RESNET ZIP fallback failed:', e);
+            }
+
             // Fast path: if we have a ZIP→FIPS override, bypass external APIs
             try {
+                setStatus('Checking ZIP→FIPS override...');
                 const zipOverrideFipsFast = ZIP_TO_FIPS_OVERRIDE[zipCode];
                 if (zipOverrideFipsFast && /^\d{5}$/.test(zipOverrideFipsFast)) {
                     const fipsInfo = { countyFIPS: zipOverrideFipsFast, countyName: 'ZIP override', stateAbbr: '' };
@@ -2168,6 +2202,7 @@
                     if (!Number.isFinite(normalized.heating) || !Number.isFinite(normalized.hdd)) {
                         throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
                     }
+                    setStatus('Using county dataset via override.');
                     climateData = normalized;
                     displayClimateData();
                     calculateHVACCosts();
@@ -2190,6 +2225,7 @@
                     console.log('Calling getLocationFromZip for:', zipCode);
                     locationData = await getLocationFromZip(zipCode);
                     console.log('Location data received:', locationData);
+                    setStatus('Got ZIP coordinates. Fetching county...');
                 } catch (error) {
                     console.error('Zip code lookup failed:', error);
                     throw new Error('Zip lookup failed');
@@ -2220,6 +2256,7 @@
                     throw new Error('Unable to resolve county FIPS');
                 }
                 console.log('Resolved county FIPS:', fipsInfo);
+                setStatus(`County FIPS resolved: ${fipsInfo.countyFIPS}. Loading county data...`);
 
                 // Lookup county in authoritative ASHRAE county dataset
                 let countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
@@ -2254,6 +2291,7 @@
                     throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
                 }
                 climateData = normalized;
+                setStatus('Using county dataset.');
 
                 displayClimateData();
                 calculateHVACCosts();
@@ -2261,10 +2299,36 @@
 
             } catch (error) {
                 console.error('Error fetching climate data:', error);
+                // Last-chance fallback: use RESNET ZIP data directly if complete
+                try {
+                    const zipCode = document.getElementById('zipCode').value.trim();
+                    const resnet = RESNET_ASHRAE_DATA[zipCode];
+                    if (resnet && ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(resnet[k]))) {
+                        climateData = {
+                            name: resnet.name + ' (ZIP fallback)',
+                            heating: resnet.heating,
+                            cooling: resnet.cooling,
+                            hdd: resnet.hdd,
+                            cdd: resnet.cdd,
+                            source: resnet.source,
+                            lat: resnet.lat,
+                            lon: resnet.lon
+                        };
+                        displayClimateData();
+                        calculateHVACCosts();
+                        hideError();
+                        hideLoading();
+                        return;
+                    }
+                } catch (e) {
+                    console.warn('ZIP fallback failed:', e);
+                }
+
                 const msg = (error && error.message && error.message.startsWith('County not loaded yet'))
                   ? `${error.message}. Please populate this county in ashrae_county_data.js.`
                   : 'No valid county-level ASHRAE data available for this ZIP.';
                 showError(msg);
+                setStatus('Error path hit.');
             } finally {
                 hideLoading();
             }
@@ -2957,6 +3021,13 @@
 
         function hideError() {
             document.getElementById('errorSection').style.display = 'none';
+        }
+
+        function setStatus(text) {
+            const el = document.getElementById('statusLine');
+            if (!el) return;
+            el.textContent = text;
+            el.style.display = text ? 'block' : 'none';
         }
 
         function hideResults() {
