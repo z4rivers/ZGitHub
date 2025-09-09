@@ -1840,15 +1840,43 @@
         function buildCountyFipsIndex(dataset) {
             try {
                 const index = {};
-                const entries = Object.entries(dataset || {});
-                for (const [key, value] of entries) {
+                const addEntry = (val) => {
+                    if (!val || typeof val !== 'object') return;
+                    const fipsRaw = val.fips || val.FIPS || val.countyFIPS || val.county_fips;
+                    if (fipsRaw != null) {
+                        const fips = String(fipsRaw).padStart(5, '0');
+                        index[fips] = val;
+                    }
+                };
+                const walk = (node, depth = 0) => {
+                    if (!node || depth > 3) return;
+                    if (Array.isArray(node)) {
+                        for (const item of node) {
+                            addEntry(item);
+                            if (item && typeof item === 'object') walk(item, depth + 1);
+                        }
+                        return;
+                    }
+                    if (typeof node === 'object') {
+                        // Add if object itself looks like an entry
+                        addEntry(node);
+                        for (const v of Object.values(node)) {
+                            if (v && typeof v === 'object') walk(v, depth + 1);
+                        }
+                        return;
+                    }
+                };
+                walk(dataset, 0);
+                if (Object.keys(index).length) return index;
+                // Fallback to shallow key scan (covers already-keyed-by-FIPS objects)
+                const shallow = {};
+                for (const [key, value] of Object.entries(dataset || {})) {
                     if (!value || typeof value !== 'object') continue;
                     const fipsRaw = value.fips || value.FIPS || value.countyFIPS || value.county_fips || key;
                     const fips = (fipsRaw != null) ? String(fipsRaw).padStart(5, '0') : null;
-                    if (fips) index[fips] = value;
+                    if (fips) shallow[fips] = value;
                 }
-                // If we failed to derive any FIPS keys, return original (assumes already keyed by FIPS)
-                return Object.keys(index).length ? index : (dataset || {});
+                return Object.keys(shallow).length ? shallow : (dataset || {});
             } catch (e) {
                 console.warn('Failed to build county FIPS index:', e);
                 return dataset || {};
@@ -2092,7 +2120,7 @@
         }
 
         // Add event listener for heating load input
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             const hlInput = document.getElementById('heatingLoadInput');
             hlInput.addEventListener('input', updateHeatingLoad);
             // Format initial value with commas and initialize derived values
@@ -2100,6 +2128,16 @@
             
             // Initialize hybrid split bar with default 50/50
             updateHybridSplitBar(null, null, null);
+
+            // Preload comprehensive county datasets if present
+            try {
+                await tryLoadExternalCountyJson();
+                await tryLoadExternalCountyCsv();
+                await tryMergeNoaaNormalsHddCdd();
+                console.log('County datasets preloaded. Counties available:', Object.keys(countyAshraeData).length);
+            } catch (e) {
+                console.warn('County dataset preload skipped:', e);
+            }
         });
 
         // Regional estimates removed to enforce ASHRAE-only mandate
@@ -2115,6 +2153,35 @@
             showLoading();
             hideError();
             hideResults();
+
+            // Fast path: if we have a ZIP→FIPS override, bypass external APIs
+            try {
+                const zipOverrideFipsFast = ZIP_TO_FIPS_OVERRIDE[zipCode];
+                if (zipOverrideFipsFast && /^\d{5}$/.test(zipOverrideFipsFast)) {
+                    const fipsInfo = { countyFIPS: zipOverrideFipsFast, countyName: 'ZIP override', stateAbbr: '' };
+                    const countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
+                    if (!countyEntry) {
+                        reportMissingCounty(fipsInfo);
+                        throw new Error(`County not loaded yet: ${fipsInfo.countyName} (${fipsInfo.countyFIPS}) ${fipsInfo.stateAbbr}`);
+                    }
+                    const normalized = normalizeCountyEntry(countyEntry, fipsInfo);
+                    if (!Number.isFinite(normalized.heating) || !Number.isFinite(normalized.hdd)) {
+                        throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
+                    }
+                    climateData = normalized;
+                    displayClimateData();
+                    calculateHVACCosts();
+                    hideError();
+                    hideLoading();
+                    // Reflect override in hidden field for transparency
+                    const fipsOverrideEl = document.getElementById('countyFipsOverride');
+                    if (fipsOverrideEl) fipsOverrideEl.value = zipOverrideFipsFast;
+                    return;
+                }
+            } catch (error) {
+                console.error('Early ZIP override path failed:', error);
+                // Fall through to full lookup flow below
+            }
 
             try {
                 // Get location data from zip code
@@ -2155,7 +2222,25 @@
                 console.log('Resolved county FIPS:', fipsInfo);
 
                 // Lookup county in authoritative ASHRAE county dataset
-                const countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
+                let countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
+                // Fallback: use RESNET zip record if it matches this county and has all fields
+                if (!countyEntry) {
+                    const resnet = RESNET_ASHRAE_DATA[zipCode];
+                    if (resnet && ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(resnet[k]))) {
+                        countyEntry = {
+                            name: `${fipsInfo.countyName}, ${fipsInfo.stateAbbr}`,
+                            state: fipsInfo.stateAbbr,
+                            fips: fipsInfo.countyFIPS,
+                            heating: resnet.heating,
+                            cooling: resnet.cooling,
+                            hdd: resnet.hdd,
+                            cdd: resnet.cdd,
+                            source: `RESNET/ASHRAE ZIP ${zipCode} proxied to county`,
+                            lat: resnet.lat,
+                            lon: resnet.lon
+                        };
+                    }
+                }
                 if (!countyEntry) {
                     console.error('No county ASHRAE data found for FIPS:', fipsInfo.countyFIPS, fipsInfo);
                     reportMissingCounty(fipsInfo);
