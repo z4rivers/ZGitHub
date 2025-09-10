@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heat Pump - Furnace - Hybrid</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <svg class="logo-mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 30" aria-hidden="true">
+              <rect width="92" height="30" fill="transparent"/>
+              <g transform="translate(6,4)">
+                <rect x="10" y="16" width="50" height="3" fill="#B8860B"/>
+                <line x1="35" y1="4" x2="35" y2="16" stroke="#B8860B" stroke-width="2"/>
+                <line x1="35" y1="4" x2="20" y2="12" stroke="#B8860B" stroke-width="1.6"/>
+                <line x1="35" y1="4" x2="50" y2="12" stroke="#B8860B" stroke-width="1.6"/>
+                <circle cx="20" cy="12" r="6" fill="#2563EB" stroke="#1F2937" stroke-width="1.5"/>
+                <text x="18" y="14" font-family="Inter, Arial" font-size="7" fill="#F8FAFC">$</text>
+                <circle cx="50" cy="12" r="6" fill="#DC2626" stroke="#7F1D1D" stroke-width="1.5"/>
+                <!-- Thermostat dial -->
+                <circle cx="50" cy="12" r="3" fill="#F8FAFC" stroke="#1F2937" stroke-width="1"/>
+                <line x1="50" y1="12" x2="53" y2="10" stroke="#1F2937" stroke-width="1" stroke-linecap="round"/>
+                <path d="M49 13 C50 10, 51 10, 52 13 C51 12, 50 12, 49 13 Z" fill="#166534"/>
+              </g>
+            </svg>
+            <div class="brand">
+                <div>
+                    <h1 id="appTitle">HVAC Compare</h1>
+                    <p>Heat Pump · Furnace · AC Comparison Guide</p>
+                </div>
+            </div>
+            <div class="header-toggles">
+                <label class="header-toggle" for="includeEmissions">
+                    <input type="checkbox" id="includeEmissions" onchange="recalculateIfDataAvailable()">
+                    <span>Include emissions</span>
+                </label>
+                <label class="header-toggle" for="includeTCO">
+                    <input type="checkbox" id="includeTCO" onchange="toggleTCO()">
+                    <span>Full ownership (TCO)</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="main-content" id="dashboard">
+            <!-- Card: Equipment Options (Results) -->
+            <div id="card-results" class="card" data-card="results">
+                <div id="resultsSectionTop" class="cost-comparison">
+                    <div class="cost-grid">
+                        <div class="cost-box heat-pump-box" id="heatPumpBox">
+                            <h3>Heat Pump</h3>
+                            <div class="cost-amount" id="heatPumpTotal">$0</div>
+                            <div style="font-size: 0.8rem; color: #28a745; font-weight: bold; margin-top: 4px;" id="annualHeatPump">0 kWh</div>
+                            <div class="tco-line" id="tcoHeatPump" style="display:none; font-size:0.8rem; color:#333; margin-top:4px;">TCO (NPV, <span class="tco-years">15</span> yrs): $0</div>
+                        </div>
+                        <div class="cost-box furnace-box" id="furnaceBox">
+                            <h3>Furnace</h3>
+                            <div class="cost-amount" id="furnaceTotal">$0</div>
+                            <div style="font-size: 0.8rem; color: #dc3545; font-weight: bold; margin-top: 4px;" id="annualGasHeat">0 therms</div>
+                            <div class="tco-line" id="tcoFurnace" style="display:none; font-size:0.8rem; color:#333; margin-top:4px;">TCO (NPV, <span class="tco-years">15</span> yrs): $0</div>
+                        </div>
+                        <div class="cost-box hybrid-box" id="hybridBox">
+                            <h3>Hybrid</h3>
+                            <div class="cost-amount" id="hybridTotal">$0</div>
+                            <div style="font-size: 0.75rem; margin-top: 4px;">
+                                <div style="color: #28a745; font-weight: bold;" id="annualHybridElec">0 kWh</div>
+                                <div style="color: #dc3545; font-weight: bold;" id="annualHybridGas">0 therms</div>
+                            </div>
+                            <div class="tco-line" id="tcoHybrid" style="display:none; font-size:0.8rem; color:#333; margin-top:4px;">TCO (NPV, <span class="tco-years">15</span> yrs): $0</div>
+                        </div>
+                    </div>
+
+                    <div class="emissions-bars" id="emissionsBars">
+                        <div class="emissions-grid">
+                            <div class="emission-bar">
+                                <div class="coal-stack">
+                                    <div class="emissions-row" id="hpCoalRow1"></div>
+                                    <div class="emissions-row" id="hpCoalRow2"></div>
+                                </div>
+                                <div class="co2-label" id="hpCo2Label"></div>
+                            </div>
+                            <div class="emission-bar">
+                                <div class="coal-stack">
+                                    <div class="emissions-row" id="furnaceCoalRow1"></div>
+                                    <div class="emissions-row" id="furnaceCoalRow2"></div>
+                                </div>
+                                <div class="co2-label" id="furnaceCo2Label"></div>
+                            </div>
+                            <div class="emission-bar">
+                                <div class="coal-stack">
+                                    <div class="emissions-row" id="hybridCoalRow1"></div>
+                                    <div class="emissions-row" id="hybridCoalRow2"></div>
+                                </div>
+                                <div class="co2-label" id="hybridCo2Label"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Card: Hybrid (decision + split) moved near bottom -->
+            <div id="card-hybrid" class="card" data-card="hybrid">
+                <div id="hybridDecision" style="margin-top: 0; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fafafa;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h4 style="margin: 0; font-size: 1rem;">Hybrid decision</h4>
+                        <div id="hybridDecisionBadge" style="font-size: 0.8rem; color: #155724; background: #d4edda; padding: 2px 8px; border-radius: 9999px; display: none;">Lowest cost</div>
+                    </div>
+                    <div id="hybridDecisionLine" style="margin-top: 6px; color: #333;">Above --°F use heat pump; below --°F use furnace.</div>
+                    <div id="hybridSeasonSplit" style="margin-top: 4px; color: #555; font-size: 0.9rem;">Season split: --% heat pump, --% furnace.</div>
+                    <div id="hybridSavingsLine" style="margin-top: 4px; color: #111; font-weight: 600;">Savings: --</div>
+                </div>
+                
+                <!-- Hybrid Heating Split -->
+                <h3 class="hybrid-split-title">Hybrid Heating Split</h3>
+                <div class="hybrid-split">
+                  <div id="hybridSplit" class="hs__bar" data-state="default" aria-label="Hybrid Heating Split">
+                    <div class="hs__seg hs__hp" aria-hidden="true"></div>
+                    <div class="hs__seg hs__fn" aria-hidden="true"></div>
+                    <div class="hs__labels">
+                      <span id="hpLabel">Heat Pump</span>
+                      <span id="furnaceLabel">Furnace</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card: Temperature Bar (now below results) -->
+            <div id="card-temperature" class="card" data-card="temperature" style="margin-bottom: 10px;">
+            <div id="temperatureBar" style="margin: 0; padding: 4px 0;">
