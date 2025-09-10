@@ -1,0 +1,50 @@
+{
+  "97219": {
+    "station": {
+      "station_id": "USC00356749",
+      "name": "PORTLAND KGW-TV, OR US",
+      "latitude": 45.5181,
+      "longitude": -122.6894,
+      "elevation": "48.5",
+      "hdd": 4230.1,
+      "cdd": 452.5
+    },
+    "distance_km": 8.72
+  },
+  "97520": {
+    "station": {
+      "station_id": "USC00350304",
+      "name": "ASHLAND, OR US",
+      "latitude": 42.2131,
+      "longitude": -122.7147,
+      "elevation": "527.0",
+      "hdd": 4990.7,
+      "cdd": 413.3
+    },
+    "distance_km": 2.6
+  },
+  "96001": {
+    "station": {
+      "station_id": "USW00024257",
+      "name": "REDDING MUNI AP, CA US",
+      "latitude": 40.5175,
+      "longitude": -122.2986,
+      "elevation": "151.5",
+      "hdd": 2515.0,
+      "cdd": 2108.7
+    },
+    "distance_km": 9.2
+  },
+  "10001": {
+    "station": {
+      "station_id": "USW00094728",
+      "name": "NEW YORK CNTRL PK TWR, NY US",
+      "latitude": 40.7789,
+      "longitude": -73.9692,
+      "elevation": "39.6",
+      "hdd": 4441.0,
+      "cdd": 1269.5
+    },
+    "distance_km": 3.66
+  }
+}
