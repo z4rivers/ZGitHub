@@ -27,4 +27,7 @@ npm-debug.log*
 
 # Backup files that shouldn't be tracked
 *backup*
-*auto*
+
+# Ignore NOAA climate datasets
+/us-climate-normals_2006-2020_v1.0.1_annualseasonal_multivariate_by-station_c20230404/
+/us-climate-normals_2006-2020_v1.0.1_annualseasonal_multivariate_by-station_c20230404.tar.gz
