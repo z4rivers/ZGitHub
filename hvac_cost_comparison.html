@@ -221,11 +221,12 @@
         .data-source {
             color: #059669;
             font-style: italic;
-            font-weight: 600;
-            background: rgba(16, 185, 129, 0.1);
-            padding: 4px 8px;
-            border-radius: 6px;
-            border-left: 3px solid #10b981;
+            font-weight: 500;
+            background: rgba(16, 185, 129, 0.08);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border-left: 2px solid #10b981;
+            font-size: 0.75rem;
         }
 
         /* Comic Style Tooltips */
@@ -1821,6 +1822,7 @@
     <script>
         // Global variables
         let climateData = null;
+        let EXTRACTED_CLIMATE_DATA = null;
         let maxCost = 0;
         let houseLoads = { heating: 0, cooling: 0 };
         let CLIMATE_DATA = null;
@@ -1886,6 +1888,25 @@
             } catch (e) {
                 console.warn('Failed to build county FIPS index:', e);
                 return dataset || {};
+            }
+        }
+
+        // JSON loader for extracted climate data
+        async function loadExtractedClimateDataOnce() {
+            if (EXTRACTED_CLIMATE_DATA) return EXTRACTED_CLIMATE_DATA;
+            
+            try {
+                const resp = await fetch('extracted_climate_data_comprehensive.json', { cache: 'no-store' });
+                if (!resp.ok) throw new Error(`Could not load extracted_climate_data.json: ${resp.status}`);
+                
+                const data = await resp.json();
+                EXTRACTED_CLIMATE_DATA = data.climate_data || {}; // Extract the climate_data section
+                console.log('Loaded ZIP-level climate data:', Object.keys(EXTRACTED_CLIMATE_DATA).length, 'ZIP codes');
+                return EXTRACTED_CLIMATE_DATA;
+            } catch (error) {
+                console.warn('Failed to load extracted_climate_data.json:', error.message);
+                EXTRACTED_CLIMATE_DATA = {}; // Empty fallback
+                return EXTRACTED_CLIMATE_DATA;
             }
         }
 
@@ -2231,26 +2252,75 @@
                 setStatus('Loading climate data...');
                 
                 // COMPREHENSIVE NATIONWIDE CLIMATE DATA LOOKUP
-                // Tier 1: Direct ZIP lookup (fastest, most accurate for major cities)
+                // Tier 0: Extracted NOAA climate data (highest priority - real HDD/CDD data)
                 let localClimateData = null;
                 let dataSource = '';
                 
-                // Check ZIP-level data first (covers major metropolitan areas)
-                const zipData = RESNET_ASHRAE_DATA[zipCode];
-                if (zipData) {
+                // Load extracted climate data first
+                const extractedData = await loadExtractedClimateDataOnce();
+                const zipClimateData = extractedData[zipCode];
+                
+                if (zipClimateData) {
+                    // Use NOAA HDD/CDD data - need to get design temps from other sources
+                    const zipData = RESNET_ASHRAE_DATA[zipCode];
+                    const designTemps = zipData || {}; // Fallback for design temps
+                    
+                    localClimateData = {
+                        heating: designTemps.heating || 20, // Will be estimated if missing
+                        cooling: designTemps.cooling || 90, // Will be estimated if missing
+                        hdd: zipClimateData.hdd,
+                        cdd: zipClimateData.cdd,
+                        location: { lat: designTemps.lat, lon: designTemps.lon },
+                        county: zipClimateData.station_name || 'NOAA Weather Station',
+                        state: `Station ${zipClimateData.station_id} (${zipClimateData.distance_km}km away)`,
+                        source: `NOAA HDD/CDD from ${zipClimateData.station_name} (${zipClimateData.station_id})`
+                    };
+                    dataSource = 'NOAA extracted data';
+                    console.log('Using NOAA extracted data for ZIP:', zipCode, 'HDD:', zipClimateData.hdd, 'CDD:', zipClimateData.cdd);
+                    
+                    // Update location display for NOAA data
+                    console.log('Setting NOAA location info:', localClimateData.county, localClimateData.state);
+                    const locationNameEl = document.getElementById('locationName');
+                    const dataSourceEl = document.getElementById('dataSource');
+                    const locationInfoEl = document.getElementById('locationInfo');
+                    
+                    if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}, ${localClimateData.state}`;
+                    if (dataSourceEl) dataSourceEl.textContent = `Data source: ${dataSource}`;
+                    if (locationInfoEl) {
+                        locationInfoEl.style.display = 'block';
+                        locationInfoEl.style.visibility = 'visible';
+                    }
+                    
+                    console.log('NOAA location elements found:', !!locationNameEl, !!dataSourceEl, !!locationInfoEl);
+                } else {
+                    // Tier 1: Direct ZIP lookup (fastest, most accurate for major cities)
+                    const zipData = RESNET_ASHRAE_DATA[zipCode];
+                    if (zipData) {
                     localClimateData = {
                         heating: zipData.heating,
                         cooling: zipData.cooling,
                         hdd: zipData.hdd,
                         cdd: zipData.cdd,
                         location: { lat: zipData.lat, lon: zipData.lon },
-                        county: 'ZIP-level data',
-                        state: 'ZIP-level data',
+                        county: zipData.name || zipData.city || `ZIP ${zipCode}`,
+                        state: zipData.state || '',
                         source: zipData.source
                     };
                     dataSource = 'ZIP-level data';
                     console.log('Using ZIP-level data for:', zipData.name);
-                } else {
+                    
+                    // Update location display for ZIP-level data
+                    const locationNameEl = document.getElementById('locationName');
+                    const dataSourceEl = document.getElementById('dataSource');
+                    const locationInfoEl = document.getElementById('locationInfo');
+                    
+                    if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}${localClimateData.state ? ', ' + localClimateData.state : ''}`;
+                    if (dataSourceEl) dataSourceEl.textContent = `Data source: ${dataSource}`;
+                    if (locationInfoEl) {
+                        locationInfoEl.style.display = 'block';
+                        locationInfoEl.style.visibility = 'visible';
+                    }
+                    } else {
                     // Tier 2: County-level lookup (comprehensive coverage)
                     try {
                         const fipsData = await getCountyFIPS(zipCode);
@@ -2269,6 +2339,18 @@
                                 };
                                 dataSource = 'County-level data';
                                 console.log('Using county-level data for:', fipsData.countyName, fipsData.stateAbbr);
+                                
+                                // Update location display for county-level data
+                                const locationNameEl = document.getElementById('locationName');
+                                const dataSourceEl = document.getElementById('dataSource');
+                                const locationInfoEl = document.getElementById('locationInfo');
+                                
+                                if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}, ${localClimateData.state}`;
+                                if (dataSourceEl) dataSourceEl.textContent = `Data source: ${dataSource}`;
+                                if (locationInfoEl) {
+                                    locationInfoEl.style.display = 'block';
+                                    locationInfoEl.style.visibility = 'visible';
+                                }
                             }
                         }
                     } catch (fipsError) {
@@ -2276,19 +2358,14 @@
                     }
                 }
                 
-                // Tier 3: Regional estimation fallback (covers remaining areas)
+                // No regional estimates - only use real weather station data
                 if (!localClimateData) {
-                    console.log('No specific data found, using regional estimation for ZIP:', zipCode);
-                    localClimateData = await getRegionalEstimate(zipCode);
-                    dataSource = 'Regional estimation';
+                    throw new Error(`ZIP code ${zipCode} not found in our climate database. We only provide data based on actual NOAA weather stations (${Object.keys(EXTRACTED_CLIMATE_DATA).length} ZIP codes currently supported).`);
                 }
                 
                 if (!localClimateData) {
                     throw new Error('Unable to determine climate data for this location. Please try a different ZIP code.');
                 }
-                
-                // Set the global climateData variable for other functions to use
-                climateData = localClimateData;
                 
                 // Update temperature display elements
                 document.getElementById('heatingDesign').textContent = localClimateData.heating;
@@ -2300,13 +2377,16 @@
                 document.getElementById('avgCold').textContent = avgWinterTemp;
                 document.getElementById('avgHot').textContent = avgSummerTemp;
                 
-                // Position temperature markers
+                // Location display is handled in the individual data source sections above
+                }
+                
+                // Set the global climateData variable for other functions to use
+                climateData = localClimateData;
+                
+                // Position temperature markers (after climateData is set)
                 positionTemperatureMarkers();
                 
-                // Update location display
-                document.getElementById('locationInfo').textContent = `${localClimateData.county}, ${localClimateData.state} (${dataSource})`;
-                
-                setStatus('Climate data loaded successfully');
+                setStatus(''); // Clear status message
                 hideLoading();
                 
                 // Trigger recalculation if all inputs are available
@@ -2562,8 +2642,9 @@
                 showError('Invalid ASHRAE county data for this ZIP.');
                 return;
             }
-            document.getElementById('locationName').textContent = climateData.name;
-            document.getElementById('dataSource').textContent = `Data source: ${climateData.source}`;
+            // Location info is already set by lookupClimateData() - don't overwrite
+            // document.getElementById('locationName').textContent = climateData.name;
+            // document.getElementById('dataSource').textContent = `Data source: ${climateData.source}`;
             document.getElementById('locationInfo').style.display = 'block';
 
             document.getElementById('heatingDesign').textContent = climateData.heating;

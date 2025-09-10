@@ -1,0 +1,2931 @@
+{
+  "metadata": {
+    "description": "Comprehensive ZIP-level climate data for major US metropolitan areas",
+    "source": "NOAA Climate Normals 2006-2020",
+    "zip_codes_covered": 417,
+    "weather_stations_used": 60,
+    "max_distance_km": 100,
+    "created": "2024-12-19"
+  },
+  "climate_data": {
+    "10001": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 2.6
+    },
+    "10002": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 7.2
+    },
+    "10003": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 5.6
+    },
+    "10004": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 10.1
+    },
+    "10005": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 8.4
+    },
+    "10006": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 8.1
+    },
+    "10007": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 8.1
+    },
+    "10009": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 5.9
+    },
+    "10010": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 4.6
+    },
+    "10011": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 5.1
+    },
+    "10012": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 6.4
+    },
+    "10013": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 7.2
+    },
+    "10014": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 5.9
+    },
+    "10016": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 3.7
+    },
+    "10017": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 3.0
+    },
+    "10018": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 3.4
+    },
+    "10019": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 2.0
+    },
+    "10021": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 1.5
+    },
+    "10022": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 2.2
+    },
+    "10023": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 1.2
+    },
+    "10024": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 1.1
+    },
+    "10025": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 1.9
+    },
+    "10026": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 2.9
+    },
+    "10027": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 3.5
+    },
+    "10028": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 1.4
+    },
+    "10029": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 2.6
+    },
+    "10030": {
+      "hdd": 4441.0,
+      "cdd": 1269.5,
+      "station_name": "NEW YORK CNTRL PK TWR, NY US",
+      "station_id": "USW00094728",
+      "distance_km": 5.0
+    },
+    "90001": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 8.8
+    },
+    "90002": {
+      "hdd": 970.1,
+      "cdd": 1060.0,
+      "station_name": "HAWTHORNE MUNI AP, CA US",
+      "station_id": "USW00003167",
+      "distance_km": 8.5
+    },
+    "90003": {
+      "hdd": 970.1,
+      "cdd": 1060.0,
+      "station_name": "HAWTHORNE MUNI AP, CA US",
+      "station_id": "USW00003167",
+      "distance_km": 7.4
+    },
+    "90004": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 7.3
+    },
+    "90005": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 6.9
+    },
+    "90006": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 5.2
+    },
+    "90007": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 5.2
+    },
+    "90008": {
+      "hdd": 1211.5,
+      "cdd": 840.7,
+      "station_name": "CULVER CITY, CA US",
+      "station_id": "USC00042214",
+      "distance_km": 7.4
+    },
+    "90010": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 6.1
+    },
+    "90011": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 6.4
+    },
+    "90012": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 0.7
+    },
+    "90013": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 2.5
+    },
+    "90014": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 2.2
+    },
+    "90015": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 3.1
+    },
+    "90016": {
+      "hdd": 1211.5,
+      "cdd": 840.7,
+      "station_name": "CULVER CITY, CA US",
+      "station_id": "USC00042214",
+      "distance_km": 8.1
+    },
+    "90017": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 2.1
+    },
+    "90018": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 7.6
+    },
+    "90019": {
+      "hdd": 1211.5,
+      "cdd": 840.7,
+      "station_name": "CULVER CITY, CA US",
+      "station_id": "USC00042214",
+      "distance_km": 8.1
+    },
+    "90020": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 7.0
+    },
+    "90021": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 2.0
+    },
+    "90024": {
+      "hdd": 1034.5,
+      "cdd": 1046.0,
+      "station_name": "U C L A, CA US",
+      "station_id": "USC00049152",
+      "distance_km": 0.8
+    },
+    "90025": {
+      "hdd": 1034.5,
+      "cdd": 1046.0,
+      "station_name": "U C L A, CA US",
+      "station_id": "USC00049152",
+      "distance_km": 3.0
+    },
+    "90026": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 3.8
+    },
+    "90027": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 6.9
+    },
+    "90028": {
+      "hdd": 1358.1,
+      "cdd": 1376.7,
+      "station_name": "BURBANK VALLEY PUMP PLT, CA US",
+      "station_id": "USC00041194",
+      "distance_km": 9.6
+    },
+    "90029": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 6.2
+    },
+    "90031": {
+      "hdd": 883.4,
+      "cdd": 1475.5,
+      "station_name": "LOS ANGELES DWTN USC CAMPUS, CA US",
+      "station_id": "USW00093134",
+      "distance_km": 3.2
+    },
+    "60601": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 3.2
+    },
+    "60602": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 4.1
+    },
+    "60603": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 3.4
+    },
+    "60604": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 2.5
+    },
+    "60605": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 1.8
+    },
+    "60606": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 4.1
+    },
+    "60607": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 3.4
+    },
+    "60608": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 2.8
+    },
+    "60609": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 5.8
+    },
+    "60610": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 4.8
+    },
+    "60611": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 4.7
+    },
+    "60612": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 5.6
+    },
+    "60613": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 11.1
+    },
+    "60614": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 8.6
+    },
+    "60615": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 6.8
+    },
+    "60616": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 1.2
+    },
+    "60617": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 15.1
+    },
+    "60618": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 11.1
+    },
+    "60619": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 11.8
+    },
+    "60620": {
+      "hdd": 5720.5,
+      "cdd": 1163.7,
+      "station_name": "CHICAGO MIDWAY AP, IL US",
+      "station_id": "USW00014819",
+      "distance_km": 10.4
+    },
+    "60621": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 7.7
+    },
+    "60622": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 7.5
+    },
+    "60623": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 8.1
+    },
+    "60624": {
+      "hdd": 6007.3,
+      "cdd": 877.6,
+      "station_name": "CHICAGO NORTHERLY IS, IL US",
+      "station_id": "USC00111550",
+      "distance_km": 9.2
+    },
+    "77001": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 15.3
+    },
+    "77002": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 15.1
+    },
+    "77003": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 12.2
+    },
+    "77004": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 14.1
+    },
+    "77005": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 16.2
+    },
+    "77006": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 16.7
+    },
+    "77007": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 18.1
+    },
+    "77008": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 21.2
+    },
+    "77009": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 18.3
+    },
+    "77010": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 12.2
+    },
+    "77011": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 7.7
+    },
+    "77012": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 9.1
+    },
+    "77013": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 8.9
+    },
+    "77014": {
+      "hdd": 1228.4,
+      "cdd": 3333.9,
+      "station_name": "HOUSTON INTERCONT AP, TX US",
+      "station_id": "USW00012960",
+      "distance_km": 16.6
+    },
+    "77015": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 7.2
+    },
+    "77016": {
+      "hdd": 1228.4,
+      "cdd": 3333.9,
+      "station_name": "HOUSTON INTERCONT AP, TX US",
+      "station_id": "USW00012960",
+      "distance_km": 21.7
+    },
+    "77017": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 5.4
+    },
+    "77018": {
+      "hdd": 1228.4,
+      "cdd": 3333.9,
+      "station_name": "HOUSTON INTERCONT AP, TX US",
+      "station_id": "USW00012960",
+      "distance_km": 19.0
+    },
+    "77019": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 21.6
+    },
+    "77020": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 11.2
+    },
+    "77021": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 9.9
+    },
+    "77022": {
+      "hdd": 1228.4,
+      "cdd": 3333.9,
+      "station_name": "HOUSTON INTERCONT AP, TX US",
+      "station_id": "USW00012960",
+      "distance_km": 19.9
+    },
+    "77023": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 9.4
+    },
+    "77024": {
+      "hdd": 1060.0,
+      "cdd": 3465.7,
+      "station_name": "HOUSTON HOBBY AP, TX US",
+      "station_id": "USW00012918",
+      "distance_km": 22.5
+    },
+    "85001": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 6.3
+    },
+    "85002": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 6.0
+    },
+    "85003": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 8.9
+    },
+    "85004": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 3.7
+    },
+    "85006": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 4.1
+    },
+    "85007": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 7.6
+    },
+    "85008": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 5.7
+    },
+    "85009": {
+      "hdd": 1049.8,
+      "cdd": 4511.5,
+      "station_name": "LAVEEN 3 SSE, AZ US",
+      "station_id": "USC00024829",
+      "distance_km": 8.9
+    },
+    "85012": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 10.3
+    },
+    "85013": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 10.8
+    },
+    "85014": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 9.9
+    },
+    "85015": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 5.1
+    },
+    "85016": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 8.5
+    },
+    "85017": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 13.5
+    },
+    "85018": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 2.8
+    },
+    "85019": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 16.3
+    },
+    "85020": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 3.1
+    },
+    "85021": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 15.5
+    },
+    "85022": {
+      "hdd": 1156.5,
+      "cdd": 4064.8,
+      "station_name": "PHOENIX DEER VALLEY MUNI AP, AZ US",
+      "station_id": "USW00003184",
+      "distance_km": 15.5
+    },
+    "85023": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 12.8
+    },
+    "85024": {
+      "hdd": 836.9,
+      "cdd": 4884.5,
+      "station_name": "PHOENIX SKY HARBOR INTL AP, AZ US",
+      "station_id": "USW00023183",
+      "distance_km": 7.3
+    },
+    "19101": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 0.9
+    },
+    "19102": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 0.7
+    },
+    "19103": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 0.3
+    },
+    "19104": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 2.4
+    },
+    "19106": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 2.3
+    },
+    "19107": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 1.6
+    },
+    "19108": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 0.7
+    },
+    "19109": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 0.7
+    },
+    "19110": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 4.8
+    },
+    "19111": {
+      "hdd": 4319.0,
+      "cdd": 1457.9,
+      "station_name": "PHILADELPHIA NE AP, PA US",
+      "station_id": "USW00094732",
+      "distance_km": 6.6
+    },
+    "19112": {
+      "hdd": 4319.0,
+      "cdd": 1457.9,
+      "station_name": "PHILADELPHIA NE AP, PA US",
+      "station_id": "USW00094732",
+      "distance_km": 7.7
+    },
+    "19113": {
+      "hdd": 4346.6,
+      "cdd": 1449.7,
+      "station_name": "PHILADELPHIA INTL AP, PA US",
+      "station_id": "USW00013739",
+      "distance_km": 3.4
+    },
+    "19114": {
+      "hdd": 4319.0,
+      "cdd": 1457.9,
+      "station_name": "PHILADELPHIA NE AP, PA US",
+      "station_id": "USW00094732",
+      "distance_km": 5.9
+    },
+    "19115": {
+      "hdd": 4319.0,
+      "cdd": 1457.9,
+      "station_name": "PHILADELPHIA NE AP, PA US",
+      "station_id": "USW00094732",
+      "distance_km": 3.2
+    },
+    "19116": {
+      "hdd": 4319.0,
+      "cdd": 1457.9,
+      "station_name": "PHILADELPHIA NE AP, PA US",
+      "station_id": "USW00094732",
+      "distance_km": 3.7
+    },
+    "19118": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 10.7
+    },
+    "19119": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 8.7
+    },
+    "19120": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 8.4
+    },
+    "19121": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 3.0
+    },
+    "19122": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 3.3
+    },
+    "19123": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 1.7
+    },
+    "19124": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 7.0
+    },
+    "19125": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 3.8
+    },
+    "19126": {
+      "hdd": 4097.8,
+      "cdd": 1670.4,
+      "station_name": "PHILA FRANKLIN INST, PA US",
+      "station_id": "USC00366886",
+      "distance_km": 8.6
+    },
+    "78201": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 3.4
+    },
+    "78202": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 5.9
+    },
+    "78203": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 5.1
+    },
+    "78204": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 5.7
+    },
+    "78205": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 6.4
+    },
+    "78207": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 6.2
+    },
+    "78208": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 3.1
+    },
+    "78209": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 1.7
+    },
+    "78210": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 1.4
+    },
+    "78211": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 3.0
+    },
+    "78212": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 4.1
+    },
+    "78213": {
+      "hdd": 1339.7,
+      "cdd": 3312.2,
+      "station_name": "SAN ANTONIO INTL AP, TX US",
+      "station_id": "USW00012921",
+      "distance_km": 3.4
+    },
+    "78214": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 2.4
+    },
+    "78215": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 7.0
+    },
+    "78216": {
+      "hdd": 1339.7,
+      "cdd": 3312.2,
+      "station_name": "SAN ANTONIO INTL AP, TX US",
+      "station_id": "USW00012921",
+      "distance_km": 5.7
+    },
+    "78217": {
+      "hdd": 1339.7,
+      "cdd": 3312.2,
+      "station_name": "SAN ANTONIO INTL AP, TX US",
+      "station_id": "USW00012921",
+      "distance_km": 1.8
+    },
+    "78218": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 4.4
+    },
+    "78219": {
+      "hdd": 1506.7,
+      "cdd": 3081.6,
+      "station_name": "SAN ANTONIO INCARNATE WORD, TX US",
+      "station_id": "USC00417947",
+      "distance_km": 9.2
+    },
+    "78220": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 6.3
+    },
+    "78221": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 4.0
+    },
+    "78222": {
+      "hdd": 1154.0,
+      "cdd": 3685.4,
+      "station_name": "SAN ANTONIO STINSON AP, TX US",
+      "station_id": "USW00012970",
+      "distance_km": 8.6
+    },
+    "92101": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 2.6
+    },
+    "92102": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 5.7
+    },
+    "92103": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 1.9
+    },
+    "92104": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 4.8
+    },
+    "92105": {
+      "hdd": 1293.9,
+      "cdd": 740.8,
+      "station_name": "CHULA VISTA, CA US",
+      "station_id": "USC00041758",
+      "distance_km": 7.1
+    },
+    "92106": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 1.9
+    },
+    "92107": {
+      "hdd": 1424.7,
+      "cdd": 582.1,
+      "station_name": "SAN DIEGO SEAWORLD, CA US",
+      "station_id": "USC00047741",
+      "distance_km": 2.2
+    },
+    "92108": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 4.2
+    },
+    "92109": {
+      "hdd": 1424.7,
+      "cdd": 582.1,
+      "station_name": "SAN DIEGO SEAWORLD, CA US",
+      "station_id": "USC00047741",
+      "distance_km": 2.5
+    },
+    "92110": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 3.8
+    },
+    "92111": {
+      "hdd": 1193.7,
+      "cdd": 1181.6,
+      "station_name": "SAN DIEGO MONTGOMERY FLD, CA US",
+      "station_id": "USW00003131",
+      "distance_km": 1.7
+    },
+    "92113": {
+      "hdd": 1293.9,
+      "cdd": 740.8,
+      "station_name": "CHULA VISTA, CA US",
+      "station_id": "USC00041758",
+      "distance_km": 3.8
+    },
+    "92114": {
+      "hdd": 1293.9,
+      "cdd": 740.8,
+      "station_name": "CHULA VISTA, CA US",
+      "station_id": "USC00041758",
+      "distance_km": 6.8
+    },
+    "92115": {
+      "hdd": 1293.9,
+      "cdd": 740.8,
+      "station_name": "CHULA VISTA, CA US",
+      "station_id": "USC00041758",
+      "distance_km": 10.8
+    },
+    "92116": {
+      "hdd": 914.7,
+      "cdd": 1013.7,
+      "station_name": "SAN DIEGO LINDBERGH FLD, CA US",
+      "station_id": "USW00023188",
+      "distance_km": 7.2
+    },
+    "92117": {
+      "hdd": 1193.7,
+      "cdd": 1181.6,
+      "station_name": "SAN DIEGO MONTGOMERY FLD, CA US",
+      "station_id": "USW00003131",
+      "distance_km": 2.2
+    },
+    "92118": {
+      "hdd": 1293.9,
+      "cdd": 740.8,
+      "station_name": "CHULA VISTA, CA US",
+      "station_id": "USC00041758",
+      "distance_km": 0.7
+    },
+    "92119": {
+      "hdd": 1193.7,
+      "cdd": 1181.6,
+      "station_name": "SAN DIEGO MONTGOMERY FLD, CA US",
+      "station_id": "USW00003131",
+      "distance_km": 7.5
+    },
+    "92120": {
+      "hdd": 1193.7,
+      "cdd": 1181.6,
+      "station_name": "SAN DIEGO MONTGOMERY FLD, CA US",
+      "station_id": "USW00003131",
+      "distance_km": 4.5
+    },
+    "92121": {
+      "hdd": 1156.3,
+      "cdd": 1209.6,
+      "station_name": "SAN DIEGO MIRAMAR NAS, CA US",
+      "station_id": "USW00093107",
+      "distance_km": 8.0
+    },
+    "92122": {
+      "hdd": 1156.3,
+      "cdd": 1209.6,
+      "station_name": "SAN DIEGO MIRAMAR NAS, CA US",
+      "station_id": "USW00093107",
+      "distance_km": 7.7
+    },
+    "75201": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 10.0
+    },
+    "75202": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 9.4
+    },
+    "75203": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 8.8
+    },
+    "75204": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 10.7
+    },
+    "75205": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 8.2
+    },
+    "75206": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 11.6
+    },
+    "75207": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 8.9
+    },
+    "75208": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 8.1
+    },
+    "75209": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 6.3
+    },
+    "75210": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 6.3
+    },
+    "75211": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 5.3
+    },
+    "75212": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 8.5
+    },
+    "75214": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 10.3
+    },
+    "75215": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 10.5
+    },
+    "75216": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 8.5
+    },
+    "75217": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 10.9
+    },
+    "75218": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 11.4
+    },
+    "75219": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 6.3
+    },
+    "75220": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 3.1
+    },
+    "75223": {
+      "hdd": 1922.9,
+      "cdd": 3245.9,
+      "station_name": "DALLAS LOVE FLD, TX US",
+      "station_id": "USW00013960",
+      "distance_km": 13.4
+    },
+    "75224": {
+      "hdd": 2028.1,
+      "cdd": 2958.1,
+      "station_name": "DALLAS REDBIRD AP, TX US",
+      "station_id": "USW00003971",
+      "distance_km": 12.5
+    },
+    "95110": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 4.1
+    },
+    "95111": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 8.3
+    },
+    "95112": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 5.8
+    },
+    "95113": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 5.1
+    },
+    "95116": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 6.0
+    },
+    "95117": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 1.5
+    },
+    "95118": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 7.5
+    },
+    "95119": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 11.2
+    },
+    "95120": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 14.5
+    },
+    "95121": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 8.4
+    },
+    "95122": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 10.1
+    },
+    "95123": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 10.7
+    },
+    "95124": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 14.1
+    },
+    "95125": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 6.3
+    },
+    "95126": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 2.4
+    },
+    "95127": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 8.3
+    },
+    "95128": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 2.7
+    },
+    "95129": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 5.4
+    },
+    "95130": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 5.3
+    },
+    "95131": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 9.2
+    },
+    "95132": {
+      "hdd": 2084.0,
+      "cdd": 683.5,
+      "station_name": "SAN JOSE, CA US",
+      "station_id": "USW00023293",
+      "distance_km": 7.0
+    },
+    "78701": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 6.2
+    },
+    "78702": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 8.0
+    },
+    "78703": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 6.0
+    },
+    "78704": {
+      "hdd": 1645.1,
+      "cdd": 3141.4,
+      "station_name": "AUSTIN BERGSTROM AP, TX US",
+      "station_id": "USW00013904",
+      "distance_km": 9.3
+    },
+    "78705": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 3.4
+    },
+    "78712": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 4.9
+    },
+    "78717": {
+      "hdd": 1816.0,
+      "cdd": 2848.4,
+      "station_name": "AUSTIN GREAT HILLS, TX US",
+      "station_id": "USC00410433",
+      "distance_km": 8.9
+    },
+    "78719": {
+      "hdd": 1645.1,
+      "cdd": 3141.4,
+      "station_name": "AUSTIN BERGSTROM AP, TX US",
+      "station_id": "USW00013904",
+      "distance_km": 5.1
+    },
+    "78721": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 8.3
+    },
+    "78722": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 7.3
+    },
+    "78723": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 8.0
+    },
+    "78724": {
+      "hdd": 1645.1,
+      "cdd": 3141.4,
+      "station_name": "AUSTIN BERGSTROM AP, TX US",
+      "station_id": "USW00013904",
+      "distance_km": 5.7
+    },
+    "78725": {
+      "hdd": 1645.1,
+      "cdd": 3141.4,
+      "station_name": "AUSTIN BERGSTROM AP, TX US",
+      "station_id": "USW00013904",
+      "distance_km": 2.0
+    },
+    "78726": {
+      "hdd": 1816.0,
+      "cdd": 2848.4,
+      "station_name": "AUSTIN GREAT HILLS, TX US",
+      "station_id": "USC00410433",
+      "distance_km": 5.0
+    },
+    "78727": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 5.2
+    },
+    "78728": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 6.8
+    },
+    "78729": {
+      "hdd": 1816.0,
+      "cdd": 2848.4,
+      "station_name": "AUSTIN GREAT HILLS, TX US",
+      "station_id": "USC00410433",
+      "distance_km": 7.1
+    },
+    "78730": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 11.9
+    },
+    "78731": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 1.7
+    },
+    "78732": {
+      "hdd": 1382.0,
+      "cdd": 3468.9,
+      "station_name": "AUSTIN-CAMP MABRY, TX US",
+      "station_id": "USW00013958",
+      "distance_km": 12.0
+    },
+    "78733": {
+      "hdd": 1816.0,
+      "cdd": 2848.4,
+      "station_name": "AUSTIN GREAT HILLS, TX US",
+      "station_id": "USC00410433",
+      "distance_km": 12.4
+    },
+    "32202": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 11.0
+    },
+    "32204": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 11.3
+    },
+    "32205": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 13.3
+    },
+    "32206": {
+      "hdd": 1048.6,
+      "cdd": 2884.6,
+      "station_name": "JACKSONVILLE CRAIG MUNI AP, FL US",
+      "station_id": "USW00053860",
+      "distance_km": 10.0
+    },
+    "32207": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 7.4
+    },
+    "32208": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 13.5
+    },
+    "32209": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 9.6
+    },
+    "32210": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 4.6
+    },
+    "32211": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 7.3
+    },
+    "32216": {
+      "hdd": 1048.6,
+      "cdd": 2884.6,
+      "station_name": "JACKSONVILLE CRAIG MUNI AP, FL US",
+      "station_id": "USW00053860",
+      "distance_km": 7.7
+    },
+    "32217": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 8.1
+    },
+    "32218": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 2.3
+    },
+    "32219": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 4.0
+    },
+    "32220": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 6.5
+    },
+    "32221": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 6.4
+    },
+    "32222": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 3.3
+    },
+    "32223": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 11.1
+    },
+    "32224": {
+      "hdd": 829.7,
+      "cdd": 3595.2,
+      "station_name": "JACKSONVILLE NAS, FL US",
+      "station_id": "USW00093837",
+      "distance_km": 11.6
+    },
+    "32225": {
+      "hdd": 1048.6,
+      "cdd": 2884.6,
+      "station_name": "JACKSONVILLE CRAIG MUNI AP, FL US",
+      "station_id": "USW00053860",
+      "distance_km": 7.6
+    },
+    "32226": {
+      "hdd": 1048.6,
+      "cdd": 2884.6,
+      "station_name": "JACKSONVILLE CRAIG MUNI AP, FL US",
+      "station_id": "USW00053860",
+      "distance_km": 12.5
+    },
+    "32244": {
+      "hdd": 1156.2,
+      "cdd": 2874.0,
+      "station_name": "JACKSONVILLE, FL US",
+      "station_id": "USW00013889",
+      "distance_km": 5.4
+    },
+    "43201": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 5.2
+    },
+    "43202": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 8.7
+    },
+    "43203": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 12.3
+    },
+    "43204": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 12.1
+    },
+    "43205": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 8.4
+    },
+    "43206": {
+      "hdd": 5130.5,
+      "cdd": 1130.6,
+      "station_name": "COLUMBUS PORT COLUMBUS INTL AP, OH US",
+      "station_id": "USW00014821",
+      "distance_km": 11.0
+    },
+    "43207": {
+      "hdd": 5130.5,
+      "cdd": 1130.6,
+      "station_name": "COLUMBUS PORT COLUMBUS INTL AP, OH US",
+      "station_id": "USW00014821",
+      "distance_km": 15.7
+    },
+    "43209": {
+      "hdd": 5130.5,
+      "cdd": 1130.6,
+      "station_name": "COLUMBUS PORT COLUMBUS INTL AP, OH US",
+      "station_id": "USW00014821",
+      "distance_km": 9.4
+    },
+    "43210": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 3.0
+    },
+    "43211": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 5.9
+    },
+    "43212": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 1.3
+    },
+    "43213": {
+      "hdd": 5130.5,
+      "cdd": 1130.6,
+      "station_name": "COLUMBUS PORT COLUMBUS INTL AP, OH US",
+      "station_id": "USW00014821",
+      "distance_km": 8.5
+    },
+    "43214": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 5.3
+    },
+    "43215": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 6.6
+    },
+    "43219": {
+      "hdd": 5130.5,
+      "cdd": 1130.6,
+      "station_name": "COLUMBUS PORT COLUMBUS INTL AP, OH US",
+      "station_id": "USW00014821",
+      "distance_km": 1.8
+    },
+    "43220": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 2.1
+    },
+    "43221": {
+      "hdd": 5404.3,
+      "cdd": 983.2,
+      "station_name": "COLUMBUS OHIO STATE UNIV AP, OH US",
+      "station_id": "USW00004804",
+      "distance_km": 1.3
+    },
+    "43222": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 9.6
+    },
+    "43223": {
+      "hdd": 5351.7,
+      "cdd": 1037.1,
+      "station_name": "COLUMBUS WCMH, OH US",
+      "station_id": "USC00331785",
+      "distance_km": 12.5
+    },
+    "43224": {
+      "hdd": 5130.5,
+      "cdd": 1130.6,
+      "station_name": "COLUMBUS PORT COLUMBUS INTL AP, OH US",
+      "station_id": "USW00014821",
+      "distance_km": 6.4
+    },
+    "43229": {
+      "hdd": 5038.3,
+      "cdd": 1139.4,
+      "station_name": "WESTERVILLE, OH US",
+      "station_id": "USC00338951",
+      "distance_km": 3.5
+    },
+    "76102": {
+      "hdd": 1998.1,
+      "cdd": 3059.0,
+      "station_name": "FT WORTH MEACHAM FLD NAAF, TX US",
+      "station_id": "USW00093904",
+      "distance_km": 7.6
+    },
+    "76103": {
+      "hdd": 1998.1,
+      "cdd": 3059.0,
+      "station_name": "FT WORTH MEACHAM FLD NAAF, TX US",
+      "station_id": "USW00093904",
+      "distance_km": 3.9
+    },
+    "76104": {
+      "hdd": 1998.1,
+      "cdd": 3059.0,
+      "station_name": "FT WORTH MEACHAM FLD NAAF, TX US",
+      "station_id": "USW00093904",
+      "distance_km": 8.4
+    },
+    "76105": {
+      "hdd": 1998.1,
+      "cdd": 3059.0,
+      "station_name": "FT WORTH MEACHAM FLD NAAF, TX US",
+      "station_id": "USW00093904",
+      "distance_km": 11.9
+    },
+    "76106": {
+      "hdd": 1870.2,
+      "cdd": 3241.2,
+      "station_name": "FT WORTH NAS, TX US",
+      "station_id": "USW00013911",
+      "distance_km": 7.2
+    },
+    "76107": {
+      "hdd": 2300.1,
+      "cdd": 2763.8,
+      "station_name": "FT WORTH MEACHAM FLD, TX US",
+      "station_id": "USW00013961",
+      "distance_km": 4.3
+    },
+    "76108": {
+      "hdd": 2300.1,
+      "cdd": 2763.8,
+      "station_name": "FT WORTH MEACHAM FLD, TX US",
+      "station_id": "USW00013961",
+      "distance_km": 1.4
+    },
+    "76109": {
+      "hdd": 1870.2,
+      "cdd": 3241.2,
+      "station_name": "FT WORTH NAS, TX US",
+      "station_id": "USW00013911",
+      "distance_km": 4.2
+    },
+    "76110": {
+      "hdd": 1998.1,
+      "cdd": 3059.0,
+      "station_name": "FT WORTH MEACHAM FLD NAAF, TX US",
+      "station_id": "USW00093904",
+      "distance_km": 11.3
+    },
+    "76111": {
+      "hdd": 1998.1,
+      "cdd": 3059.0,
+      "station_name": "FT WORTH MEACHAM FLD NAAF, TX US",
+      "station_id": "USW00093904",
+      "distance_km": 0.7
+    },
+    "76112": {
+      "hdd": 2347.6,
+      "cdd": 2674.3,
+      "station_name": "FT WORTH WSFO, TX US",
+      "station_id": "USC00413285",
+      "distance_km": 6.1
+    },
+    "76114": {
+      "hdd": 2227.6,
+      "cdd": 2782.1,
+      "station_name": "BENBROOK DAM, TX US",
+      "station_id": "USC00410691",
+      "distance_km": 7.4
+    },
+    "76115": {
+      "hdd": 2227.6,
+      "cdd": 2782.1,
+      "station_name": "BENBROOK DAM, TX US",
+      "station_id": "USC00410691",
+      "distance_km": 6.3
+    },
+    "76116": {
+      "hdd": 1870.2,
+      "cdd": 3241.2,
+      "station_name": "FT WORTH NAS, TX US",
+      "station_id": "USW00013911",
+      "distance_km": 6.8
+    },
+    "76117": {
+      "hdd": 2300.1,
+      "cdd": 2763.8,
+      "station_name": "FT WORTH MEACHAM FLD, TX US",
+      "station_id": "USW00013961",
+      "distance_km": 4.5
+    },
+    "76118": {
+      "hdd": 1870.2,
+      "cdd": 3241.2,
+      "station_name": "FT WORTH NAS, TX US",
+      "station_id": "USW00013911",
+      "distance_km": 1.9
+    },
+    "76119": {
+      "hdd": 2227.6,
+      "cdd": 2782.1,
+      "station_name": "BENBROOK DAM, TX US",
+      "station_id": "USC00410691",
+      "distance_km": 10.2
+    },
+    "76120": {
+      "hdd": 2227.6,
+      "cdd": 2782.1,
+      "station_name": "BENBROOK DAM, TX US",
+      "station_id": "USC00410691",
+      "distance_km": 9.5
+    },
+    "76123": {
+      "hdd": 2227.6,
+      "cdd": 2782.1,
+      "station_name": "BENBROOK DAM, TX US",
+      "station_id": "USC00410691",
+      "distance_km": 5.0
+    },
+    "76131": {
+      "hdd": 2288.2,
+      "cdd": 2874.4,
+      "station_name": "FT WORTH NATURE CTR, TX US",
+      "station_id": "USC00413289",
+      "distance_km": 4.7
+    },
+    "76132": {
+      "hdd": 1870.2,
+      "cdd": 3241.2,
+      "station_name": "FT WORTH NAS, TX US",
+      "station_id": "USW00013911",
+      "distance_km": 2.1
+    },
+    "28202": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 10.4
+    },
+    "28203": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 10.9
+    },
+    "28204": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 8.1
+    },
+    "28205": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 13.4
+    },
+    "28206": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 14.0
+    },
+    "28207": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 16.8
+    },
+    "28208": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 7.3
+    },
+    "28209": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 12.5
+    },
+    "28210": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 17.2
+    },
+    "28211": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 17.9
+    },
+    "28212": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 19.8
+    },
+    "28213": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 18.1
+    },
+    "28214": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 4.3
+    },
+    "28215": {
+      "hdd": 3203.5,
+      "cdd": 1856.4,
+      "station_name": "CONCORD, NC US",
+      "station_id": "USC00311975",
+      "distance_km": 17.3
+    },
+    "28216": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 10.6
+    },
+    "28217": {
+      "hdd": 2972.0,
+      "cdd": 1888.8,
+      "station_name": "CHARLOTTE DOUGLAS AP, NC US",
+      "station_id": "USW00013881",
+      "distance_km": 17.8
+    },
+    "28226": {
+      "hdd": 2962.0,
+      "cdd": 1836.1,
+      "station_name": "MONROE AP, NC US",
+      "station_id": "USW00053872",
+      "distance_km": 16.4
+    },
+    "28227": {
+      "hdd": 2962.0,
+      "cdd": 1836.1,
+      "station_name": "MONROE AP, NC US",
+      "station_id": "USW00053872",
+      "distance_km": 21.1
+    },
+    "28269": {
+      "hdd": 3203.5,
+      "cdd": 1856.4,
+      "station_name": "CONCORD, NC US",
+      "station_id": "USC00311975",
+      "distance_km": 18.3
+    },
+    "28270": {
+      "hdd": 2962.0,
+      "cdd": 1836.1,
+      "station_name": "MONROE AP, NC US",
+      "station_id": "USW00053872",
+      "distance_km": 14.8
+    },
+    "28273": {
+      "hdd": 2774.6,
+      "cdd": 1934.4,
+      "station_name": "WINTHROP UNIV, SC US",
+      "station_id": "USC00389350",
+      "distance_km": 20.0
+    },
+    "98101": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 9.2
+    },
+    "98102": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 8.0
+    },
+    "98103": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 6.7
+    },
+    "98104": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 8.4
+    },
+    "98105": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 4.5
+    },
+    "98106": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 4.0
+    },
+    "98107": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 9.3
+    },
+    "98108": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 4.0
+    },
+    "98109": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 9.9
+    },
+    "98112": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 7.0
+    },
+    "98115": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 3.6
+    },
+    "98116": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 7.8
+    },
+    "98117": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 9.1
+    },
+    "98118": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 2.5
+    },
+    "98119": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 9.7
+    },
+    "98121": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 10.1
+    },
+    "98122": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 8.1
+    },
+    "98125": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 6.9
+    },
+    "98126": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 5.2
+    },
+    "98133": {
+      "hdd": 4452.1,
+      "cdd": 239.3,
+      "station_name": "SEATTLE SAND PT WSFO, WA US",
+      "station_id": "USW00094290",
+      "distance_km": 8.5
+    },
+    "98134": {
+      "hdd": 4377.0,
+      "cdd": 308.9,
+      "station_name": "SEATTLE BOEING FLD, WA US",
+      "station_id": "USW00024234",
+      "distance_km": 4.6
+    },
+    "80202": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 2.9
+    },
+    "80203": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 4.3
+    },
+    "80204": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 2.9
+    },
+    "80205": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 6.1
+    },
+    "80206": {
+      "hdd": 5756.6,
+      "cdd": 876.6,
+      "station_name": "DENVER-STAPLETON, CO US",
+      "station_id": "USW00023062",
+      "distance_km": 5.7
+    },
+    "80207": {
+      "hdd": 5756.6,
+      "cdd": 876.6,
+      "station_name": "DENVER-STAPLETON, CO US",
+      "station_id": "USW00023062",
+      "distance_km": 4.8
+    },
+    "80209": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 5.3
+    },
+    "80210": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 8.0
+    },
+    "80211": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 6.4
+    },
+    "80212": {
+      "hdd": 5966.7,
+      "cdd": 659.9,
+      "station_name": "WHEAT RIDGE 2, CO US",
+      "station_id": "USC00058995",
+      "distance_km": 5.2
+    },
+    "80214": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 4.3
+    },
+    "80218": {
+      "hdd": 5756.6,
+      "cdd": 876.6,
+      "station_name": "DENVER-STAPLETON, CO US",
+      "station_id": "USW00023062",
+      "distance_km": 3.6
+    },
+    "80219": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 7.8
+    },
+    "80220": {
+      "hdd": 5756.6,
+      "cdd": 876.6,
+      "station_name": "DENVER-STAPLETON, CO US",
+      "station_id": "USW00023062",
+      "distance_km": 3.3
+    },
+    "80221": {
+      "hdd": 5404.2,
+      "cdd": 949.7,
+      "station_name": "NORTHGLENN, CO US",
+      "station_id": "USC00055984",
+      "distance_km": 8.5
+    },
+    "80222": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 9.8
+    },
+    "80223": {
+      "hdd": 5482.5,
+      "cdd": 1017.0,
+      "station_name": "DENVER WATER DEPT, CO US",
+      "station_id": "USC00052223",
+      "distance_km": 6.9
+    },
+    "80224": {
+      "hdd": 5796.0,
+      "cdd": 711.5,
+      "station_name": "MARSTON FLTR PLT, CO US",
+      "station_id": "USC00055402",
+      "distance_km": 9.3
+    },
+    "80226": {
+      "hdd": 5796.0,
+      "cdd": 711.5,
+      "station_name": "MARSTON FLTR PLT, CO US",
+      "station_id": "USC00055402",
+      "distance_km": 3.8
+    },
+    "80227": {
+      "hdd": 5796.0,
+      "cdd": 711.5,
+      "station_name": "MARSTON FLTR PLT, CO US",
+      "station_id": "USC00055402",
+      "distance_km": 4.1
+    },
+    "80230": {
+      "hdd": 5756.6,
+      "cdd": 876.6,
+      "station_name": "DENVER-STAPLETON, CO US",
+      "station_id": "USW00023062",
+      "distance_km": 7.1
+    },
+    "02101": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.0
+    },
+    "02102": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 3.7
+    },
+    "02103": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 3.5
+    },
+    "02104": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.0
+    },
+    "02105": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.6
+    },
+    "02106": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.8
+    },
+    "02107": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.1
+    },
+    "02108": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.6
+    },
+    "02109": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 3.6
+    },
+    "02110": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 3.0
+    },
+    "02111": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 4.3
+    },
+    "02113": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 3.1
+    },
+    "02114": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 5.1
+    },
+    "02115": {
+      "hdd": 5608.2,
+      "cdd": 890.5,
+      "station_name": "JAMAICA PLAIN, MA US",
+      "station_id": "USC00193890",
+      "distance_km": 5.3
+    },
+    "02116": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 5.3
+    },
+    "02118": {
+      "hdd": 5371.2,
+      "cdd": 860.4,
+      "station_name": "BOSTON LOGAN INTL AP, MA US",
+      "station_id": "USW00014739",
+      "distance_km": 5.7
+    },
+    "02119": {
+      "hdd": 5608.2,
+      "cdd": 890.5,
+      "station_name": "JAMAICA PLAIN, MA US",
+      "station_id": "USC00193890",
+      "distance_km": 4.2
+    },
+    "02120": {
+      "hdd": 5608.2,
+      "cdd": 890.5,
+      "station_name": "JAMAICA PLAIN, MA US",
+      "station_id": "USC00193890",
+      "distance_km": 3.8
+    },
+    "02121": {
+      "hdd": 5608.2,
+      "cdd": 890.5,
+      "station_name": "JAMAICA PLAIN, MA US",
+      "station_id": "USC00193890",
+      "distance_km": 3.5
+    },
+    "02122": {
+      "hdd": 5608.2,
+      "cdd": 890.5,
+      "station_name": "JAMAICA PLAIN, MA US",
+      "station_id": "USC00193890",
+      "distance_km": 5.3
+    },
+    "02124": {
+      "hdd": 5608.2,
+      "cdd": 890.5,
+      "station_name": "JAMAICA PLAIN, MA US",
+      "station_id": "USC00193890",
+      "distance_km": 4.2
+    },
+    "20001": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 5.8
+    },
+    "20002": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 3.4
+    },
+    "20003": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 4.4
+    },
+    "20004": {
+      "hdd": 3680.3,
+      "cdd": 1803.0,
+      "station_name": "WASHINGTON REAGAN AP, VA US",
+      "station_id": "USW00013743",
+      "distance_km": 5.4
+    },
+    "20005": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 6.4
+    },
+    "20006": {
+      "hdd": 3680.3,
+      "cdd": 1803.0,
+      "station_name": "WASHINGTON REAGAN AP, VA US",
+      "station_id": "USW00013743",
+      "distance_km": 5.5
+    },
+    "20007": {
+      "hdd": 4394.1,
+      "cdd": 1423.1,
+      "station_name": "DALECARLIA RSVR, MD US",
+      "station_id": "USC00182325",
+      "distance_km": 5.1
+    },
+    "20008": {
+      "hdd": 4394.1,
+      "cdd": 1423.1,
+      "station_name": "DALECARLIA RSVR, MD US",
+      "station_id": "USC00182325",
+      "distance_km": 3.8
+    },
+    "20009": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 5.9
+    },
+    "20010": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 6.2
+    },
+    "20011": {
+      "hdd": 4394.1,
+      "cdd": 1423.1,
+      "station_name": "DALECARLIA RSVR, MD US",
+      "station_id": "USC00182325",
+      "distance_km": 6.8
+    },
+    "20012": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 5.4
+    },
+    "20015": {
+      "hdd": 4394.1,
+      "cdd": 1423.1,
+      "station_name": "DALECARLIA RSVR, MD US",
+      "station_id": "USC00182325",
+      "distance_km": 4.9
+    },
+    "20016": {
+      "hdd": 4394.1,
+      "cdd": 1423.1,
+      "station_name": "DALECARLIA RSVR, MD US",
+      "station_id": "USC00182325",
+      "distance_km": 1.0
+    },
+    "20017": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 3.7
+    },
+    "20018": {
+      "hdd": 3928.7,
+      "cdd": 1752.5,
+      "station_name": "NATL ARBORETUM DC, MD US",
+      "station_id": "USC00186350",
+      "distance_km": 0.7
+    },
+    "20019": {
+      "hdd": 3680.3,
+      "cdd": 1803.0,
+      "station_name": "WASHINGTON REAGAN AP, VA US",
+      "station_id": "USW00013743",
+      "distance_km": 5.6
+    },
+    "20020": {
+      "hdd": 4148.6,
+      "cdd": 1486.8,
+      "station_name": "OXON HILL, MD US",
+      "station_id": "USC00186800",
+      "distance_km": 5.1
+    }
+  }
+}
