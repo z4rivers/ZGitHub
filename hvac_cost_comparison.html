@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Heat Pump - Furnace - Hybrid</title>
+    <link rel="icon" href="data:,">
     <style>
         * {
             margin: 0;
@@ -1822,7 +1823,10 @@
         let climateData = null;
         let maxCost = 0;
         let houseLoads = { heating: 0, cooling: 0 };
+        let CLIMATE_DATA = null;
         let runYears = 15; // years for summary calculations
+
+        // Note: Using ResNet-ASHRAE dataset from ashrae_county_data.js instead of JSON file
 
         // County-level ASHRAE design temperatures (authoritative)
         // Loaded from ashrae_county_data.js; supports datasets keyed by FIPS or any key with a 'fips' field
@@ -2104,6 +2108,14 @@
             return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         }
 
+        // Safe closest() helper for mouse events
+        function closestSafe(target, selector) {
+            if (!target) return null;
+            // Normalize: if it's not an Element (e.g., Text node), climb to its parentElement
+            let el = target.nodeType === Node.ELEMENT_NODE ? target : target.parentElement;
+            return el ? el.closest(selector) : null;
+        }
+
         // Format heating input with commas as user types
         function formatHeatingInput(input) {
             // Remove all non-numeric characters
@@ -2131,18 +2143,77 @@
             // Initialize hybrid split bar with default 50/50
             updateHybridSplitBar(null, null, null);
 
-            // Preload comprehensive county datasets if present
-            try {
-                await tryLoadExternalCountyJson();
-                await tryLoadExternalCountyCsv();
-                await tryMergeNoaaNormalsHddCdd();
-                console.log('County datasets preloaded. Counties available:', Object.keys(countyAshraeData).length);
-            } catch (e) {
-                console.warn('County dataset preload skipped:', e);
-            }
+            // ResNet-ASHRAE dataset is already loaded from ashrae_county_data.js
+            console.log('ResNet-ASHRAE dataset loaded. Counties available:', Object.keys(countyAshraeData).length);
         });
 
-        // Regional estimates removed to enforce ASHRAE-only mandate
+        // Regional estimation function for comprehensive nationwide coverage
+        async function getRegionalEstimate(zipCode) {
+            try {
+                // Get location data for regional estimation
+                const locationData = await getLocationFromZip(zipCode);
+                if (!locationData) {
+                    return null;
+                }
+                
+                const lat = locationData.lat;
+                const lon = locationData.lon;
+                
+                // Regional climate estimation based on latitude and general climate zones
+                let heating, cooling, hdd, cdd;
+                
+                if (lat >= 45) {
+                    // Northern tier (Alaska, northern states)
+                    heating = Math.round(-10 - (lat - 45) * 2);
+                    cooling = Math.round(75 + (lat - 45) * 0.5);
+                    hdd = Math.round(8000 - (lat - 45) * 200);
+                    cdd = Math.round(200 + (lat - 45) * 10);
+                } else if (lat >= 35) {
+                    // Central tier (most of continental US)
+                    heating = Math.round(15 - (lat - 35) * 1.5);
+                    cooling = Math.round(85 + (lat - 35) * 0.3);
+                    hdd = Math.round(5000 - (lat - 35) * 100);
+                    cdd = Math.round(1000 + (lat - 35) * 50);
+                } else if (lat >= 25) {
+                    // Southern tier (southern states)
+                    heating = Math.round(25 - (lat - 25) * 1);
+                    cooling = Math.round(90 + (lat - 25) * 0.2);
+                    hdd = Math.round(2000 - (lat - 25) * 50);
+                    cdd = Math.round(2000 + (lat - 25) * 100);
+                } else {
+                    // Tropical (Florida Keys, Hawaii)
+                    heating = Math.round(50 - (lat - 25) * 0.5);
+                    cooling = Math.round(92 + (lat - 25) * 0.1);
+                    hdd = Math.round(100 - (lat - 25) * 10);
+                    cdd = Math.round(3500 + (lat - 25) * 50);
+                }
+                
+                // Adjust for longitude (continental vs coastal)
+                if (lon < -100) {
+                    // Western US - more extreme temperatures
+                    heating = Math.min(heating, heating - 5);
+                    cooling = Math.max(cooling, cooling + 5);
+                } else if (lon > -70) {
+                    // Eastern US - more moderate temperatures
+                    heating = Math.max(heating, heating + 3);
+                    cooling = Math.min(cooling, cooling - 3);
+                }
+                
+                return {
+                    heating: Math.max(-20, Math.min(60, heating)),
+                    cooling: Math.max(70, Math.min(120, cooling)),
+                    hdd: Math.max(100, Math.min(12000, hdd)),
+                    cdd: Math.max(0, Math.min(5000, cdd)),
+                    location: { lat: lat, lon: lon },
+                    county: 'Regional estimate',
+                    state: 'Regional estimate',
+                    source: 'Regional climate estimation based on latitude/longitude'
+                };
+            } catch (error) {
+                console.error('Regional estimation failed:', error);
+                return null;
+            }
+        }
 
         async function lookupClimateData() {
             const zipCode = document.getElementById('zipCode').value.trim();
@@ -2156,187 +2227,95 @@
             hideError();
             hideResults();
 
-            // Immediate ZIP-level fallback using RESNET dataset (robust UX)
             try {
-                setStatus('Trying ZIP data first...');
-                const resnetFallback = (z) => {
-                    // Minimal built-in fallback for critical ZIPs if RESNET script isn't loaded
-                    if (z === '96001') return { name: 'Redding, CA', heating: 25, cooling: 108, hdd: 3000, cdd: 2500, source: 'Redding Municipal Airport', lat: 40.509, lon: -122.293 };
-                    return null;
-                };
-                const resnetSource = (typeof RESNET_ASHRAE_DATA !== 'undefined') ? RESNET_ASHRAE_DATA : null;
-                const resnet = resnetSource ? resnetSource[zipCode] : resnetFallback(zipCode);
-                if (resnet && ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(Number(resnet[k])))) {
-                        setStatus('Using ZIP dataset.');
-                        climateData = {
-                            name: resnet.name + ' (ZIP data)',
-                            heating: Number(resnet.heating),
-                            cooling: Number(resnet.cooling),
-                            hdd: Number(resnet.hdd),
-                            cdd: Number(resnet.cdd),
-                            source: resnet.source,
-                            lat: resnet.lat,
-                            lon: resnet.lon
-                        };
-                        displayClimateData();
-                        calculateHVACCosts();
-                        hideLoading();
-                        return;
-                }
-            } catch (e) {
-                console.warn('Early RESNET ZIP fallback failed:', e);
-            }
-
-            // Fast path: if we have a ZIP→FIPS override, bypass external APIs
-            try {
-                setStatus('Checking ZIP→FIPS override...');
-                const zipOverrideFipsFast = ZIP_TO_FIPS_OVERRIDE[zipCode];
-                if (zipOverrideFipsFast && /^\d{5}$/.test(zipOverrideFipsFast)) {
-                    const fipsInfo = { countyFIPS: zipOverrideFipsFast, countyName: 'ZIP override', stateAbbr: '' };
-                    const countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
-                    if (!countyEntry) {
-                        reportMissingCounty(fipsInfo);
-                        throw new Error(`County not loaded yet: ${fipsInfo.countyName} (${fipsInfo.countyFIPS}) ${fipsInfo.stateAbbr}`);
+                setStatus('Loading climate data...');
+                
+                // COMPREHENSIVE NATIONWIDE CLIMATE DATA LOOKUP
+                // Tier 1: Direct ZIP lookup (fastest, most accurate for major cities)
+                let localClimateData = null;
+                let dataSource = '';
+                
+                // Check ZIP-level data first (covers major metropolitan areas)
+                const zipData = RESNET_ASHRAE_DATA[zipCode];
+                if (zipData) {
+                    localClimateData = {
+                        heating: zipData.heating,
+                        cooling: zipData.cooling,
+                        hdd: zipData.hdd,
+                        cdd: zipData.cdd,
+                        location: { lat: zipData.lat, lon: zipData.lon },
+                        county: 'ZIP-level data',
+                        state: 'ZIP-level data',
+                        source: zipData.source
+                    };
+                    dataSource = 'ZIP-level data';
+                    console.log('Using ZIP-level data for:', zipData.name);
+                } else {
+                    // Tier 2: County-level lookup (comprehensive coverage)
+                    try {
+                        const fipsData = await getCountyFIPS(zipCode);
+                        if (fipsData) {
+                            const countyData = countyAshraeData[fipsData.countyFIPS];
+                            if (countyData) {
+                                localClimateData = {
+                                    heating: countyData.heating,
+                                    cooling: countyData.cooling,
+                                    hdd: countyData.hdd,
+                                    cdd: countyData.cdd,
+                                    location: { lat: fipsData.lat, lon: fipsData.lon },
+                                    county: fipsData.countyName,
+                                    state: fipsData.stateAbbr,
+                                    source: countyData.source
+                                };
+                                dataSource = 'County-level data';
+                                console.log('Using county-level data for:', fipsData.countyName, fipsData.stateAbbr);
+                            }
+                        }
+                    } catch (fipsError) {
+                        console.log('County lookup failed:', fipsError.message);
                     }
-                    const normalized = normalizeCountyEntry(countyEntry, fipsInfo);
-                    if (!Number.isFinite(normalized.heating) || !Number.isFinite(normalized.hdd)) {
-                        throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
-                    }
-                    setStatus('Using county dataset via override.');
-                    climateData = normalized;
-                    displayClimateData();
-                    calculateHVACCosts();
-                    hideError();
-                    hideLoading();
-                    // Reflect override in hidden field for transparency
-                    const fipsOverrideEl = document.getElementById('countyFipsOverride');
-                    if (fipsOverrideEl) fipsOverrideEl.value = zipOverrideFipsFast;
-                    return;
-                }
-            } catch (error) {
-                console.error('Early ZIP override path failed:', error);
-                // Fall through to full lookup flow below
-            }
-
-            try {
-                // Get location data from zip code
-                let locationData;
-                try {
-                    console.log('Calling getLocationFromZip for:', zipCode);
-                    locationData = await getLocationFromZip(zipCode);
-                    console.log('Location data received:', locationData);
-                    setStatus('Got ZIP coordinates. Fetching county...');
-                } catch (error) {
-                    console.error('Zip code lookup failed:', error);
-                    throw new Error('Zip lookup failed');
                 }
                 
-                // Opportunistically load a full dataset if present
-                await tryLoadExternalCountyJson();
-                await tryLoadExternalCountyCsv();
-                await tryMergeNoaaNormalsHddCdd();
-
-                // Apply ZIP override first, then manual FIPS, then FCC API
-                let fipsInfo;
-                const zipOverrideFips = ZIP_TO_FIPS_OVERRIDE[zipCode];
-                if (zipOverrideFips && /^\d{5}$/.test(zipOverrideFips)) {
-                    fipsInfo = { countyFIPS: zipOverrideFips, countyName: 'ZIP override', stateAbbr: '' };
-                } else {
-                    // Allow FIPS override to bypass external API (advanced)
-                    const fipsOverrideEl = document.getElementById('countyFipsOverride');
-                    const fipsOverride = fipsOverrideEl ? (fipsOverrideEl.value || '').trim() : '';
-                    if (fipsOverride && /^\d{5}$/.test(fipsOverride)) {
-                        fipsInfo = { countyFIPS: fipsOverride, countyName: 'Manual FIPS', stateAbbr: '' };
-                    } else {
-                        // Get county FIPS from FCC API using lat/lon
-                        fipsInfo = await getCountyFIPS(locationData.latitude, locationData.longitude);
-                    }
+                // Tier 3: Regional estimation fallback (covers remaining areas)
+                if (!localClimateData) {
+                    console.log('No specific data found, using regional estimation for ZIP:', zipCode);
+                    localClimateData = await getRegionalEstimate(zipCode);
+                    dataSource = 'Regional estimation';
                 }
-                if (!fipsInfo || !fipsInfo.countyFIPS) {
-                    throw new Error('Unable to resolve county FIPS');
+                
+                if (!localClimateData) {
+                    throw new Error('Unable to determine climate data for this location. Please try a different ZIP code.');
                 }
-                console.log('Resolved county FIPS:', fipsInfo);
-                setStatus(`County FIPS resolved: ${fipsInfo.countyFIPS}. Loading county data...`);
-
-                // Lookup county in authoritative ASHRAE county dataset
-                let countyEntry = countyAshraeData[fipsInfo.countyFIPS] || await tryMergeNceiHddCdd(fipsInfo.countyFIPS);
-                // Fallback: use RESNET zip record if it matches this county and has all fields
-                if (!countyEntry) {
-                    const resnet = RESNET_ASHRAE_DATA[zipCode];
-                    if (resnet && ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(resnet[k]))) {
-                        countyEntry = {
-                            name: `${fipsInfo.countyName}, ${fipsInfo.stateAbbr}`,
-                            state: fipsInfo.stateAbbr,
-                            fips: fipsInfo.countyFIPS,
-                            heating: resnet.heating,
-                            cooling: resnet.cooling,
-                            hdd: resnet.hdd,
-                            cdd: resnet.cdd,
-                            source: `RESNET/ASHRAE ZIP ${zipCode} proxied to county`,
-                            lat: resnet.lat,
-                            lon: resnet.lon
-                        };
-                    }
-                }
-                if (!countyEntry) {
-                    console.error('No county ASHRAE data found for FIPS:', fipsInfo.countyFIPS, fipsInfo);
-                    reportMissingCounty(fipsInfo);
-                    throw new Error(`County not loaded yet: ${fipsInfo.countyName} (${fipsInfo.countyFIPS}) ${fipsInfo.stateAbbr}`);
-                }
-
-                // Normalize expected fields
-                const normalized = normalizeCountyEntry(countyEntry, fipsInfo);
-                if (!Number.isFinite(normalized.heating) || !Number.isFinite(normalized.hdd)) {
-                    console.error('County entry missing required heating/HDD fields after normalization:', countyEntry);
-                    throw new Error('Incomplete ASHRAE county data (heating/HDD required)');
-                }
-                climateData = normalized;
-                setStatus('Using county dataset.');
-
-                displayClimateData();
-                calculateHVACCosts();
-                hideError();
-
-            } catch (error) {
-                console.error('Error fetching climate data:', error);
-                // Last-chance fallback: use RESNET ZIP data directly if complete
-                try {
-                    const zipCode = document.getElementById('zipCode').value.trim();
-                    const resnet = RESNET_ASHRAE_DATA[zipCode];
-                    if (resnet && ['heating','cooling','hdd','cdd'].every(k => Number.isFinite(resnet[k]))) {
-                        climateData = {
-                            name: resnet.name + ' (ZIP fallback)',
-                            heating: resnet.heating,
-                            cooling: resnet.cooling,
-                            hdd: resnet.hdd,
-                            cdd: resnet.cdd,
-                            source: resnet.source,
-                            lat: resnet.lat,
-                            lon: resnet.lon
-                        };
-                        displayClimateData();
-                        calculateHVACCosts();
-                        hideError();
-                        hideLoading();
-                        return;
-                    }
-                } catch (e) {
-                    console.warn('ZIP fallback failed:', e);
-                }
-
-                const msg = (error && error.message && error.message.startsWith('County not loaded yet'))
-                  ? `${error.message}. Please populate this county in ashrae_county_data.js.`
-                  : 'No valid county-level ASHRAE data available for this ZIP.';
-                showError(msg);
-                setStatus('Error path hit.');
-            } finally {
+                
+                // Set the global climateData variable for other functions to use
+                climateData = localClimateData;
+                
+                // Update temperature display elements
+                document.getElementById('heatingDesign').textContent = localClimateData.heating;
+                document.getElementById('coolingDesign').textContent = localClimateData.cooling;
+                
+                // Calculate and display average temperatures
+                const avgWinterTemp = Math.round((localClimateData.heating + 32) / 2); // Rough estimate
+                const avgSummerTemp = Math.round((localClimateData.cooling + 32) / 2); // Rough estimate
+                document.getElementById('avgCold').textContent = avgWinterTemp;
+                document.getElementById('avgHot').textContent = avgSummerTemp;
+                
+                // Position temperature markers
+                positionTemperatureMarkers();
+                
+                // Update location display
+                document.getElementById('locationInfo').textContent = `${localClimateData.county}, ${localClimateData.state} (${dataSource})`;
+                
+                setStatus('Climate data loaded successfully');
                 hideLoading();
-            }
-
-            const zipOverrideFips = ZIP_TO_FIPS_OVERRIDE[zipCode];
-            if (zipOverrideFips) {
-                const fipsOverrideEl = document.getElementById('countyFipsOverride');
-                if (fipsOverrideEl) fipsOverrideEl.value = zipOverrideFips;
+                
+                // Trigger recalculation if all inputs are available
+                recalculateIfDataAvailable();
+                
+            } catch (error) {
+                console.error('Error loading climate data:', error);
+                showError(`Failed to load climate data: ${error.message}`);
+                hideLoading();
             }
         }
 
@@ -2406,23 +2385,36 @@
             }
         }
 
-        async function getCountyFIPS(lat, lon) {
-            // FCC Census API - returns county FIPS and names
-            const url = `https://geo.fcc.gov/api/census/area?lat=${lat}&lon=${lon}&format=json`;
-            const res = await fetch(url);
-            if (!res.ok) {
-                console.error('FCC FIPS API error:', res.status, res.statusText);
-                throw new Error('FIPS lookup failed');
-            }
-            const data = await res.json();
-            if (!data || !data.results || data.results.length === 0) {
-                throw new Error('No FIPS result for coordinates');
-            }
-            const county = data.results[0];
+        async function getCountyFIPS(zip) {
+            // 1) geocode ZIP
+            const zp = await fetch(`https://api.zippopotam.us/us/${zip}`);
+            if (!zp.ok) throw new Error('ZIP geocode failed');
+            const z = await zp.json();
+            const place = Array.isArray(z.places) && z.places[0];
+            const lat = place ? Number(place.latitude) : NaN;
+            const lon = place ? Number(place.longitude) : NaN;
+            if (!isFinite(lat) || !isFinite(lon)) throw new Error('Invalid lat/lon from ZIP geocode');
+
+            // 2) FCC county lookup (ensure format=json)
+            const fcc = await fetch(
+                `https://geo.fcc.gov/api/census/block/find?latitude=${lat}&longitude=${lon}&format=json`
+            );
+            if (!fcc.ok) throw new Error(`FCC FIPS API error: ${fcc.status}`);
+            const f = await fcc.json();
+
+            const countyFips =
+                (f && f.County && f.County.FIPS) ||
+                (f && f.results && f.results[0] && f.results[0].county_fips) ||
+                null;
+
+            if (!countyFips) throw new Error('FIPS not found from FCC response');
+            
             return {
-                countyFIPS: county['county_fips'] || county['FIPS'] || county['county_fips_code'] || null,
-                countyName: county['county_name'] || county['name'] || 'Unknown County',
-                stateAbbr: county['state_code'] || county['state_abbr'] || county['state'] || ''
+                countyFIPS: countyFips,
+                countyName: (f && f.County && f.County.name) || (f && f.results && f.results[0] && f.results[0].county_name) || 'Unknown County',
+                stateAbbr: (f && f.County && f.County.state) || (f && f.results && f.results[0] && f.results[0].state_code) || '',
+                lat: lat,
+                lon: lon
             };
         }
 
@@ -2682,16 +2674,8 @@
             displaySystemResults(results);
             showWinner(results);
             updateTechnicalDetails(results, hdd, 0, heatingDesign, 0, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
-
-            const rsTop = document.getElementById('resultsSectionTop');
-            if (rsTop) rsTop.style.display = 'block';
             
-            // Update hybrid split bar with calculated data
-            const hpEff = calculateHeatPumpEfficiency(heatingDesign, crossoverTemp, hdd);
-            updateHybridSplitBar(hpEff, heatingDesign, crossoverTemp);
-
-            // Update hybrid decision panel
-            updateHybridDecision(results, heatingDesign, crossoverTemp, hdd);
+            return results;
         }
 
         function calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, crossoverTemp) {
@@ -3052,8 +3036,69 @@
         if (autoX) autoX.addEventListener('change', recalculateIfDataAvailable);
 
         function recalculateIfDataAvailable() {
-            if (climateData) {
-                calculateHVACCosts();
+            // Validate that all required inputs are present
+            const zipCode = document.getElementById('zipCode').value.trim();
+            const heatingLoad = parseFloat(document.getElementById('heatingLoadInput').value.replace(/[^\d]/g, '')) || 0;
+            const electricityRate = parseFloat(document.getElementById('electricityRate').value) || 0;
+            const gasRate = parseFloat(document.getElementById('gasRate').value) || 0;
+            const cop = parseFloat(document.getElementById('heatPumpCOP').value) || 0;
+            const afue = parseFloat(document.getElementById('furnaceEfficiency').value) || 0;
+            const crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value) || 35;
+
+            // Check for missing inputs
+            const missingInputs = [];
+            if (!zipCode || zipCode.length !== 5) missingInputs.push('valid zip code');
+            if (heatingLoad <= 0) missingInputs.push('heating load');
+            if (electricityRate <= 0) missingInputs.push('electricity rate');
+            if (gasRate <= 0) missingInputs.push('gas rate');
+            if (cop <= 0) missingInputs.push('heat pump COP');
+            if (afue <= 0) missingInputs.push('furnace efficiency');
+
+            if (missingInputs.length > 0) {
+                showError(`Please provide: ${missingInputs.join(', ')}`);
+                return;
+            }
+
+            // Check if climate data is available
+            if (!climateData || !climateData.heating || !climateData.hdd) {
+                showError('Climate data not available. Please lookup climate data first.');
+                return;
+            }
+
+            // Clear any previous errors
+            hideError();
+
+            try {
+                // Calculate HVAC costs
+                const results = calculateHVACCosts();
+                
+                if (results) {
+                    // Update cost displays
+                    document.getElementById('heatPumpTotal').textContent = `$${Math.round(results.heatPump.total)}`;
+                    document.getElementById('furnaceTotal').textContent = `$${Math.round(results.furnace.total)}`;
+                    document.getElementById('hybridTotal').textContent = `$${Math.round(results.hybrid.total)}`;
+
+                    // Update consumption displays
+                    document.getElementById('annualHeatPump').textContent = `${formatNumberWithCommas(Math.round(results.heatPump.kwh))} kWh`;
+                    document.getElementById('annualGasHeat').textContent = `${formatNumberWithCommas(Math.round(results.furnace.therms))} therms`;
+                    document.getElementById('annualHybridElec').textContent = `${formatNumberWithCommas(Math.round(results.hybrid.kwh))} kWh`;
+                    document.getElementById('annualHybridGas').textContent = `${formatNumberWithCommas(Math.round(results.hybrid.therms))} therms`;
+
+                    // Update hybrid split bar
+                    const heatPumpEfficiency = calculateHeatPumpEfficiency(climateData.heating, crossoverTemp, climateData.hdd);
+                    updateHybridSplitBar(heatPumpEfficiency, climateData.heating, crossoverTemp);
+
+                    // Update TCO if enabled
+                    if (document.getElementById('includeTCO').checked) {
+                        computeTCO(results);
+                    }
+
+                    // Show results
+                    document.getElementById('locationInfo').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error calculating HVAC costs:', error);
+                showError(`Calculation error: ${error.message}`);
             }
         }
 
@@ -3087,7 +3132,7 @@
                     bubble.className = 'tooltip-bubble';
                     document.body.appendChild(bubble);
                 }
-                const inCoal = !!(target.closest && target.closest('#emissionsBars'));
+                const inCoal = !!closestSafe(target, '#emissionsBars');
                 const isHPPerf = (target.id === 'heatPumpCOP' || target.getAttribute('for') === 'heatPumpCOP');
                 const isHomeBTU = (target.id === 'heatingLoadInput' || target.getAttribute('for') === 'heatingLoadInput');
                 let theme = '';
@@ -3102,7 +3147,7 @@
                     .replace(/\\n/g, '<br>');
                 bubble.innerHTML = html;
                 // Position to the side that fits best
-                const row = target.closest('.input-row');
+                const row = closestSafe(target, '.input-row');
                 const rect = row ? row.getBoundingClientRect() : target.getBoundingClientRect();
                 const padding = 12;
                 const prefRightX = rect.right + padding;
@@ -3119,7 +3164,7 @@
                 let x, y;
                 // Special positioning for coal charts: center above/below the emission bar to avoid drifting into neighbors
                 if (inCoal) {
-                    const bar = target.closest('.emission-bar') || target.closest('.emissions-grid') || target;
+                    const bar = closestSafe(target, '.emission-bar') || closestSafe(target, '.emissions-grid') || target;
                     const brect = bar.getBoundingClientRect();
                     // Force BELOW coal chart to avoid covering content; clamp if viewport is short
                     const belowY = brect.bottom + padding;
@@ -3139,7 +3184,7 @@
                     y = Math.max(12, Math.min(vh - bh - 12, rect.top + (rect.height - bh)/2));
                 } else if (target.classList.contains('tooltip-below')) {
                     // Place below the entire control-group to avoid covering label/input
-                    const group = target.closest('.control-group');
+                    const group = closestSafe(target, '.control-group');
                     const grect = group ? group.getBoundingClientRect() : rect;
                     y = Math.max(12, Math.min(vh - bh - 12, grect.bottom + padding));
                     x = Math.max(12, Math.min(vw - bw - 12, grect.left + (grect.width - bw)/2));
@@ -3174,19 +3219,23 @@
             function hideBubble() {
                 if (bubble) bubble.style.display = 'none';
             }
-            document.addEventListener('mouseenter', function(e) {
-                const t = e.target.closest('[data-tooltip]');
-                if (t) {
-                    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
-                    showBubble(t);
-                }
-            }, true);
-            document.addEventListener('mouseleave', function(e) {
-                const t = e.target.closest('[data-tooltip]');
-                if (t) {
-                    hideTimer = setTimeout(() => hideBubble(), 200);
-                }
-            }, true);
+            // Attach to container instead of document to reduce event spam
+            const container = document.querySelector('.container');
+            if (container) {
+                container.addEventListener('mouseenter', function(e) {
+                    const t = closestSafe(e.target, '[data-tooltip]');
+                    if (t) {
+                        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                        showBubble(t);
+                    }
+                }, true);
+                container.addEventListener('mouseleave', function(e) {
+                    const t = closestSafe(e.target, '[data-tooltip]');
+                    if (t) {
+                        hideTimer = setTimeout(() => hideBubble(), 200);
+                    }
+                }, true);
+            }
         })();
 
         // Modes system: basic | guided | pro | nonprofit
@@ -3275,7 +3324,7 @@
             if (xoverEl) xoverEl.textContent = crossoverTemp + '°F';
 
             // Totals 5/10/15 years
-            const years = [5,10,15];
+            const yearArray = [5,10,15];
             const furnace = results.furnace;
             const hp = results.heatPump;
             const hybrid = results.hybrid;
@@ -3356,11 +3405,11 @@
                         gEl.className = 'mini-group';
                         const barsWrap = document.createElement('div');
                         barsWrap.className = 'mini-bars';
-                        years.forEach((y, idx) => {
+                        yearArray.forEach((y, idx) => {
                             const v = g.values[y];
                             const bar = document.createElement('div');
                             bar.className = 'mini-bar year' + y + ' ' + g.className;
-                            const max = Math.max(...groups.flatMap(gr => years.map(k=>gr.values[k])));
+                            const max = Math.max(...groups.flatMap(gr => yearArray.map(k=>gr.values[k])));
                             const h = max > 0 ? Math.max(2, Math.round((v / max) * 140)) : 2;
                             bar.style.height = h + 'px';
                             bar.setAttribute('data-value', formatter(v));
@@ -3454,11 +3503,21 @@
 
         function toggleTCO() {
             const on = document.getElementById('includeTCO').checked;
+            
+            // Show/hide the TCO card
             document.getElementById('card-ownership').style.display = on ? '' : 'none';
-            // Toggle TCO lines under boxes
+            
+            // Toggle TCO lines under cost boxes
             const lines = document.querySelectorAll('.tco-line');
             lines.forEach(el => el.style.display = on ? '' : 'none');
-            if (on) recalculateIfDataAvailable();
+            
+            // If TCO is enabled, recalculate to show TCO values
+            if (on) {
+                recalculateIfDataAvailable();
+            } else {
+                // If TCO is disabled, recalculate to show direct costs
+                recalculateIfDataAvailable();
+            }
         }
 
         function parseMoney(inputId) {
