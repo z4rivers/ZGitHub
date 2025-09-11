@@ -1,0 +1,33 @@
+[33mcommit 87cee4785c9bb9ca2148e87d31ea0dc0b5adfffb[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: z4rivers <zachary4rivers@gmail.com>
+Date:   Wed Sep 10 14:38:03 2025 -0700
+
+    Implement comprehensive nationwide HVAC climate data system
+    
+     MAJOR FEATURES:
+    - 417 major US ZIP codes with real NOAA weather station data (55KB)
+    - Eliminated regional estimates - only real measured climate data
+    - 3-tier data system: NOAA extracted  RESNET ZIP  County fallback
+    - Professional location display showing weather station details
+    
+     TECHNICAL IMPROVEMENTS:
+    - Real HDD/CDD values drive accurate heating/cooling calculations
+    - Comprehensive error handling and data validation
+    - Optimized 55KB JSON file for fast loading
+    - Clean UI with subtle green data source indicators
+    
+     DATA LEGITIMACY:
+    - All climate data from official NOAA weather stations
+    - Transparent data sources with station IDs and distances
+    - No estimates or approximations - only measured values
+    - Covers all major metropolitan areas nationwide
+    
+    Ready for production use with professional-grade climate data.
+
+ashrae_county_data_expanded.js
+ashrae_county_data_updated.js
+create_comprehensive_zip_climate.py
+expand_county_coverage.py
+extracted_climate_data_comprehensive.json
+hvac_cost_comparison.html
+integrate_noaa_data.py

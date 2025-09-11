@@ -31,7 +31,7 @@
         .header {
             background: #2c3e50;
             color: white;
-            padding: 20px;
+            padding: 24px 20px 56px 20px; /* extra bottom space for emissions summary */
             text-align: center;
             position: relative;
         }
@@ -1384,7 +1384,7 @@
                 </label>
             </div>
             <!-- Emissions summary pinned to bottom of title bar -->
-            <div id="emissionsSummary" style="display:none; position:absolute; left:12px; right:12px; bottom:8px; font-size:0.95rem; color:#ffffff; text-shadow:0 1px 2px rgba(0,0,0,0.45);"></div>
+            <div id="emissionsSummary" style="display:none; position:absolute; left:12px; right:12px; bottom:14px; font-size:0.95rem; color:#ffffff; text-shadow:0 1px 2px rgba(0,0,0,0.45);"></div>
         </div>
 
         <div class="main-content" id="dashboard">
@@ -1561,18 +1561,18 @@
                 <div class="inputs-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                     
                     <!-- Utility Rates Box -->
-                    <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa;">
+                    <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa; min-height: 132px;">
                         <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333; display:none;">Utility Rates</h3>
-                        <div style="display:flex; gap:24px; align-items: end;">
+                        <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:nowrap;">
                             <div>
-                                <label for="electricityRate" title="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary by region/provider." style="display:block; font-size:0.8rem; font-weight:bold; color:#333; margin-bottom:3px;">Electricity ($/kWh)</label>
-                                <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 120px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                                <label for="electricityRate" title="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary by region/provider." style="display:block; font-size:0.8rem; font-weight:bold; color:#333; margin-bottom:3px; line-height:1.1; white-space:normal;">Electricity<br>($/kWh)</label>
+                                <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 90px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
                             </div>
                             <div>
-                                <label for="gasRate" title="Use 'total delivered rate' per therm - includes all fees. Rates vary by season. National average ≈ $1.64." style="display:block; font-size:0.8rem; font-weight:bold; color:#333; margin-bottom:3px;">Natural Gas ($/therm)</label>
-                                <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 120px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                                <label for="gasRate" title="Use 'total delivered rate' per therm - includes all fees. Rates vary by season. National average ≈ $1.64." style="display:block; font-size:0.8rem; font-weight:bold; color:#333; margin-bottom:3px; line-height:1.1; white-space:normal;">Natural Gas<br>($/therm)</label>
+                                <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 90px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
                             </div>
-                            <div id="elecSourceBlock" style="display:none; flex-direction:column; gap:4px;">
+                            <div id="elecSourceBlock" style="display:none; flex-direction:column; gap:4px; margin-left: 12px;">
                                 <span title="Select your grid mix; checkbox overrides to 100% renewable.
 Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; font-weight:bold; color:#333;">Electricity Source</span>
                                 <div style="display:flex; flex-direction:column; gap:2px; font-size:0.8rem; color:#333;">
@@ -1588,6 +1588,17 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                     <!-- Equipment Performance Box -->
                     <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa;">
                         <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333; display:none;">Equipment Performance</h3>
+                        <div class="rating-toggle" style="display:flex; align-items:center; gap:8px; margin: 0 0 6px 0;">
+                            <label title="COP is an instantaneous efficiency ratio; HSPF is a seasonal average. HSPF ÷ 3.4 ≈ seasonal COP. In very cold or very mild climates, real-world performance can be lower than either rating predicts." style="font-size:0.75rem; color:#333; display:inline-flex; align-items:center; gap:4px;">
+                                <input type="radio" name="effRating" id="effModeCOP" value="COP" checked>
+                                COP
+                            </label>
+                            <label title="COP is an instantaneous efficiency ratio; HSPF is a seasonal average. HSPF ÷ 3.4 ≈ seasonal COP. In very cold or very mild climates, real-world performance can be lower than either rating predicts." style="font-size:0.75rem; color:#333; display:inline-flex; align-items:center; gap:4px;">
+                                <input type="radio" name="effRating" id="effModeHSPF" value="HSPF">
+                                HSPF
+                            </label>
+                        </div>
+                        <div id="perfClimateNotice" style="display:none; font-size:0.72rem; color:#7c3aed; margin: 0 0 6px 0;">Real-world performance can be lower than standard COP/HSPF ratings in this climate.</div>
 
                         <!-- Slim slider styles for this section -->
                         <style>
@@ -1612,13 +1623,13 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                             <div class="slider-field" data-tooltip="Heat pump performance. Choose a preset, then fine‑tune.">
                                 <div class="slider-label">Heat Pump Performance</div>
                                 <div class="cop-group">
-                                    <button type="button" id="copPresetStd" class="cop-btn" data-min="2.8" data-max="3.5" data-val="3.2">Standard</button>
-                                    <button type="button" id="copPresetMid" class="cop-btn" data-min="3.5" data-max="4.5" data-val="4.0">Mid</button>
-                                    <button type="button" id="copPresetHigh" class="cop-btn" data-min="4.5" data-max="6.0" data-val="5.0">High</button>
+                                    <button type="button" id="copPresetStd" class="cop-btn" data-min="2.0" data-max="3.2" data-val="3.0">Standard</button>
+                                    <button type="button" id="copPresetMid" class="cop-btn" data-min="3.2" data-max="4.2" data-val="3.6">Mid</button>
+                                    <button type="button" id="copPresetHigh" class="cop-btn" data-min="4.0" data-max="4.5" data-val="4.3">High</button>
                                 </div>
-                                <div id="copValue" class="slider-value">4.0</div>
+                                <div id="copValue" class="slider-value">3.6</div>
                                 <!-- Keep a constant scale so the dial never jumps -->
-                                <input type="range" id="heatPumpCOP" class="range-thin range-green" min="2.5" max="6.0" step="0.1" value="4.0">
+                                <input type="range" id="heatPumpCOP" class="range-thin range-green" min="2.0" max="4.5" step="0.1" value="3.6">
                             </div>
 
                             <!-- Furnace AFUE with vent type selectors -->
@@ -1853,6 +1864,34 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
         </div>
     </div>
 
+    <!-- Station selector modal -->
+    <div id="stationModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.35); z-index:20000; align-items:center; justify-content:center;">
+        <div style="background:#fff; border:1px solid #ddd; border-radius:8px; width: min(720px, 92vw); max-height: 80vh; overflow:auto; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+            <div style="padding:12px 16px; border-bottom:1px solid #eee; display:flex; align-items:center; justify-content:space-between;">
+                <h3 style="margin:0; font-size:1rem;">Select nearest weather station</h3>
+                <button id="stationCloseBtn" class="btn" style="width:auto; height:auto; padding:4px 10px;">Close</button>
+            </div>
+            <div style="padding:12px 16px;">
+                <p style="margin:0 0 8px 0; font-size:0.9rem; color:#333;">Automatic climate lookup didn't find your ZIP. Please select the nearest weather station below to continue.</p>
+                <div style="display:flex; gap:10px; align-items:center; margin:8px 0;">
+                    <label style="font-size:0.8rem; color:#333;">State:</label>
+                    <select id="stationState" style="padding:6px; border:1px solid #ccc; border-radius:4px;">
+                        <option value="">-- Select state --</option>
+                    </select>
+                    <input id="stationSearch" placeholder="Search station or city" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;" />
+                </div>
+                <div id="stationList" style="display:grid; grid-template-columns: 1fr; gap:8px;"></div>
+                <hr style="margin:12px 0; border:none; border-top:1px solid #eee;" />
+                <div style="display:flex; gap:10px; align-items:center; margin:8px 0 4px 0;">
+                    <label style="font-size:0.8rem; color:#333;">Or pick county:</label>
+                    <select id="countySelect" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></select>
+                    <button id="useCountyBtn" class="btn" style="width:auto; height:auto; padding:6px 12px;">Use county</button>
+                </div>
+                <p style="margin:4px 0 0 0; font-size:0.75rem; color:#555;">County fallback uses ASHRAE design temperatures; HDD/CDD are used when available, otherwise estimated from design temps.</p>
+            </div>
+        </div>
+    </div>
+
     <!-- Load authoritative county-level ASHRAE dataset -->
     <script src="ashrae_county_data.js"></script>
     <!-- Legacy city/zip dataset (not used for calculations anymore) -->
@@ -1866,6 +1905,15 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
         let houseLoads = { heating: 0, cooling: 0 };
         let CLIMATE_DATA = null;
         let runYears = 15; // years for summary calculations
+        let effMode = 'COP'; // track current efficiency entry mode
+        let STATION_INDEX = null; // lazily built from extracted data
+        const STATE_FIPS = {
+            '01':'AL','02':'AK','04':'AZ','05':'AR','06':'CA','08':'CO','09':'CT','10':'DE','11':'DC','12':'FL','13':'GA','15':'HI','16':'ID','17':'IL','18':'IN','19':'IA','20':'KS','21':'KY','22':'LA','23':'ME','24':'MD','25':'MA','26':'MI','27':'MN','28':'MS','29':'MO','30':'MT','31':'NE','32':'NV','33':'NH','34':'NJ','35':'NM','36':'NY','37':'NC','38':'ND','39':'OH','40':'OK','41':'OR','42':'PA','44':'RI','45':'SC','46':'SD','47':'TN','48':'TX','49':'UT','50':'VT','51':'VA','53':'WA','54':'WV','55':'WI','56':'WY'
+        };
+        function stateFromFips(fips){
+            const code = String(fips||'').padStart(5,'0').slice(0,2);
+            return STATE_FIPS[code] || '';
+        }
 
         // Note: Using ResNet-ASHRAE dataset from ashrae_county_data.js instead of JSON file
 
@@ -1874,6 +1922,42 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
         const rawCountyDataset = (typeof ASHRAE_COUNTY_DATA !== 'undefined') ? ASHRAE_COUNTY_DATA : {};
         const countyAshraeData = buildCountyFipsIndex(rawCountyDataset);
         console.log('County ASHRAE data loaded:', Object.keys(countyAshraeData).length, 'counties');
+
+        // Efficiency rating helpers (COP/HSPF)
+        function currentEffMode(){ return effMode; }
+        function getEffectiveCOP(){
+            const slider = document.getElementById('heatPumpCOP');
+            const raw = parseFloat(slider && slider.value);
+            const val = Number.isFinite(raw) ? raw : 3.6;
+            return effMode==='HSPF' ? (val / 3.4) : val;
+        }
+        function syncPerfClimateNotice(){
+            const note = document.getElementById('perfClimateNotice');
+            if (!note) return;
+            const hdd = climateData && Number(climateData.hdd);
+            const warn = Number.isFinite(hdd) && (hdd > 7000 || hdd < 2000);
+            note.style.display = warn ? '' : 'none';
+        }
+        function syncEffSliderToMode(prevMode, newMode){
+            const slider = document.getElementById('heatPumpCOP');
+            const copValueEl = document.getElementById('copValue');
+            if (!slider || !copValueEl) return;
+            // Preserve current effective COP across mode changes using previous mode
+            const raw = parseFloat(slider.value);
+            const effectiveCOP = (prevMode === 'HSPF') ? (raw / 3.4) : raw;
+            if (newMode === 'HSPF') {
+                slider.min = String((2.0*3.4).toFixed(1));
+                slider.max = String((4.5*3.4).toFixed(1));
+                slider.value = String((effectiveCOP * 3.4).toFixed(1));
+            } else {
+                slider.min = '2.0';
+                slider.max = '4.5';
+                slider.value = String(effectiveCOP.toFixed(1));
+            }
+            copValueEl.textContent = parseFloat(slider.value).toFixed(1);
+            // refresh visual fill
+            try { updateRangeFill(slider); setRangeFill(slider, '--range-color'); } catch(_){}
+        }
 
         // ZIP → FIPS override for known ambiguous ZIPs
         const ZIP_TO_FIPS_OVERRIDE = {
@@ -1947,6 +2031,95 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                 EXTRACTED_CLIMATE_DATA = {}; // Empty fallback
                 return EXTRACTED_CLIMATE_DATA;
             }
+        }
+
+        async function buildStationIndex() {
+            if (STATION_INDEX) return STATION_INDEX;
+            const data = await loadExtractedClimateDataOnce();
+            const zips = data.climate_data || {};
+            // We need state per ZIP; obtain via lightweight on-demand zippopotam or FCC only for displayed state list if missing
+            const index = { byState: {}, byStation: {} };
+            for (const [zip, entry] of Object.entries(zips)) {
+                let st = (RESNET_ASHRAE_DATA[zip] && RESNET_ASHRAE_DATA[zip].state) || null;
+                if (!st && entry && typeof entry.station_name === 'string') {
+                    // Try to parse trailing state abbreviation from station name (e.g., "..., NY US")
+                    const m = entry.station_name.match(/,\s*([A-Z]{2})\s+US\b/);
+                    if (m && m[1]) st = m[1];
+                }
+                if (!st) continue;
+                const rec = {
+                    zip,
+                    station_id: entry.station_id,
+                    station_name: entry.station_name,
+                    hdd: entry.hdd,
+                    cdd: entry.cdd
+                };
+                if (!index.byState[st]) index.byState[st] = [];
+                index.byState[st].push(rec);
+                if (!index.byStation[entry.station_id]) index.byStation[entry.station_id] = rec;
+            }
+            STATION_INDEX = index;
+            return index;
+        }
+
+        function openStationModal(stateAbbr) {
+            const modal = document.getElementById('stationModal');
+            const stateSel = document.getElementById('stationState');
+            const list = document.getElementById('stationList');
+            const search = document.getElementById('stationSearch');
+            const closeBtn = document.getElementById('stationCloseBtn');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            function rebuildStates(index){
+                stateSel.innerHTML = '<option value="">-- Select state --</option>' +
+                    Object.keys(index.byState).sort().map(s=>`<option value="${s}">${s}</option>`).join('');
+                if (stateAbbr && index.byState[stateAbbr]) stateSel.value = stateAbbr;
+            }
+            function renderList(index){
+                const st = stateSel.value;
+                const q = (search.value || '').toLowerCase();
+                const items = (st && index.byState[st]) ? index.byState[st] : [];
+                const filtered = items.filter(r => !q || (r.station_name && r.station_name.toLowerCase().includes(q)) || (r.zip && r.zip.includes(q)));
+                list.innerHTML = filtered.map(r => `<button class="btn" data-station="${r.station_id}" style="justify-content:space-between; width:100%;"><span>${r.station_name}</span><span style="font-size:0.8rem; color:#555;">ZIP ${r.zip}</span></button>`).join('');
+            }
+            buildStationIndex().then(idx => { rebuildStates(idx); renderList(idx); });
+            stateSel.onchange = ()=>buildStationIndex().then(idx=>renderList(idx));
+            search.oninput = ()=>buildStationIndex().then(idx=>renderList(idx));
+            list.onclick = async (e)=>{
+                const btn = e.target.closest('button[data-station]');
+                if (!btn) return;
+                const id = btn.getAttribute('data-station');
+                const idx = await buildStationIndex();
+                const rec = idx.byStation[id];
+                if (rec) {
+                    // Feed HDD/CDD directly; design temps from nearest county in same state if possible
+                    const st = stateSel.value;
+                    const design = (()=>{
+                        // find any county entry in state
+                        for (const v of Object.values(countyAshraeData)) {
+                            const s = v.state || v.stateAbbr || v.STATE;
+                            if (s === st && Number.isFinite(v.heating) && Number.isFinite(v.cooling)) return { heating:v.heating, cooling:v.cooling, lat:v.lat, lon:v.lon };
+                        }
+                        return { heating: 20, cooling: 90 };
+                    })();
+                    climateData = {
+                        heating: design.heating,
+                        cooling: design.cooling,
+                        hdd: rec.hdd,
+                        cdd: rec.cdd,
+                        location: { lat: design.lat, lon: design.lon },
+                        county: rec.station_name,
+                        state: st,
+                        source: `User-selected station ${rec.station_id}`
+                    };
+                    console.log('Tier 2d: User-selected station', rec);
+                    modal.style.display = 'none';
+                    setStatus(''); hideLoading();
+                    positionTemperatureMarkers();
+                    recalculateIfDataAvailable();
+                }
+            };
+            closeBtn.onclick = ()=>{ modal.style.display='none'; };
         }
 
         async function tryLoadExternalCountyJson() {
@@ -2283,30 +2456,34 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                 return;
             }
 
-            showLoading();
-            hideError();
-            hideResults();
-
-            try {
-                setStatus('Loading climate data...');
-                
-                // COMPREHENSIVE NATIONWIDE CLIMATE DATA LOOKUP
-                // Tier 0: Extracted NOAA climate data (highest priority - real HDD/CDD data)
-                let localClimateData = null;
-                let dataSource = '';
-                
-                // Load extracted climate data first
+            setStatus('Loading climate data...');
+            
+            // COMPREHENSIVE NATIONWIDE CLIMATE DATA LOOKUP
+            // Tier 1: NOAA Master Climate Index (nearest station) or legacy extracted NOAA
+            let localClimateData = null;
+            let dataSource = '';
+            
+            // Try new Master JSONL Tier 1 first
+            const masterRec = await lookupNoaaMasterForZip(zipCode);
+            if (masterRec) {
+                localClimateData = masterRec;
+                dataSource = 'Tier 1 (NOAA Master Index)';
+                const locationNameEl = document.getElementById('locationName');
+                const dataSourceEl = document.getElementById('dataSource');
+                const locationInfoEl = document.getElementById('locationInfo');
+                if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}${localClimateData.state ? ', ' + localClimateData.state : ''}`;
+                if (dataSourceEl) dataSourceEl.textContent = `Data source: ${dataSource}`;
+                if (locationInfoEl) { locationInfoEl.style.display = 'block'; locationInfoEl.style.visibility = 'visible'; }
+            } else {
+                // Legacy extracted NOAA JSON fallback (if present)
                 const extractedData = await loadExtractedClimateDataOnce();
                 const zipClimateData = extractedData[zipCode];
-                
                 if (zipClimateData) {
-                    // Use NOAA HDD/CDD data - need to get design temps from other sources
                     const zipData = RESNET_ASHRAE_DATA[zipCode];
-                    const designTemps = zipData || {}; // Fallback for design temps
-                    
+                    const designTemps = zipData || {};
                     localClimateData = {
-                        heating: designTemps.heating || 20, // Will be estimated if missing
-                        cooling: designTemps.cooling || 90, // Will be estimated if missing
+                        heating: designTemps.heating || 20,
+                        cooling: designTemps.cooling || 90,
                         hdd: zipClimateData.hdd,
                         cdd: zipClimateData.cdd,
                         location: { lat: designTemps.lat, lon: designTemps.lon },
@@ -2314,25 +2491,15 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                         state: `Station ${zipClimateData.station_id} (${zipClimateData.distance_km}km away)`,
                         source: `NOAA HDD/CDD from ${zipClimateData.station_name} (${zipClimateData.station_id})`
                     };
-                    dataSource = 'NOAA extracted data';
-                    console.log('Using NOAA extracted data for ZIP:', zipCode, 'HDD:', zipClimateData.hdd, 'CDD:', zipClimateData.cdd);
-                    
-                    // Update location display for NOAA data
-                    console.log('Setting NOAA location info:', localClimateData.county, localClimateData.state);
+                    dataSource = 'Tier 1b (NOAA extracted)';
                     const locationNameEl = document.getElementById('locationName');
                     const dataSourceEl = document.getElementById('dataSource');
                     const locationInfoEl = document.getElementById('locationInfo');
-                    
                     if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}, ${localClimateData.state}`;
                     if (dataSourceEl) dataSourceEl.textContent = `Data source: ${dataSource}`;
-                    if (locationInfoEl) {
-                        locationInfoEl.style.display = 'block';
-                        locationInfoEl.style.visibility = 'visible';
-                    }
-                    
-                    console.log('NOAA location elements found:', !!locationNameEl, !!dataSourceEl, !!locationInfoEl);
+                    if (locationInfoEl) { locationInfoEl.style.display = 'block'; locationInfoEl.style.visibility = 'visible'; }
                 } else {
-                    // Tier 1: Direct ZIP lookup (fastest, most accurate for major cities)
+                    // Tier 2a: Direct ZIP lookup (RESNET/ASHRAE by ZIP)
                     const zipData = RESNET_ASHRAE_DATA[zipCode];
                     if (zipData) {
                     localClimateData = {
@@ -2345,7 +2512,7 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                         state: zipData.state || '',
                         source: zipData.source
                     };
-                    dataSource = 'ZIP-level data';
+                    dataSource = 'Tier 2 (ZIP-level ASHRAE)';
                     console.log('Using ZIP-level data for:', zipData.name);
                     
                     // Update location display for ZIP-level data
@@ -2360,7 +2527,7 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                         locationInfoEl.style.visibility = 'visible';
                     }
                 } else {
-                    // Tier 2: County-level lookup (comprehensive coverage)
+                    // Tier 2b: County-level lookup (comprehensive coverage)
                     try {
                         const fipsData = await getCountyFIPS(zipCode);
                         if (fipsData) {
@@ -2376,7 +2543,7 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                                     state: fipsData.stateAbbr,
                                     source: countyData.source
                                 };
-                                dataSource = 'County-level data';
+                                dataSource = 'Tier 2 (County-level ASHRAE)';
                                 console.log('Using county-level data for:', fipsData.countyName, fipsData.stateAbbr);
                                 
                                 // Update location display for county-level data
@@ -2390,6 +2557,45 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                                     locationInfoEl.style.display = 'block';
                                     locationInfoEl.style.visibility = 'visible';
                                 }
+                            } else {
+                                // Tier 2c: Nearest county fallback with state filter and distance cap
+                                const entries = Object.values(countyAshraeData || {});
+                                const state = fipsData.stateAbbr || '';
+                                const MAX_MI = 500; // 500 miles sanity cap
+                                let candidates = entries.filter(e => {
+                                    // Skip invalid or missing coordinates
+                                    const hasCoords = Number.isFinite(e.lat) && Number.isFinite(e.lon) && e.lat !== 0 && e.lon !== 0;
+                                    const hasClimate = Number.isFinite(e.hdd) && Number.isFinite(e.heating);
+                                    const sameState = state ? (e.state === state || e.stateAbbr === state || e.STATE === state) : true;
+                                    if (!hasCoords || !hasClimate) return false;
+                                    return sameState;
+                                });
+                                const totalCandidates = candidates.length;
+                                let best = null; let bestD = Infinity;
+                                if (candidates.length) {
+                                    for (const e of candidates) {
+                                        const d = haversine(fipsData.lat, fipsData.lon, e.lat, e.lon); // km
+                                        const dMi = d * 0.621371;
+                                        if (dMi < bestD) { bestD = dMi; best = e; }
+                                    }
+                                }
+                                console.log('Tier 2c search:', { zip: zipCode, state, fips: fipsData.countyFIPS, candidates: totalCandidates, nearestMiles: isFinite(bestD) ? bestD.toFixed(1) : 'NA', selected: !!best });
+                                if (best && bestD <= MAX_MI) {
+                                    localClimateData = {
+                                        heating: best.heating,
+                                        cooling: best.cooling,
+                                        hdd: best.hdd,
+                                        cdd: best.cdd,
+                                        location: { lat: fipsData.lat, lon: fipsData.lon },
+                                        county: (best.name || fipsData.countyName) + ' (nearest county used)',
+                                        state: state,
+                                        source: (best.source || 'ASHRAE') + ' (nearest county)'
+                                    };
+                                    dataSource = 'Tier 2 (Nearest county ASHRAE)';
+                                    console.log('Using nearest in-state county:', { name: best.name, state, miles: bestD.toFixed(1) });
+                                } else {
+                                    console.log('Tier 2c no suitable in-state county within 500 miles; deferring to Tier 3');
+                                }
                             }
                         }
                     } catch (fipsError) {
@@ -2397,13 +2603,46 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                     }
                 }
                 
-                // No regional estimates - only use real weather station data
+                // Tier 3: Regional estimate fallback (and interactive Tier 2d station picker if available)
                 if (!localClimateData) {
-                    throw new Error(`ZIP code ${zipCode} not found in our climate database. We only provide data based on actual NOAA weather stations (${Object.keys(EXTRACTED_CLIMATE_DATA).length} ZIP codes currently supported).`);
+                    const reg = await getRegionalEstimate(zipCode);
+                    if (reg) {
+                        localClimateData = {
+                            heating: reg.heating,
+                            cooling: reg.cooling,
+                            hdd: reg.hdd,
+                            cdd: reg.cdd,
+                            location: { lat: reg.location.lat, lon: reg.location.lon },
+                            county: reg.county,
+                            state: reg.state,
+                            source: reg.source
+                        };
+                        dataSource = 'Tier 3 (Regional estimate)';
+                        console.log('Using regional estimate for ZIP:', zipCode, reg);
+                        // Update location display
+                        const locationNameEl = document.getElementById('locationName');
+                        const dataSourceEl = document.getElementById('dataSource');
+                        const locationInfoEl = document.getElementById('locationInfo');
+                        if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}${localClimateData.state ? ', ' + localClimateData.state : ''}`;
+                        if (dataSourceEl) dataSourceEl.textContent = `Data source: ${dataSource}`;
+                        if (locationInfoEl) {
+                            locationInfoEl.style.display = 'block';
+                            locationInfoEl.style.visibility = 'visible';
+                        }
+                        try {
+                            // Offer user-select station refinement within the ZIP's state
+                            const fips = await getCountyFIPS(zipCode);
+                            const st = fips && fips.stateAbbr;
+                            if (st) openStationModal(st);
+                            else openStationModal('');
+                        } catch(_) {}
+                    }
                 }
-                
+
                 if (!localClimateData) {
-                    throw new Error('Unable to determine climate data for this location. Please try a different ZIP code.');
+                    showError('Unable to determine climate data for this location from any tier.');
+                    hideLoading();
+                    return;
                 }
                 
                 // Update temperature display elements
@@ -2411,32 +2650,30 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                 document.getElementById('coolingDesign').textContent = localClimateData.cooling;
                 
                 // Calculate and display average temperatures
-                const avgWinterTemp = Math.round((localClimateData.heating + 32) / 2); // Rough estimate
-                const avgSummerTemp = Math.round((localClimateData.cooling + 32) / 2); // Rough estimate
+                const avgWinterTemp = Math.round((localClimateData.heating + 32) / 2);
+                const avgSummerTemp = Math.round((localClimateData.cooling + 32) / 2);
                 document.getElementById('avgCold').textContent = avgWinterTemp;
                 document.getElementById('avgHot').textContent = avgSummerTemp;
                 
-                // Location display is handled in the individual data source sections above
-                }
-                
-                // Set the global climateData variable for other functions to use
+                // Log tier used and set the global climateData variable
+                console.log('Climate tier selected:', dataSource, { zip: zipCode, source: localClimateData.source, hdd: localClimateData.hdd, cdd: localClimateData.cdd, loc: localClimateData.location });
                 climateData = localClimateData;
                 
                 // Position temperature markers (after climateData is set)
                 positionTemperatureMarkers();
                 
-                setStatus(''); // Clear status message
+                setStatus('');
                 hideLoading();
                 
                 // Trigger recalculation if all inputs are available
                 recalculateIfDataAvailable();
-                
-            } catch (error) {
-                console.error('Error loading climate data:', error);
-                showError(`Failed to load climate data: ${error.message}`);
-                hideLoading();
-            }
+
         }
+        
+        }
+        }
+        // expose lookup globally for onclick
+        window.lookupClimateData = lookupClimateData;
 
         async function tryMergeNceiHddCdd(fips) {
             try {
@@ -2752,7 +2989,8 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
 
             const electricityRate = parseFloat(document.getElementById('electricityRate').value) || 0.12;
             const gasRate = parseFloat(document.getElementById('gasRate').value) || 1.20;
-            const heatPumpCOP = parseFloat(document.getElementById('heatPumpCOP').value) || 3.5;
+            // Always compute effective COP from current mode (COP/HSPF)
+            const heatPumpCOP = getEffectiveCOP() || 3.5;
             const furnaceEfficiency = parseFloat(document.getElementById('furnaceEfficiency').value) || 95;
             // Emissions factor (kg CO2 per kWh) using radio/checkbox, lbs values converted to kg
             let elecFactor = 0.9 * 0.453592; // default balanced 0.9 lbs -> kg
@@ -2824,9 +3062,9 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                 const cars = carsVal < 0.01 ? '<0.01' : carsVal.toFixed(2);
                 const absCost = Math.abs(costDiff).toFixed(0);
                 if (costDiff > 0) {
-                    sent.textContent = `Switching to a heat pump saves you $${absCost} and avoids ${savingsTons} tons of CO₂ — about ${cars} cars off the road for a year.`;
+                    sent.textContent = `Switching to a heat pump saves you $${absCost} per year and avoids ${savingsTons} tons of CO₂ — about ${cars} cars off the road for a year.`;
                 } else {
-                    sent.textContent = `Switching to a heat pump will cost you $${absCost} more, but still avoids ${savingsTons} tons of CO₂ — about ${cars} cars off the road for a year.`;
+                    sent.textContent = `Switching to a heat pump will cost you $${absCost} more per year, but still avoids ${savingsTons} tons of CO₂ — about ${cars} cars off the road for a year.`;
                 }
             }
 
@@ -2889,31 +3127,22 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                 });
 
             } else if (systemType === 'hybrid') {
-                // Use user-specified crossover temperature
+                // Use user-specified crossover temperature and degree-day share
                 const xover = Number.isFinite(crossoverTemp) ? crossoverTemp : 35;
-                
-                // Calculate what percentage of heating degree days are above/below crossover
-                let heatPumpPercentage;
-                if (heatingDesign > xover) {
-                    heatPumpPercentage = 1.0; // Always use heat pump
-                } else if (heatingDesign > (xover - 15)) {
-                    heatPumpPercentage = 0.7; // Mostly heat pump
-                } else if (heatingDesign > (xover - 25)) {
-                    heatPumpPercentage = 0.5; // Split operation
-                } else {
-                    heatPumpPercentage = 0.3; // Mostly gas backup
-                }
-                
-                // Split the heating load
-                const heatPumpHeatingLoad = annualHeatingLoad * heatPumpPercentage;
-                const gasHeatingLoad = annualHeatingLoad * (1 - heatPumpPercentage);
-                
+                let hpShare = calculateHeatPumpEfficiency(heatingDesign, xover, hdd);
+                if (!Number.isFinite(hpShare)) hpShare = 0.5;
+                hpShare = Math.max(0, Math.min(1, hpShare));
+
+                // Split the heating load by HDD share above/below crossover
+                const heatPumpHeatingLoad = annualHeatingLoad * hpShare;
+                const gasHeatingLoad = annualHeatingLoad * (1 - hpShare);
+
                 // Calculate costs for each portion
-                const heatPumpkWh = heatPumpHeatingLoad / (specs.cop * 3412); // COP×3412 BTU per kWh
+                const heatPumpkWh = heatPumpHeatingLoad / (specs.cop * 3412);
                 const gasHeatingTherms = gasHeatingLoad / (100000 * specs.furnaceAFUE);
-                
+
                 annualHeatingCost = (heatPumpkWh * electricityRate) + (gasHeatingTherms * gasRate);
-                annualCoolingCost = 0; // No cooling
+                annualCoolingCost = 0;
                 annualKWh = heatPumpkWh;
                 annualTherms = gasHeatingTherms;
             }
@@ -2944,9 +3173,10 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
                 return 1.0;
             }
 
-            // If crossover temperature is at or below design temp, furnace handles everything
+            // If crossover temperature is at or below design temp, heat pump handles everything
+            // Rationale: HP runs when T > crossover. If crossover < design temp, all heating temps are > crossover.
             if (crossoverTemp <= heatingDesign) {
-                return 0.0;
+                return 1.0;
             }
 
             // Calculate the temperature range where heat pump operates
@@ -3018,9 +3248,9 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
 
         function displayCostBars(results) {
             // Update the cost amounts in the boxes
-            document.getElementById('heatPumpTotal').textContent = `$${Math.round(results.heatPump.total)}`;
-            document.getElementById('furnaceTotal').textContent = `$${Math.round(results.furnace.total)}`;
-            document.getElementById('hybridTotal').textContent = `$${Math.round(results.hybrid.total)}`;
+            document.getElementById('heatPumpTotal').textContent = `$${formatNumberWithCommas(Math.round(results.heatPump.total))}`;
+            document.getElementById('furnaceTotal').textContent = `$${formatNumberWithCommas(Math.round(results.furnace.total))}`;
+            document.getElementById('hybridTotal').textContent = `$${formatNumberWithCommas(Math.round(results.hybrid.total))}`;
 
             // Find the lowest cost
             const costs = [
@@ -3341,22 +3571,24 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
 
             // Clear any previous errors
             hideError();
+            // Update climate notice based on HDD thresholds
+            try { syncPerfClimateNotice(); } catch(_){}
 
             try {
                 // Calculate HVAC costs
                 const results = calculateHVACCosts();
                 
                 if (results) {
-                    // Update cost displays
-                    document.getElementById('heatPumpTotal').textContent = `$${Math.round(results.heatPump.total)}`;
-                    document.getElementById('furnaceTotal').textContent = `$${Math.round(results.furnace.total)}`;
-                    document.getElementById('hybridTotal').textContent = `$${Math.round(results.hybrid.total)}`;
+                    // Update cost displays (with commas)
+                    document.getElementById('heatPumpTotal').textContent = `$${formatNumberWithCommas(Math.round(results.heatPump.total))}`;
+                    document.getElementById('furnaceTotal').textContent = `$${formatNumberWithCommas(Math.round(results.furnace.total))}`;
+                    document.getElementById('hybridTotal').textContent = `$${formatNumberWithCommas(Math.round(results.hybrid.total))}`;
 
                     // Update consumption displays
-                    document.getElementById('annualHeatPump').textContent = `${formatNumberWithCommas(Math.round(results.heatPump.kwh))} kWh`;
-                    document.getElementById('annualGasHeat').textContent = `${formatNumberWithCommas(Math.round(results.furnace.therms))} therms`;
-                    document.getElementById('annualHybridElec').textContent = `${formatNumberWithCommas(Math.round(results.hybrid.kwh))} kWh`;
-                    document.getElementById('annualHybridGas').textContent = `${formatNumberWithCommas(Math.round(results.hybrid.therms))} therms`;
+                    document.getElementById('annualHeatPump').textContent = `${formatNumberWithCommas(Math.round(results.heatPump.annualKWh || 0))} kWh`;
+                    document.getElementById('annualGasHeat').textContent = `${formatNumberWithCommas(Math.round(results.furnace.annualTherms || 0))} therms`;
+                    document.getElementById('annualHybridElec').textContent = `${formatNumberWithCommas(Math.round(results.hybrid.annualKWh || 0))} kWh`;
+                    document.getElementById('annualHybridGas').textContent = `${formatNumberWithCommas(Math.round(results.hybrid.annualTherms || 0))} therms`;
 
                     // Update hybrid split bar
                     const heatPumpEfficiency = calculateHeatPumpEfficiency(climateData.heating, crossoverTemp, climateData.hdd);
@@ -3886,6 +4118,121 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
             });
         }
         document.addEventListener('DOMContentLoaded', wireTcoInputs);
+        // Wire COP/HSPF mode change
+        document.addEventListener('DOMContentLoaded', function(){
+            const cop = document.getElementById('effModeCOP');
+            const hspf = document.getElementById('effModeHSPF');
+            [cop, hspf].forEach(el => el && el.addEventListener('change', (e) => {
+                const prev = effMode;
+                effMode = (e && e.target && e.target.value) || (hspf && hspf.checked ? 'HSPF' : 'COP');
+                syncEffSliderToMode(prev, effMode);
+                syncPerfClimateNotice();
+                recalculateIfDataAvailable();
+            }));
+            syncPerfClimateNotice();
+        });
+
+        // ---------- Tier 1 helper utilities (NOAA master index) ----------
+        let NOAA_MASTER_DATA = null;
+        async function loadNoaaMasterDataOnce() {
+            if (NOAA_MASTER_DATA) return NOAA_MASTER_DATA;
+            try {
+                const resp = await fetch('data/noaa_station_master.json', { cache: 'no-store' });
+                if (!resp.ok) throw new Error('Failed to load NOAA master index: ' + resp.status);
+                NOAA_MASTER_DATA = await resp.json();
+                console.log('Loaded NOAA master index:', Array.isArray(NOAA_MASTER_DATA) ? NOAA_MASTER_DATA.length : NOAA_MASTER_DATA.stations || 0, 'stations');
+            } catch (e) {
+                console.warn('Could not load NOAA master index:', e.message);
+                NOAA_MASTER_DATA = [];
+            }
+            return NOAA_MASTER_DATA;
+        }
+
+        // Master JSONL loader and nearest-station lookup
+        let MASTER_INDEX_JSONL = null;
+        async function loadMasterIndexJSONLOnce() {
+            if (MASTER_INDEX_JSONL) return MASTER_INDEX_JSONL;
+            async function tryLoad(path) {
+                const resp = await fetch(path, { cache: 'no-store' });
+                if (!resp.ok) return null;
+                const text = await resp.text();
+                const lines = text.split(/\r?\n/);
+                const recs = [];
+                for (const line of lines) {
+                    const s = line && line.trim();
+                    if (!s) continue;
+                    try { recs.push(JSON.parse(s)); } catch(_e) {}
+                }
+                return recs;
+            }
+            try {
+                // Fast path:try minimal JSONL first
+                let recs = await tryLoad('data/master_climate_index.min.jsonl');
+                if (!recs || !recs.length) {
+                    // Fallback: full JSONL (large)
+                    recs = await tryLoad('data/master_climate_index.jsonl');
+                }
+                MASTER_INDEX_JSONL = Array.isArray(recs) ? recs : [];
+                console.log('Loaded Master Climate Index', MASTER_INDEX_JSONL.length, 'stations');
+            } catch (e) {
+                console.warn('Could not load Master Climate Index JSONL(s):', e && e.message ? e.message : e);
+                MASTER_INDEX_JSONL = [];
+            }
+            return MASTER_INDEX_JSONL;
+        }
+
+        async function lookupNoaaMasterForZip(zip) {
+            const ll = await getZipLatLon(zip);
+            if (!ll) return null;
+            const data = await loadMasterIndexJSONLOnce();
+            if (!Array.isArray(data) || !data.length) return null;
+            let best = null; let bestKm = Infinity;
+            for (const rec of data) {
+                const lat = Number(rec && rec.lat);
+                const lon = Number(rec && rec.lon);
+                if (!Number.isFinite(lat) || !Number.isFinite(lon)) continue;
+                const d = haversineKm(ll.lat, ll.lon, lat, lon);
+                if (d < bestKm) { bestKm = d; best = rec; }
+            }
+            if (!best || !Number.isFinite(bestKm) || bestKm > 80) return null; // 80 km cap
+            const hdd = Number(best.hdd65);
+            const cdd = Number(best.cdd65);
+            if (!Number.isFinite(hdd) || !Number.isFinite(cdd)) return null;
+            const zipData = RESNET_ASHRAE_DATA[zip] || {};
+            return {
+                heating: Number.isFinite(zipData.heating) ? zipData.heating : 20,
+                cooling: Number.isFinite(zipData.cooling) ? zipData.cooling : 90,
+                hdd: hdd,
+                cdd: cdd,
+                location: { lat: ll.lat, lon: ll.lon },
+                county: (best.name || best.station || 'NOAA Weather Station'),
+                state: `Station ${best.station || best.station_id || ''} (${bestKm.toFixed(1)} km away)`,
+                source: 'NOAA Master Index (nearest station)'
+            };
+        }
+
+        async function getZipLatLon(zip) {
+            // Primary: Zippopotam API by ZIP (stable)
+            try {
+                const res = await fetch(`https://api.zippopotam.us/us/${zip}`);
+                if (res && res.ok) {
+                    const js = await res.json();
+                    if (js && js.places && js.places.length) {
+                        const lat = parseFloat(js.places[0].latitude);
+                        const lon = parseFloat(js.places[0].longitude);
+                        if (Number.isFinite(lat) && Number.isFinite(lon)) return { lat, lon };
+                    }
+                }
+            } catch (_e) {}
+            // Fallback: RESNET dataset
+            const z = RESNET_ASHRAE_DATA[zip];
+            if (z && Number.isFinite(z.lat) && Number.isFinite(z.lon)) return { lat: z.lat, lon: z.lon };
+            return null;
+        }
+
+        function haversineKm(lat1, lon1, lat2, lon2) {
+            return haversine(lat1, lon1, lat2, lon2); // existing haversine returns km
+        }
     </script>
 </body>
 </html>
