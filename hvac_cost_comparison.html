@@ -63,6 +63,14 @@
             color: rgba(255,255,255,0.8);
         }
 
+        /* Ensure equipment tooltips/bubbles are never hidden behind the results card */
+        .card[data-card="inputs"] { position: relative; z-index: 3; overflow: visible; }
+        .card[data-card="results"] { position: relative; z-index: 1; }
+        .input-box { position: relative; overflow: visible; }
+        /* If any CSS tooltips are used, force a very high stacking context */
+        .input-box [data-tooltip]:hover::after,
+        .input-box [data-tooltip]:hover::before { z-index: 10000; }
+
         .main-content {
             padding: 15px;
             display: flex;
@@ -1375,6 +1383,8 @@
                     <span>Full ownership (TCO)</span>
                 </label>
             </div>
+            <!-- Emissions summary pinned to bottom of title bar -->
+            <div id="emissionsSummary" style="display:none; position:absolute; left:12px; right:12px; bottom:8px; font-size:0.95rem; color:#ffffff; text-shadow:0 1px 2px rgba(0,0,0,0.45);"></div>
         </div>
 
         <div class="main-content" id="dashboard">
@@ -1540,9 +1550,8 @@
                     
                     <!-- Home Energy Needs Group (Right) -->
                     <div id="homeNeedsGroup" style="display: flex; flex-direction: row; align-items: center; gap: 12px; flex-shrink: 0;">
-                        <label for="heatingLoadInput" data-tooltip="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
+                        <label for="heatingLoadInput" title="This number is typically calculated by an HVAC professional using a thermal model of your home called a 'Manual J Load Calculation'.\n\nHeat loss varies greatly between homes. Houses with good air sealing, compact designs, tight ductwork, quality windows, proper insulation, and construction that minimizes heat conduction will retain heat much better. Homes with southern exposure and plenty of sunshine also have natural advantages for staying warm." style="font-size: 0.9rem; font-weight: bold; color: #333; position: relative; white-space: nowrap;">
                             Home Energy Needs (BTU/hr)
-                            <span style="position: absolute; top: -5px; right: -18px; width: 14px; height: 14px; background: #6c757d; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold;">i</span>
                         </label>
                         <input type="text" id="heatingLoadInput" placeholder="50,000" value="50000" style="width: 100px; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; text-align: center;" oninput="formatHeatingInput(this); updateHeatingLoad();">
                     </div>
@@ -1553,54 +1562,84 @@
                     
                     <!-- Utility Rates Box -->
                     <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa;">
-                        <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333;">Utility Rates</h3>
+                        <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333; display:none;">Utility Rates</h3>
                         <div style="display:flex; gap:24px; align-items: end;">
                             <div>
-                                <label for="electricityRate" class="tooltip-below" data-tooltip="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary greatly by region and provider. National average: $.12-.15/kWh energy cost." style="display: block; font-size: 0.8rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
-                                    Electricity ($/kWh)
-                                    <span class="info-dot" style="font-size: 0.6rem;">i</span>
-                                </label>
-                                <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                                <label for="electricityRate" title="Use your 'blended rate' (total bill ÷ total kWh) - includes all fees. Check for time-of-use rates. Rates vary by region/provider." style="display:block; font-size:0.8rem; font-weight:bold; color:#333; margin-bottom:3px;">Electricity ($/kWh)</label>
+                                <input type="number" id="electricityRate" value="0.18" step="0.01" min="0" style="width: 120px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
                             </div>
                             <div>
-                                <label for="gasRate" class="tooltip-below" data-tooltip="Use 'total delivered rate' per therm - includes all fees. Rates vary significantly by season. National average: $1.64/therm delivered." style="display: block; font-size: 0.8rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
-                                    Natural Gas ($/therm)
-                                    <span class="info-dot" style="font-size: 0.6rem;">i</span>
-                                </label>
-                                <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                                <label for="gasRate" title="Use 'total delivered rate' per therm - includes all fees. Rates vary by season. National average ≈ $1.64." style="display:block; font-size:0.8rem; font-weight:bold; color:#333; margin-bottom:3px;">Natural Gas ($/therm)</label>
+                                <input type="number" id="gasRate" value="1.64" step="0.01" min="0" style="width: 120px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                            </div>
+                            <div id="elecSourceBlock" style="display:none; flex-direction:column; gap:4px;">
+                                <span title="Select your grid mix; checkbox overrides to 100% renewable.
+Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; font-weight:bold; color:#333;">Electricity Source</span>
+                                <div style="display:flex; flex-direction:column; gap:2px; font-size:0.8rem; color:#333;">
+                                    <label><input type="radio" name="elecMix" value="0.2"> Mostly renewable / hydro / nuclear (≈0.2 lbs CO₂/kWh)</label>
+                                    <label><input type="radio" name="elecMix" value="0.9" checked> Balanced U.S. grid (≈0.9 lbs CO₂/kWh)</label>
+                                    <label><input type="radio" name="elecMix" value="1.5"> Coal / heavy fossil (≈1.5 lbs CO₂/kWh)</label>
+                                    <label style="margin-top:2px;"><input type="checkbox" id="elecGreen100"> I buy 100% renewable (≈0.05 lbs CO₂/kWh)</label>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Equipment Performance Box -->
                     <div class="input-box" style="border: 1px solid #ddd; border-radius: 6px; padding: 10px; background: #fafafa;">
-                        <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333;">Equipment Performance</h3>
-                        <div style="display: flex; gap: 10px; margin-bottom: 6px;">
-                            <div>
-                                <label for="heatPumpCOP" data-tooltip="A heat pump's 'Coefficient of Performance' describes how much heat it can deliver for each unit of energy it uses. A C.O.P. of 3 is the equivalent of 300% efficient! A heat pump with a C.O.P. of 3 uses one-third the electricity of resistance heat for the same amount of heating." style="display: block; font-size: 0.75rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
-                                    HP COP <span class="info-dot" style="font-size: 0.6rem;">i</span>
-                                </label>
-                                <input type="number" id="heatPumpCOP" value="3.5" step="0.1" min="1" max="5" style="width: 50px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                        <h3 style="margin: 0 0 8px 0; font-size: 0.9rem; color: #333; display:none;">Equipment Performance</h3>
+
+                        <!-- Slim slider styles for this section -->
+                        <style>
+                        .slider-field { display: grid; grid-template-columns: 1fr; gap: 4px; margin-bottom: 8px; max-width: 180px; }
+                        .slider-label { font-size: 0.75rem; font-weight: bold; color: #333; }
+                        .slider-value { font-weight: 800; font-size: 1rem; color: #111; }
+                        .range-thin { -webkit-appearance: none; appearance: none; width: 100%; height: 6px; border-radius: 4px; background: #e5e7eb; outline: none; }
+                        .range-thin::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; background: #fff; border: 1px solid #9ca3af; border-radius: 50%; cursor: pointer; }
+                        .range-thin::-moz-range-thumb { width: 14px; height: 14px; background: #fff; border: 1px solid #9ca3af; border-radius: 50%; cursor: pointer; }
+                        .range-green { --range-color: #166534; }
+                        .range-red { --range-color: #991b1b; }
+                        .vent-row { display:flex; gap: 12px; align-items:center; margin: 4px 0 6px 0; }
+                        .vent-row label { font-size: 0.75rem; color:#333; }
+                        .cop-group { display:flex; gap:6px; margin: 2px 0 4px 0; }
+                        .cop-btn { border:1px solid #d1d5db; background:#fff; color:#374151; padding:4px 8px; border-radius:6px; font-size:0.72rem; cursor:pointer; }
+                        .cop-btn.cop-active { background:#e7f5ec; border-color:#16a34a; color:#065f46; font-weight:700; }
+                        </style>
+
+                        <!-- Performance row: HP + Furnace side-by-side -->
+                        <div class="perf-row" style="display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;">
+                            <!-- Heat Pump COP with presets -->
+                            <div class="slider-field" data-tooltip="Heat pump performance. Choose a preset, then fine‑tune.">
+                                <div class="slider-label">Heat Pump Performance</div>
+                                <div class="cop-group">
+                                    <button type="button" id="copPresetStd" class="cop-btn" data-min="2.8" data-max="3.5" data-val="3.2">Standard</button>
+                                    <button type="button" id="copPresetMid" class="cop-btn" data-min="3.5" data-max="4.5" data-val="4.0">Mid</button>
+                                    <button type="button" id="copPresetHigh" class="cop-btn" data-min="4.5" data-max="6.0" data-val="5.0">High</button>
+                                </div>
+                                <div id="copValue" class="slider-value">4.0</div>
+                                <!-- Keep a constant scale so the dial never jumps -->
+                                <input type="range" id="heatPumpCOP" class="range-thin range-green" min="2.5" max="6.0" step="0.1" value="4.0">
                             </div>
-                            <div>
-                                <label for="furnaceEfficiency" data-tooltip="Annual Fuel Utilization Efficiency - percentage of fuel converted to heat. Higher is better." style="display: block; font-size: 0.75rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
-                                    Furnace % <span class="info-dot" style="font-size: 0.6rem;">i</span>
-                                </label>
-                                <input type="number" id="furnaceEfficiency" value="95" step="1" min="70" max="100" style="width: 50px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+
+                            <!-- Furnace AFUE with vent type selectors -->
+                            <div class="slider-field" data-tooltip="Furnace efficiency. Metal venting locks at 80%. Plastic venting allows 90–98%.">
+                                <div class="slider-label">Furnace Efficiency</div>
+                                <div class="vent-row">
+                                    <label><input type="radio" name="ventType" id="ventMetal" value="metal"> Metal vent</label>
+                                    <label><input type="radio" name="ventType" id="ventPlastic" value="plastic" checked> Plastic (PVC)</label>
+                                </div>
+                                <div id="afueValue" class="slider-value">90%</div>
+                                <input type="range" id="furnaceEfficiency" class="range-thin range-red" min="80" max="98" step="1" value="90">
                             </div>
-                        </div>
-                        <div id="hybridControlsRow" style="display: flex; gap: 15px; align-items: end; margin-top: 4px;">
-                            <div>
-                                <label for="crossoverTemp" data-tooltip="Temperature below which hybrid system switches from heat pump to furnace for better efficiency" style="display: block; font-size: 0.75rem; font-weight: bold; color: #333; margin-bottom: 3px; position: relative;">
-                                    Crossover °F <span class="info-dot" style="font-size: 0.6rem;">i</span>
-                                </label>
-                                <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50" style="width: 50px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 4px; margin-bottom: 8px;">
-                                <input type="checkbox" id="autoCrossover" checked style="transform: scale(0.8);">
-                                <label for="autoCrossover" data-tooltip="Automatically choose the crossover temperature that minimizes utility cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="font-size: 0.7rem; font-weight: bold; color: #333; position: relative; line-height: 1.1;">
-                                    Auto <span class="info-dot" style="font-size: 0.55rem;">i</span>
-                                </label>
+
+                            <!-- Crossover control (compact) -->
+                            <div class="slider-field" data-tooltip="Temperature where the system switches from heat pump to furnace for best economy." style="max-width: 140px;">
+                                <div class="slider-label">Crossover °F</div>
+                                <input type="number" id="crossoverTemp" value="35" step="1" min="20" max="50" style="width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem;">
+                                <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+                                    <input type="checkbox" id="autoCrossover" checked style="transform: scale(0.8);">
+                                    <label for="autoCrossover" title="Automatically choose the crossover temperature that minimizes utility cost based on your electricity and gas prices, furnace efficiency (AFUE), and heat pump performance." style="font-size: 0.7rem; font-weight: bold; color: #333; line-height: 1.1;">Auto</label>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2320,7 +2359,7 @@
                         locationInfoEl.style.display = 'block';
                         locationInfoEl.style.visibility = 'visible';
                     }
-                    } else {
+                } else {
                     // Tier 2: County-level lookup (comprehensive coverage)
                     try {
                         const fipsData = await getCountyFIPS(zipCode);
@@ -2642,9 +2681,11 @@
                 showError('Invalid ASHRAE county data for this ZIP.');
                 return;
             }
-            // Location info is already set by lookupClimateData() - don't overwrite
-            // document.getElementById('locationName').textContent = climateData.name;
-            // document.getElementById('dataSource').textContent = `Data source: ${climateData.source}`;
+            // Ensure location info visible
+            const ln = document.getElementById('locationName');
+            const ds = document.getElementById('dataSource');
+            if (ln && !ln.textContent) ln.textContent = climateData.name || '';
+            if (ds) ds.textContent = `Data source: ${climateData.source}`;
             document.getElementById('locationInfo').style.display = 'block';
 
             document.getElementById('heatingDesign').textContent = climateData.heating;
@@ -2713,6 +2754,13 @@
             const gasRate = parseFloat(document.getElementById('gasRate').value) || 1.20;
             const heatPumpCOP = parseFloat(document.getElementById('heatPumpCOP').value) || 3.5;
             const furnaceEfficiency = parseFloat(document.getElementById('furnaceEfficiency').value) || 95;
+            // Emissions factor (kg CO2 per kWh) using radio/checkbox, lbs values converted to kg
+            let elecFactor = 0.9 * 0.453592; // default balanced 0.9 lbs -> kg
+            const radios = Array.from(document.querySelectorAll('input[name="elecMix"]'));
+            const green = document.getElementById('elecGreen100');
+            const chosen = radios.find(r => r.checked);
+            if (chosen) elecFactor = parseFloat(chosen.value) * 0.453592;
+            if (green && green.checked) elecFactor = 0.05 * 0.453592;
             const autoX = document.getElementById('autoCrossover') && document.getElementById('autoCrossover').checked;
             let crossoverTemp = parseFloat(document.getElementById('crossoverTemp').value);
             if (!Number.isFinite(crossoverTemp)) crossoverTemp = 35;
@@ -2755,7 +2803,33 @@
             displaySystemResults(results);
             showWinner(results);
             updateTechnicalDetails(results, hdd, 0, heatingDesign, 0, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
-            
+
+            // Emissions summary
+            const showEm = document.getElementById('includeEmissions')?.checked;
+            const sent = document.getElementById('emissionsSummary');
+            if (elecSourceBlock) elecSourceBlock.style.display = showEm ? '' : 'none';
+            if (sent) sent.style.display = showEm ? '' : 'none';
+            if (showEm) {
+                // Use actual annual usage returned by calculateSystemCosts
+                const furnaceTherms = (results.furnace.annualTherms ?? results.furnace.therms) || 0;
+                const hpKwh = (results.heatPump.annualKWh ?? results.heatPump.kwh) || 0;
+                const furnaceCO2 = furnaceTherms * 5.3; // kg
+                const heatPumpCO2 = hpKwh * elecFactor; // kg
+                const savingsKg = Math.max(0, furnaceCO2 - heatPumpCO2);
+                const carsOff = savingsKg / 4600;
+                const costDiff = results.furnace.total - results.heatPump.total; // + means HP cheaper
+                const savingsTonsVal = savingsKg / 1000;
+                const savingsTons = savingsTonsVal < 0.01 ? '<0.01' : savingsTonsVal.toFixed(2);
+                const carsVal = Math.max(0, carsOff);
+                const cars = carsVal < 0.01 ? '<0.01' : carsVal.toFixed(2);
+                const absCost = Math.abs(costDiff).toFixed(0);
+                if (costDiff > 0) {
+                    sent.textContent = `Switching to a heat pump saves you $${absCost} and avoids ${savingsTons} tons of CO₂ — about ${cars} cars off the road for a year.`;
+                } else {
+                    sent.textContent = `Switching to a heat pump will cost you $${absCost} more, but still avoids ${savingsTons} tons of CO₂ — about ${cars} cars off the road for a year.`;
+                }
+            }
+
             return results;
         }
 
@@ -2977,7 +3051,18 @@
             // Emissions (toggle)
             const showEm = document.getElementById('includeEmissions')?.checked;
             const gasMtPerTherm = 0.0053; // metric tons CO2/therm (EPA combustion)
-            const elecMtPerKWh = 0.000394; // metric tons CO2/kWh (eGRID delivered avg)
+            // Electricity factor from UI (lbs/kWh -> metric tons/kWh)
+            let elecMtPerKWh = 0.000394; // default fallback
+            (function(){
+                const radios = Array.from(document.querySelectorAll('input[name="elecMix"]'));
+                const green = document.getElementById('elecGreen100');
+                let lbs = 0.9; // default balanced
+                const chosen = radios.find(r => r.checked);
+                if (chosen) lbs = parseFloat(chosen.value) || 0.9;
+                if (green && green.checked) lbs = 0.05;
+                const kg = lbs * 0.453592; // kg/kWh
+                elecMtPerKWh = kg / 1000; // metric tons/kWh
+            })();
 
             const setEm = (idBase, therms, kwh) => {
                 // Always hide emissions text inside cost boxes
@@ -3110,11 +3195,119 @@
         // Recalculate when inputs change
         document.getElementById('electricityRate').addEventListener('input', recalculateIfDataAvailable);
         document.getElementById('gasRate').addEventListener('input', recalculateIfDataAvailable);
-        document.getElementById('heatPumpCOP').addEventListener('input', recalculateIfDataAvailable);
-        document.getElementById('furnaceEfficiency').addEventListener('input', recalculateIfDataAvailable);
+        // Range sliders update + labels
+        const copEl = document.getElementById('heatPumpCOP');
+        const afueEl = document.getElementById('furnaceEfficiency');
+        const copValueEl = document.getElementById('copValue');
+        const afueValueEl = document.getElementById('afueValue');
+        const copBtns = [
+            document.getElementById('copPresetStd'),
+            document.getElementById('copPresetMid'),
+            document.getElementById('copPresetHigh'),
+        ].filter(Boolean);
+        function updateRangeFill(el){
+            const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+            const pct = ((val - min) / (max - min)) * 100; el.style.setProperty('--p', pct+'%');
+        }
+        function setRangeFill(el, colorVar){
+            // Color fill to the RIGHT of the thumb
+            const track = `linear-gradient(to right, #e5e7eb 0%, #e5e7eb var(--p, 0%), var(${colorVar}) var(--p, 0%), var(${colorVar}) 100%)`;
+            el.style.backgroundImage = track;
+        }
+        if (copEl) {
+            updateRangeFill(copEl);
+            setRangeFill(copEl, '--range-color');
+            copEl.addEventListener('input', () => {
+                copValueEl.textContent = parseFloat(copEl.value).toFixed(1);
+                updateRangeFill(copEl);
+                setRangeFill(copEl, '--range-color');
+                recalculateIfDataAvailable();
+            });
+        }
+        if (afueEl) {
+            updateRangeFill(afueEl);
+            setRangeFill(afueEl, '--range-color');
+            function afueClampAndUpdate(){
+                if (ventPlastic && ventPlastic.checked && parseInt(afueEl.value) < 90) {
+                    afueEl.value = 90; // clamp while slider remains visible
+                }
+                afueValueEl.textContent = `${parseInt(afueEl.value)}%`;
+                updateRangeFill(afueEl);
+                setRangeFill(afueEl, '--range-color');
+                recalculateIfDataAvailable();
+            }
+            afueEl.addEventListener('input', afueClampAndUpdate);
+            afueEl.addEventListener('change', afueClampAndUpdate);
+        }
+        // COP presets
+        function activateCopBtn(btn){
+            copBtns.forEach(b=>b.classList.remove('cop-active'));
+            if (btn) btn.classList.add('cop-active');
+        }
+        function applyCopPreset(btn){
+            if (!copEl) return;
+            const min = parseFloat(btn.getAttribute('data-min'));
+            const max = parseFloat(btn.getAttribute('data-max'));
+            const val = parseFloat(btn.getAttribute('data-val'));
+            copEl.min = String(min); copEl.max = String(max); copEl.value = String(val);
+            copValueEl.textContent = val.toFixed(1);
+            updateRangeFill(copEl); setRangeFill(copEl, '--range-color');
+            activateCopBtn(btn); recalculateIfDataAvailable();
+        }
+        copBtns.forEach(btn => btn.addEventListener('click', () => {
+            // Apply preset without changing the global scale
+            const val = parseFloat(btn.getAttribute('data-val'));
+            copEl.value = String(val);
+            copValueEl.textContent = val.toFixed(1);
+            updateRangeFill(copEl); setRangeFill(copEl, '--range-color');
+            activateCopBtn(btn); recalculateIfDataAvailable();
+        }));
+        // default active = Mid
+        const midBtn = document.getElementById('copPresetMid');
+        if (midBtn) activateCopBtn(midBtn);
+        // Vent type behavior
+        const ventMetal = document.getElementById('ventMetal');
+        const ventPlastic = document.getElementById('ventPlastic');
+        function applyVentConstraints(){
+            if (!afueEl) return;
+            // Always show 80–98 scale, but lock at 80 for metal
+            afueEl.min = 80; afueEl.max = 98;
+            if (ventMetal && ventMetal.checked){
+                afueEl.value = 80; afueEl.disabled = true;
+                afueEl.style.setProperty('--range-color', '#9ca3af'); // gray fill for locked
+            } else {
+                if (parseInt(afueEl.value) < 90) afueEl.value = 90; afueEl.disabled = false;
+                afueEl.style.setProperty('--range-color', '#991b1b');
+            }
+            afueValueEl.textContent = `${parseInt(afueEl.value)}%`;
+            updateRangeFill(afueEl);
+            setRangeFill(afueEl, '--range-color');
+            recalculateIfDataAvailable();
+        }
+        if (ventMetal) ventMetal.addEventListener('change', applyVentConstraints);
+        if (ventPlastic) ventPlastic.addEventListener('change', applyVentConstraints);
+        // initialize vent constraints on load
+        applyVentConstraints();
         document.getElementById('crossoverTemp').addEventListener('input', recalculateIfDataAvailable);
         const autoX = document.getElementById('autoCrossover');
         if (autoX) autoX.addEventListener('change', recalculateIfDataAvailable);
+
+        // Electricity source control (radio + 100% renewable override)
+        const elecSourceBlock = document.getElementById('elecSourceBlock');
+        const elecRadios = Array.from(document.querySelectorAll('input[name="elecMix"]'));
+        const elecGreen100 = document.getElementById('elecGreen100');
+        function handleElecSourceChange(){ recalculateIfDataAvailable(); }
+        elecRadios.forEach(r => r.addEventListener('change', handleElecSourceChange));
+        if (elecGreen100) elecGreen100.addEventListener('change', () => {
+            if (elecGreen100.checked) {
+                elecRadios.forEach(r => { r.checked = false; });
+            }
+            handleElecSourceChange();
+        });
+        // Mutually exclusive: selecting any radio unchecks 100% renewables
+        elecRadios.forEach(r => r.addEventListener('change', () => {
+            if (elecGreen100) elecGreen100.checked = false;
+        }));
 
         function recalculateIfDataAvailable() {
             // Validate that all required inputs are present
@@ -3305,17 +3498,17 @@
             if (container) {
                 container.addEventListener('mouseenter', function(e) {
                     const t = closestSafe(e.target, '[data-tooltip]');
-                    if (t) {
-                        if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
-                        showBubble(t);
-                    }
-                }, true);
+                if (t) {
+                    if (hideTimer) { clearTimeout(hideTimer); hideTimer = null; }
+                    showBubble(t);
+                }
+            }, true);
                 container.addEventListener('mouseleave', function(e) {
                     const t = closestSafe(e.target, '[data-tooltip]');
-                    if (t) {
-                        hideTimer = setTimeout(() => hideBubble(), 200);
-                    }
-                }, true);
+                if (t) {
+                    hideTimer = setTimeout(() => hideBubble(), 200);
+                }
+            }, true);
             }
         })();
 
