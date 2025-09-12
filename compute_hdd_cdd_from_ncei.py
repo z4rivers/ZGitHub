@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+
+gi#!/usr/bin/env python3
 """
 Compute HDD/CDD (base 65°F) from NOAA/NCEI ISD hourly data and export a county JSON.
 
