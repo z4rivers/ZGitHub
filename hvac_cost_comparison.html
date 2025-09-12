@@ -1238,6 +1238,7 @@
         .tech-value {
             color: #333;
             font-family: monospace;
+            text-align: right;
         }
 
         .system-details {
@@ -2985,7 +2986,9 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
 
         function calculateHVACCosts() {
             const hdd = climateData.hdd;
+            const cdd = climateData.cdd || 0;
             const heatingDesign = climateData.heating;
+            const coolingDesign = climateData.cooling || 0;
 
             const electricityRate = parseFloat(document.getElementById('electricityRate').value) || 0.12;
             const gasRate = parseFloat(document.getElementById('gasRate').value) || 1.20;
@@ -3032,7 +3035,7 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
             const results = {};
             
             for (const [systemType, specs] of Object.entries(systems)) {
-                const costs = calculateSystemCosts(systemType, specs, hdd, 0, heatingDesign, 0, electricityRate, gasRate, crossoverTemp);
+                const costs = calculateSystemCosts(systemType, specs, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, crossoverTemp);
                 results[systemType] = costs;
             }
 
@@ -3040,7 +3043,7 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
             displayCostBars(results);
             displaySystemResults(results);
             showWinner(results);
-            updateTechnicalDetails(results, hdd, 0, heatingDesign, 0, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
+            updateTechnicalDetails(results, hdd, cdd, heatingDesign, coolingDesign, electricityRate, gasRate, heatPumpCOP, furnaceEfficiency, crossoverTemp);
 
             // Emissions summary
             const showEm = document.getElementById('includeEmissions')?.checked;
@@ -3804,13 +3807,26 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
             const clf = document.getElementById('coolingLoadFactor');
             if (clf) clf.parentElement.style.display = 'none';
 
-            // Climate data
-            document.getElementById('hddValue').textContent = hdd.toLocaleString();
+            // Climate data (display as whole numbers; keep decimals for calculations)
+            const hddDisplay = Math.round(Number(hdd) || 0).toLocaleString();
+            document.getElementById('hddValue').textContent = hddDisplay;
             const cddEl = document.getElementById('cddValue');
-            if (cddEl) cddEl.parentElement.style.display = 'none';
+            if (cddEl) {
+                const cddDisplay = Math.round(Number(cdd) || 0).toLocaleString();
+                cddEl.textContent = cddDisplay;
+                cddEl.parentElement.style.display = 'flex';
+                cddEl.parentElement.style.justifyContent = 'space-between';
+                console.log('CDD set to:', cddDisplay, 'from cdd:', cdd, 'parent:', cddEl.parentElement);
+            }
             document.getElementById('heatingDesignValue').textContent = heatingDesign + '°F';
             const cdv = document.getElementById('coolingDesignValue');
-            if (cdv) cdv.parentElement.style.display = 'none';
+            if (cdv) {
+                const coolingDisplay = coolingDesign + '°F';
+                cdv.textContent = coolingDisplay;
+                cdv.parentElement.style.display = 'flex';
+                cdv.parentElement.style.justifyContent = 'space-between';
+                console.log('Cooling Design set to:', coolingDisplay, 'from coolingDesign:', coolingDesign, 'parent:', cdv.parentElement);
+            }
 
             // Energy calculations
             const houseSize = 2000;
@@ -4241,6 +4257,10 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
         }
 
         async function lookupClimateData(zip) {
+          if (!zip) {
+            const el = document.getElementById('zipCode');
+            zip = el && el.value ? el.value.trim() : '';
+          }
           console.log("Looking up climate data via API for ZIP:", zip);
           const data = await fetchClimateData(zip);
           if (!data) {
@@ -4249,6 +4269,31 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
           }
           console.log("Tier1 NOAA master:", data);
           window.currentClimate = data;
+          try {
+            const z = RESNET_ASHRAE_DATA[zip] || {};
+            const localClimateData = {
+                heating: Number.isFinite(z.heating) ? z.heating : 20,
+                cooling: Number.isFinite(z.cooling) ? z.cooling : 90,
+                hdd: Number(data.hdd65),
+                cdd: Number(data.cdd65),
+                location: { lat: Number(data.lat), lon: Number(data.lon) },
+                county: data.name || data.station || 'NOAA Weather Station',
+                state: `Station ${data.station || ''} (${Number(data.dist_km).toFixed ? Number(data.dist_km).toFixed(1) : data.dist_km} km away)`,
+                source: 'NOAA API (nearest station)'
+            };
+            if (!Number.isFinite(localClimateData.hdd)) return;
+            // Update UI labels
+            const locationNameEl = document.getElementById('locationName');
+            const dataSourceEl = document.getElementById('dataSource');
+            const locationInfoEl = document.getElementById('locationInfo');
+            if (locationNameEl) locationNameEl.textContent = `${localClimateData.county}${localClimateData.state ? ', ' + localClimateData.state : ''}`;
+            if (dataSourceEl) dataSourceEl.textContent = `Data source: Tier 1 (NOAA Master Index)`;
+            if (locationInfoEl) { locationInfoEl.style.display = 'block'; locationInfoEl.style.visibility = 'visible'; }
+            if (typeof setStatus === 'function') setStatus('');
+            // Set global and trigger recalculation pipeline
+            climateData = localClimateData;
+            if (typeof recalculateIfDataAvailable === 'function') recalculateIfDataAvailable();
+          } catch (_e) { /* keep console logs only */ }
         }
     </script>
 </body>
