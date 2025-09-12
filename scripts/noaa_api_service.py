@@ -24,6 +24,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 DATA_PATH = Path("data/master_climate_index.min.jsonl")
 
@@ -74,6 +75,17 @@ def _load_min_index(path: Path) -> List[Dict[str, Any]]:
 
 
 app = FastAPI(title="NOAA Climate Index API", version="0.1.0")
+# CORS for local static site
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:8080",
+        "http://localhost:8080",
+    ],
+    allow_credentials=False,
+    allow_methods=["GET"],
+    allow_headers=["*"],
+)
 _STATIONS: List[Dict[str, Any]] = _load_min_index(DATA_PATH)
 
 
