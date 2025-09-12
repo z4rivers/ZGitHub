@@ -4228,6 +4228,28 @@ Values shown are lbs CO₂ per kWh." style="display:block; font-size: 0.8rem; fo
         function haversineKm(lat1, lon1, lat2, lon2) {
             return haversine(lat1, lon1, lat2, lon2); // existing haversine returns km
         }
+        
+        async function fetchClimateData(zip) {
+          try {
+            const response = await fetch(`http://127.0.0.1:8000/lookup/${zip}`);
+            if (!response.ok) throw new Error(`Server returned ${response.status}`);
+            return await response.json();
+          } catch (err) {
+            console.error("FastAPI fetch failed:", err);
+            return null;
+          }
+        }
+
+        async function lookupClimateData(zip) {
+          console.log("Looking up climate data via API for ZIP:", zip);
+          const data = await fetchClimateData(zip);
+          if (!data) {
+            console.warn("No data returned, falling back (Tier 2 county/ASHRAE)");
+            return;
+          }
+          console.log("Tier1 NOAA master:", data);
+          window.currentClimate = data;
+        }
     </script>
 </body>
 </html>
